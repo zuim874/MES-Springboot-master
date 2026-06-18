@@ -16,6 +16,7 @@
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+SET SQL_SAFE_UPDATES = 0;
 
 -- ----------------------------
 -- Table structure for sp_bom
@@ -418,8 +419,6 @@ INSERT INTO `sp_sys_menu` VALUES ('16', 'wip', '在制品管理', '#', '1', '2',
 INSERT INTO `sp_sys_menu` VALUES ('161', 'generalSnProcess', 'SN通用过程采集', '/rrr', '16', '3', 1, '0', 'user:add', 'fa fa-product-hunt', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('17', 'DigitalSimulation', '黑科数字孪生', '#', '1', '2', 7, '0', 'user:add', 'fa fa-ravelry', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('171', 'DigitalSimulationFrom', '数字仿真3D仓库', '/digital/simulation/list-ui', '17', '3', 1, '0', 'user:add', 'fa fa-codepen', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
-INSERT INTO `sp_sys_menu` VALUES ('2', 'component', 'OPC操作', '#', '0', '1', 1, '0', 'user:add', 'fa fa-lemon-o', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
-INSERT INTO `sp_sys_menu` VALUES ('3', 'other', '其他管理', '#', '0', '1', 1, '0', 'user:add', 'fa fa-slideshare', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -432,6 +431,7 @@ CREATE TABLE `sp_sys_role`  (
   `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色名称',
   `code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色编码',
   `descr` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '\"\"' COMMENT '角色描述',
+  `sys_role` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '系统角色（1：是，0：否）',
   `is_deleted` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
@@ -445,19 +445,8 @@ CREATE TABLE `sp_sys_role`  (
 -- ----------------------------
 -- Records of sp_sys_role
 -- ----------------------------
-INSERT INTO `sp_sys_role` VALUES ('1185025876737396738', '超级管理员', 'admin', '超级管理员', '0', '2019-10-18 10:52:40', 'SongPeng', '2020-03-13 14:06:43', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1232532514523213826', '体验者123', 'experience', '体验者', '0', '2020-02-26 13:07:05', 'admin', '2020-06-03 15:05:59', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274963902774620161', '12', '12', '12', '0', '2020-06-22 15:14:17', 'admin', '2020-06-22 15:14:17', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274963930100510721', '1212', '1212', '1212', '0', '2020-06-22 15:14:23', 'admin', '2020-06-22 15:14:23', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274963986383876098', '1311', '121', '111', '0', '2020-06-22 15:14:37', 'admin', '2020-06-22 15:14:37', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274964058609790977', '12121212', '12121', '1212', '0', '2020-06-22 15:14:54', 'admin', '2020-06-22 15:14:54', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274964096777957377', '1313', '12121212', '121212', '0', '2020-06-22 15:15:03', 'admin', '2020-06-22 15:15:03', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274964138322538497', '331', '1222', '22', '0', '2020-06-22 15:15:13', 'admin', '2020-06-22 15:15:13', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274964176301961218', '1211', '1111', '1111', '0', '2020-06-22 15:15:22', 'admin', '2020-06-22 15:15:22', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1274964233344495618', '443', '333', '3', '0', '2020-06-22 15:15:36', 'admin', '2020-06-22 15:15:36', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1280124406522425346', '11', '11', '11', '0', '2020-07-06 21:00:17', 'admin', '2020-07-06 21:00:17', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1281217564303929346', '2315', '4324', '42342', '0', '2020-07-09 21:24:06', 'admin', '2020-07-17 00:34:09', 'admin');
-INSERT INTO `sp_sys_role` VALUES ('1336542182244384', '王子杨', '123', '王子杨', '0', '2020-03-12 15:22:56', 'admin', '2020-03-12 15:22:56', 'admin');
+INSERT INTO `sp_sys_role` VALUES ('1185025876737396738', '超级管理员', 'admin', '超级管理员', '1', '0', '2019-10-18 10:52:40', 'SongPeng', '2020-03-13 14:06:43', 'admin');
+INSERT INTO `sp_sys_role` VALUES ('1232532514523213826', '游客', 'experience', '体验者', '0', '0', '2020-02-26 13:07:05', 'admin', '2020-06-03 15:05:59', 'admin');
 
 -- ----------------------------
 -- Table structure for sp_sys_role_menu
@@ -524,11 +513,7 @@ CREATE TABLE `sp_sys_user`  (
 -- ----------------------------
 -- Records of sp_sys_user
 -- ----------------------------
-INSERT INTO `sp_sys_user` VALUES ('1184009088826392578', '宋鹏', 'iamsongpeng', '9d7281eeaebded0b091340cfa658a7e8', '', '', '13776337795', '', '1', NULL, '', '', '', '', '', '', '', '', '', '0', '2019-10-15 15:32:19', 'SongPeng', '2020-02-28 16:44:59', 'admin');
-INSERT INTO `sp_sys_user` VALUES ('1184010472443396098', '猴子', 'monkey', '9d7281eeaebded0b091340cfa658a7e8', '123', '', '137763377', '', '0', NULL, '', '', '', '', '', '', '', '', '', '0', '2019-10-15 15:37:52', 'SongPeng', '2020-02-26 15:03:32', 'admin');
 INSERT INTO `sp_sys_user` VALUES ('1184019107907227649', '超级管理员', 'admin', '9d7281eeaebded0b091340cfa658a7e8', '11', '', '13776337796', '44', '0', NULL, '55', '66', '77', '88', '99', '10', '11', '12', '13', '0', '2019-10-15 16:12:08', 'SongPeng', '2020-03-24 11:08:22', 'admin');
-INSERT INTO `sp_sys_user` VALUES ('1266201180838801409', 'cassman', 'cassman.yang', '0302726d276d6b011d85404f2beb14a4', '90573703', 'cassman.yang@qq.com', '1111', '86195', '1', '2019-05-21 00:00:00', '#sd', '45+645+65+6511', 'swim', 'sad', 'dsa', 'fasd', 'daf', 'dsaf', 'daf', '0', '2020-05-29 10:54:21', 'admin', '2020-06-02 16:45:25', 'admin');
-INSERT INTO `sp_sys_user` VALUES ('1276512902757724162', '小明', 'xm', 'a7c3fcdeca8ce6d49d2680eecd5e7431', '1', '1@qq.com', '19298833438', '323232', '0', '1998-09-12 00:00:00', '1', '1', '12', '1', '1', '1', '1', '1', '1', '0', '2020-06-26 21:49:27', 'admin', '2020-07-07 14:00:52', 'admin');
 
 -- ----------------------------
 -- Table structure for sp_sys_user_role
@@ -618,5 +603,142 @@ CREATE TABLE `sp_work_shop`  (
 -- ----------------------------
 INSERT INTO `sp_work_shop` VALUES ('1336875254022176', 'DC-车间1', '电池组装车间', '2020-03-14 11:29:57', 'admin', '2020-03-18 10:52:39', 'admin');
 INSERT INTO `sp_work_shop` VALUES ('1336875591663648', 'DC-JS01', '加酸车间', '2020-03-14 11:32:38', 'admin', '2020-03-14 11:32:38', 'admin');
+
+-- ============================================================================
+-- MES 系统角色与用户初始化数据（唯实电子科技公司生产车间）
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- 第一部分：新增角色 (sp_sys_role)
+-- ----------------------------------------------------------------------------
+-- 角色名称与角色编码具有唯一性（数据库有 UNIQUE INDEX）
+-- 先删除可能已存在的记录（如需重复执行）
+DELETE FROM `sp_sys_role` WHERE `id` LIKE 'role_%';
+
+INSERT INTO `sp_sys_role` (`id`, `name`, `code`, `descr`, `sys_role`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('role_data_clerk',      '数据员',       'data_clerk',       '该角色享有基础数据中心权限，负责基础数据维护与管理',                '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_process_eng',     '工艺员',       'process_eng',      '负责工艺路线和BOM管理',                                              '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_prod_planner',    '生产计划员',   'prod_planner',     '负责生产计划与工单下达',                                            '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_prod_supervisor', '生产主管',     'prod_supervisor',  '负责生产全面管理，包括计划、物料、工艺、在制品',                      '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_prod_operator',   '生产作业员',   'prod_operator',    '负责生产作业执行与在制品跟踪',                                      '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_warehouse_mgr',   '库房管理员',   'warehouse_mgr',    '负责物料管理与库存维护',                                            '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_quality_mgr',     '质量管理员',   'quality_mgr',      '负责质量检验与质量管理',                                            '0', '0', NOW(), 'admin', NOW(), 'admin'),
+('role_equipment_mgr',   '设备管理员',   'equipment_mgr',    '负责设备管理与维护',                                                '0', '0', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------------------------------------------------------
+-- 第二部分：角色-菜单权限分配 (sp_sys_role_menu)
+-- ----------------------------------------------------------------------------
+-- 先清除这些角色可能已存在的菜单关联
+DELETE FROM `sp_sys_role_menu` WHERE `role_id` LIKE 'role_%';
+
+-- 1. 数据员 - 基础数据中心权限
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_dc_01', 'role_data_clerk', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_dc_02', 'role_data_clerk', '10',  NOW(), 'admin', NOW(), 'admin'),
+('rm_dc_03', 'role_data_clerk', '105', NOW(), 'admin', NOW(), 'admin'),
+('rm_dc_04', 'role_data_clerk', '106', NOW(), 'admin', NOW(), 'admin');
+
+-- 2. 工艺员 - 工艺管理权限
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_pe_01', 'role_process_eng', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_pe_02', 'role_process_eng', '15',  NOW(), 'admin', NOW(), 'admin'),
+('rm_pe_03', 'role_process_eng', '151', NOW(), 'admin', NOW(), 'admin'),
+('rm_pe_04', 'role_process_eng', '152', NOW(), 'admin', NOW(), 'admin');
+
+-- 3. 生产计划员 - 计划管理权限
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_pp_01', 'role_prod_planner', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_pp_02', 'role_prod_planner', '12',  NOW(), 'admin', NOW(), 'admin'),
+('rm_pp_03', 'role_prod_planner', '121', NOW(), 'admin', NOW(), 'admin');
+
+-- 4. 生产主管 - 生产全面管理
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_ps_01',  'role_prod_supervisor', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_02',  'role_prod_supervisor', '12',  NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_03',  'role_prod_supervisor', '121', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_04',  'role_prod_supervisor', '13',  NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_05',  'role_prod_supervisor', '131', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_06',  'role_prod_supervisor', '15',  NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_07',  'role_prod_supervisor', '151', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_08',  'role_prod_supervisor', '152', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_09',  'role_prod_supervisor', '16',  NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_10',  'role_prod_supervisor', '161', NOW(), 'admin', NOW(), 'admin');
+
+-- 5. 生产作业员 - 生产作业执行
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_po_01', 'role_prod_operator', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_po_02', 'role_prod_operator', '12',  NOW(), 'admin', NOW(), 'admin'),
+('rm_po_03', 'role_prod_operator', '121', NOW(), 'admin', NOW(), 'admin'),
+('rm_po_04', 'role_prod_operator', '16',  NOW(), 'admin', NOW(), 'admin'),
+('rm_po_05', 'role_prod_operator', '161', NOW(), 'admin', NOW(), 'admin');
+
+-- 6. 库房管理员 - 物料/库存管理
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_wm_01', 'role_warehouse_mgr', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_wm_02', 'role_warehouse_mgr', '13',  NOW(), 'admin', NOW(), 'admin'),
+('rm_wm_03', 'role_warehouse_mgr', '131', NOW(), 'admin', NOW(), 'admin');
+
+-- 7. 质量管理员 - 质量管理
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_qm_01', 'role_quality_mgr', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_qm_02', 'role_quality_mgr', '10',  NOW(), 'admin', NOW(), 'admin'),
+('rm_qm_03', 'role_quality_mgr', '105', NOW(), 'admin', NOW(), 'admin'),
+('rm_qm_04', 'role_quality_mgr', '106', NOW(), 'admin', NOW(), 'admin');
+
+-- 8. 设备管理员 - 设备管理
+INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('rm_em_01', 'role_equipment_mgr', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_em_02', 'role_equipment_mgr', '10',  NOW(), 'admin', NOW(), 'admin'),
+('rm_em_03', 'role_equipment_mgr', '105', NOW(), 'admin', NOW(), 'admin'),
+('rm_em_04', 'role_equipment_mgr', '106', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------------------------------------------------------
+-- 第三部分：新增用户 (sp_sys_user)
+-- ----------------------------------------------------------------------------
+-- 密码使用 MD5 加密，默认密码为 123456
+-- 注意：用户名（username）和手机号（mobile）有唯一索引，不能重复
+-- 先删除可能已存在的记录（如需重复执行）
+DELETE FROM `sp_sys_user` WHERE `id` LIKE 'user_%';
+
+INSERT INTO `sp_sys_user` (`id`, `name`, `username`, `password`, `dept_id`, `email`, `mobile`, `tel`, `sex`, `descr`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('user_101', '工艺员1', 'user101',  'e10adc3949ba59abbe56e057f20f883e', 'dept_process', '', '13800000101', '', '1', '工艺部-工艺员', '0', NOW(), 'admin', NOW(), 'admin'),
+('user_201', '计划员1', 'user201',  'e10adc3949ba59abbe56e057f20f883e', 'dept_plan',   '', '13800000201', '', '1', '计划部-计划员', '0', NOW(), 'admin', NOW(), 'admin'),
+('user_301', '生产主管1', 'user301', 'e10adc3949ba59abbe56e057f20f883e', 'dept_prod',   '', '13800000301', '', '1', '生产部-生产主管', '0', NOW(), 'admin', NOW(), 'admin'),
+('user_302', '作业员1', 'user302',  'e10adc3949ba59abbe56e057f20f883e', 'dept_prod',   '', '13800000302', '', '1', '生产部-生产作业员', '0', NOW(), 'admin', NOW(), 'admin'),
+('user_401', '库管员1', 'user401',  'e10adc3949ba59abbe56e057f20f883e', 'dept_purchase', '', '13800000401', '', '1', '采购部-库房管理员', '0', NOW(), 'admin', NOW(), 'admin'),
+('user_501', '检验员1', 'user501',  'e10adc3949ba59abbe56e057f20f883e', 'dept_quality', '', '13800000501', '', '1', '质量部-质量管理员', '0', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------------------------------------------------------
+-- 第四部分：用户-角色关联 (sp_sys_user_role)
+-- ----------------------------------------------------------------------------
+-- 先清除这些用户可能已存在的角色关联
+DELETE FROM `sp_sys_user_role` WHERE `user_id` LIKE 'user_%';
+
+INSERT INTO `sp_sys_user_role` (`id`, `user_id`, `role_id`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+-- 工艺部-工艺员1：数据员 + 工艺员
+('ur_101_1', 'user_101', 'role_data_clerk',   NOW(), 'admin', NOW(), 'admin'),
+('ur_101_2', 'user_101', 'role_process_eng',  NOW(), 'admin', NOW(), 'admin'),
+-- 计划部-计划员1：生产计划员
+('ur_201_1', 'user_201', 'role_prod_planner', NOW(), 'admin', NOW(), 'admin'),
+-- 生产部-生产主管1：生产主管 + 设备管理员
+('ur_301_1', 'user_301', 'role_prod_supervisor', NOW(), 'admin', NOW(), 'admin'),
+('ur_301_2', 'user_301', 'role_equipment_mgr',   NOW(), 'admin', NOW(), 'admin'),
+-- 生产部-作业员1：生产作业员
+('ur_302_1', 'user_302', 'role_prod_operator', NOW(), 'admin', NOW(), 'admin'),
+-- 采购部-库管员1：库房管理员
+('ur_401_1', 'user_401', 'role_warehouse_mgr', NOW(), 'admin', NOW(), 'admin'),
+-- 质量部-检验员1：质量管理员
+('ur_501_1', 'user_501', 'role_quality_mgr',   NOW(), 'admin', NOW(), 'admin');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -36,6 +36,13 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">系统角色</label>
+                        <div class="layui-input-block" style="width: 310px;">
+                            <input type="radio" name="sysRole" value="1" title="是" <#if result.sysRole?? && result.sysRole == "1">checked</#if>>
+                            <input type="radio" name="sysRole" value="0" title="否" <#if !(result.sysRole??) || result.sysRole == "0">checked</#if>>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
                         <label for="js-is-deleted" class="layui-form-label sp-required">状态
                         </label>
                         <div class="layui-input-block" id="js-is-deleted" style="width: 310px;">

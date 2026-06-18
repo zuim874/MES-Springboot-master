@@ -6,8 +6,10 @@ import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
 import com.wangziyang.mes.system.dto.SysRoleDTO;
 import com.wangziyang.mes.system.dto.SysUserDTO;
+import com.wangziyang.mes.system.entity.SysDepartment;
 import com.wangziyang.mes.system.entity.SysUser;
 import com.wangziyang.mes.system.request.SysUserPageReq;
+import com.wangziyang.mes.system.service.ISysDepartmentService;
 import com.wangziyang.mes.system.service.ISysRoleService;
 import com.wangziyang.mes.system.service.ISysUserService;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +23,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -43,6 +49,9 @@ public class SysUserController extends BaseController {
     @Autowired
     private ISysRoleService sysRoleService;
 
+    @Autowired
+    private ISysDepartmentService sysDepartmentService;
+
     @GetMapping("/list-ui")
     public String listUI(Model model) {
         return "admin/system/user/list";
@@ -60,6 +69,46 @@ public class SysUserController extends BaseController {
         }
         qw.orderByDesc(req.getOrderBy());
         IPage page = sysUserService.page(req, qw);
+
+        // 补充部门名称和角色名称
+        List<SysUser> records = page.getRecords();
+        List<Map<String, Object>> newRecords = new ArrayList<>();
+        for (SysUser user : records) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", user.getId());
+            map.put("name", user.getName());
+            map.put("username", user.getUsername());
+            map.put("deptId", user.getDeptId());
+            map.put("email", user.getEmail());
+            map.put("mobile", user.getMobile());
+            map.put("tel", user.getTel());
+            map.put("sex", user.getSex());
+            map.put("descr", user.getDescr());
+            map.put("deleted", user.getDeleted());
+            map.put("createTime", user.getCreateTime());
+            map.put("createUsername", user.getCreateUsername());
+
+            // 查询部门名称
+            if (StringUtils.isNotEmpty(user.getDeptId())) {
+                SysDepartment dept = sysDepartmentService.getById(user.getDeptId());
+                map.put("deptName", dept != null ? dept.getName() : "");
+            } else {
+                map.put("deptName", "");
+            }
+
+            // 查询角色名称
+            SysUserDTO tempDto = new SysUserDTO();
+            tempDto.setId(user.getId());
+            List<SysRoleDTO> roles = sysRoleService.listByUserId(tempDto.getId());
+            String roleNames = roles.stream()
+                    .filter(SysRoleDTO::getChecked)
+                    .map(SysRoleDTO::getName)
+                    .collect(Collectors.joining(","));
+            map.put("roleNames", roleNames);
+
+            newRecords.add(map);
+        }
+        page.setRecords(newRecords);
         return Result.success(page);
     }
 

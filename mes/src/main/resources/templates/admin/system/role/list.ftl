@@ -53,6 +53,7 @@
 <!--行操作模板-->
 <script type="text/html" id="js-record-table-toolbar-right">
     <a class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="authMenu"><i class="layui-icon layui-icon-auz"></i>授权菜单</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
 
@@ -160,6 +161,16 @@
                     // 请求url参数
                     spWhere: {id: data.id},
                     content: '${request.contextPath}/admin/sys/role/add-or-update-ui'
+                });
+            }
+
+            // 授权菜单
+            if (obj.event === 'authMenu') {
+                spLayer.open({
+                    title: '授权菜单 - ' + data.name,
+                    area: ['400px', '600px'],
+                    spWhere: {roleId: data.id},
+                    content: '${request.contextPath}/admin/sys/role/auth-menu-ui'
                 });
             }
 

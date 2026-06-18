@@ -84,39 +84,17 @@
                 }, {
                     field: 'name', title: '姓名', width: 120
                 }, {
-                    field: 'username', title: '用户名', width: 130
+                    field: 'username', title: '登录账号', width: 130
                 }, {
-                    field: 'password', title: '密码', width: 90
+                    field: 'deptName', title: '归属机构', width: 120
                 }, {
-                    field: 'deptId', title: '部门id', width: 90
+                    field: 'roleNames', title: '分配角色', width: 200
                 }, {
-                    field: 'email', title: '邮箱', width: 90
+                    field: 'mobile', title: '手机号', width: 130
                 }, {
-                    field: 'mobile', title: '手机号', width: 120
-                }, {
-                    field: 'tel', title: '固定电话', width: 120
-                }, {
-                    field: 'sex', title: '性别', width: 60
-                }, {
-                    field: 'birthday', title: '出生年月日', width: 120
-                }, {
-                    field: 'picId', title: '图片id', width: 90
-                }, {
-                    field: 'idCard', title: '身份证', width: 120
-                }, {
-                    field: 'hobby', title: '爱好', width: 90
-                }, {
-                    field: 'province', title: '省份', width: 90
-                }, {
-                    field: 'city', title: '城市', width: 90
-                }, {
-                    field: 'district', title: '区县', width: 90
-                }, {
-                    field: 'street', title: '街道', width: 90
-                }, {
-                    field: 'streetNumber', title: '门牌号', width: 90
-                }, {
-                    field: 'descr', title: '描述', width: 90
+                    field: 'sex', title: '性别', width: 60, templet: function (d) {
+                        return d.sex === '1' ? '男' : (d.sex === '2' ? '女' : '');
+                    }
                 }, {
                     field: 'deleted', title: '状态', width: 90, templet: function (d) {
                         return spConfig.isDeletedDict[d.deleted];

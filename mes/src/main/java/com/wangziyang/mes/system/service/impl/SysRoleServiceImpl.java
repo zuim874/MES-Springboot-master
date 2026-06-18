@@ -6,9 +6,11 @@ import com.wangziyang.mes.common.enums.CommonEnum;
 import com.wangziyang.mes.system.dto.SysRoleDTO;
 import com.wangziyang.mes.system.dto.SysUserDTO;
 import com.wangziyang.mes.system.entity.SysRole;
+import com.wangziyang.mes.system.entity.SysRoleMenu;
 import com.wangziyang.mes.system.entity.SysUserRole;
 import com.wangziyang.mes.system.enums.SysRoleEnum;
 import com.wangziyang.mes.system.mapper.SysRoleMapper;
+import com.wangziyang.mes.system.mapper.SysRoleMenuMapper;
 import com.wangziyang.mes.system.service.ISysRoleService;
 import com.wangziyang.mes.system.service.ISysUserRoleService;
 import org.apache.commons.lang3.ArrayUtils;
@@ -18,8 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>
@@ -34,6 +38,9 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Autowired
     private SysRoleMapper sysRoleMapper;
+
+    @Autowired
+    private SysRoleMenuMapper sysRoleMenuMapper;
 
     @Autowired
     private ISysUserRoleService sysUserRoleService;
@@ -91,6 +98,42 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 sysUserRole.setUserId(sysUserDTO.getId());
                 sysUserRole.setRoleId(roleId);
                 sysUserRoleService.save(sysUserRole);
+            }
+        }
+    }
+
+    /**
+     * 保存角色菜单授权
+     *
+     * @param roleId  角色ID
+     * @param menuIds 菜单ID列表
+     * @throws Exception 异常
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveAuthMenu(String roleId, List<String> menuIds) throws Exception {
+        // 先删除该角色原有的菜单关联
+        sysRoleMenuMapper.deleteByRoleId(roleId);
+        // 再批量插入新的菜单关联
+        if (menuIds != null && !menuIds.isEmpty()) {
+            List<SysRoleMenu> list = new ArrayList<>();
+            LocalDateTime now = LocalDateTime.now();
+            for (String menuId : menuIds) {
+                if (StringUtils.isEmpty(menuId)) {
+                    continue;
+                }
+                SysRoleMenu rm = new SysRoleMenu();
+                rm.setId(UUID.randomUUID().toString().replace("-", ""));
+                rm.setRoleId(roleId);
+                rm.setMenuId(menuId);
+                rm.setCreateTime(now);
+                rm.setCreateUsername("admin");
+                rm.setUpdateTime(now);
+                rm.setUpdateUsername("admin");
+                list.add(rm);
+            }
+            if (!list.isEmpty()) {
+                sysRoleMenuMapper.batchInsert(list);
             }
         }
     }

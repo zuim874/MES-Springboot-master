@@ -34,4 +34,13 @@ public interface ISysRoleService extends IService<SysRole> {
      * @throws Exception 异常
      */
     void rebuild(SysUserDTO sysUserDTO) throws Exception;
+
+    /**
+     * 保存角色菜单授权
+     *
+     * @param roleId  角色ID
+     * @param menuIds 菜单ID列表
+     * @throws Exception 异常
+     */
+    void saveAuthMenu(String roleId, List<String> menuIds) throws Exception;
 }

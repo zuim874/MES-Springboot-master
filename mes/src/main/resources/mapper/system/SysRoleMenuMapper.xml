@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wangziyang.mes.system.mapper.SysRoleMenuMapper">
 
+    <!-- 根据角色ID删除角色菜单关联 -->
+    <delete id="deleteByRoleId" parameterType="java.lang.String">
+        DELETE FROM sp_sys_role_menu WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 批量插入角色菜单关联 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO sp_sys_role_menu (id, role_id, menu_id, create_time, create_username, update_time, update_username)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.roleId}, #{item.menuId}, #{item.createTime}, #{item.createUsername}, #{item.updateTime}, #{item.updateUsername})
+        </foreach>
+    </insert>
+
 </mapper>

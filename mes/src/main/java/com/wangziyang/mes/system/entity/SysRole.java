@@ -33,6 +33,12 @@ public class SysRole extends BaseEntity {
     private String descr;
 
     /**
+     * 系统角色（1：是，0：否）
+     */
+    @TableField(value = "sys_role")
+    private String sysRole;
+
+    /**
      * 状态(00:删除;01:正常;02:禁用)
      */
 	@TableField(value = "is_deleted")
@@ -60,6 +66,14 @@ public class SysRole extends BaseEntity {
 
 	public void setDescr(String descr) {
 		this.descr = descr;
+	}
+
+	public String getSysRole() {
+		return sysRole;
+	}
+
+	public void setSysRole(String sysRole) {
+		this.sysRole = sysRole;
 	}
 
 	public String getDeleted() {
