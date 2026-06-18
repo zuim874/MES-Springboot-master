@@ -52,9 +52,9 @@
 
 <!--行操作模板-->
 <script type="text/html" id="js-record-table-toolbar-right">
-    <a class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="authMenu"><i class="layui-icon layui-icon-auz"></i>授权菜单</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit" style="padding: 0 6px;"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="authMenu" style="padding: 0 6px;"><i class="layui-icon layui-icon-auz"></i>授权菜单</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete" style="padding: 0 6px;"><i class="layui-icon layui-icon-delete"></i>删除</a>
 </script>
 
 <!--js逻辑-->
@@ -87,7 +87,7 @@
                     title: '操作',
                     toolbar: '#js-record-table-toolbar-right',
                     unresize: true,
-                    width: 150
+                    width: 260
                 }]
             ],
             done: function (res, curr, count) {
