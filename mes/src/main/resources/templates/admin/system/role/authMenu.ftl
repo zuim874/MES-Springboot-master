@@ -7,12 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <#include "${request.contextPath}/common/common.ftl">
-    <link rel="stylesheet" href="${request.contextPath}/static/js/layuimodule/treeTable/treeTable.css" media="all">
 </head>
 <body>
 <div class="splayui-container">
     <div class="splayui-main">
-        <div id="js-menu-tree" class="demo-tree-more"></div>
+        <div id="js-menu-tree" class="demo-tree-more" style="padding: 10px;"></div>
         <div class="layui-form-item layui-hide">
             <div class="layui-input-block">
                 <input id="js-role-id" value="${roleId}"/>
@@ -21,11 +20,10 @@
         </div>
     </div>
 </div>
-<script src="${request.contextPath}/static/js/layuimodule/treeTable/treeTable.js"></script>
 <script>
-    layui.use(['tree', 'util'], function () {
+    layui.use(['tree', 'layer'], function () {
         var tree = layui.tree,
-            util = layui.util;
+            layer = layui.layer;
 
         var roleId = $('#js-role-id').val();
 
@@ -36,29 +34,48 @@
             data: {roleId: roleId},
             success: function (res) {
                 if (res.code === 0) {
+                    // 转换数据格式：name -> title（适配layui tree组件）
+                    var treeData = convertToTreeData(res.data);
                     // 渲染树形菜单
                     tree.render({
                         elem: '#js-menu-tree',
-                        data: res.data,
+                        data: treeData,
                         showCheckbox: true,
                         id: 'menuTree',
-                        isJump: false,
-                        click: function (obj) {
-                            // 点击节点事件
-                        }
+                        isJump: false
                     });
                 } else {
-                    layer.msg('菜单加载失败');
+                    layer.msg('菜单加载失败：' + (res.msg || '未知错误'));
                 }
             },
             error: function () {
-                layer.msg('菜单加载失败');
+                layer.msg('菜单加载失败，请检查网络');
             }
         });
 
+        // 将后端TreeVO数据转换为layui tree所需格式
+        function convertToTreeData(nodes) {
+            if (!nodes || nodes.length === 0) {
+                return [];
+            }
+            var result = [];
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var item = {
+                    id: node.id,
+                    title: node.name,
+                    checked: node.checked || false,
+                    spread: true,
+                    children: convertToTreeData(node.children)
+                };
+                result.push(item);
+            }
+            return result;
+        }
+
         // 提交按钮点击事件（由父页面触发）
         $('#js-submit').on('click', function () {
-            // 获取选中的节点
+            // 获取选中的节点（包含半选状态）
             var checkedData = tree.getChecked('menuTree');
             var menuIds = [];
             // 递归收集所有选中节点的ID
@@ -83,16 +100,19 @@
                 traditional: true,
                 success: function (res) {
                     if (res.code === 0) {
-                        layer.msg('授权成功', {icon: 1});
-                        // 关闭弹窗
-                        var index = parent.layer.getFrameIndex(window.name);
-                        parent.layer.close(index);
+                        layer.msg('授权成功', {icon: 1, time: 1500});
+                        // 延迟关闭弹窗并刷新父页面
+                        setTimeout(function () {
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                            parent.location.reload();
+                        }, 1500);
                     } else {
-                        layer.msg('授权失败：' + res.msg);
+                        layer.msg('授权失败：' + (res.msg || '未知错误'));
                     }
                 },
                 error: function () {
-                    layer.msg('授权失败');
+                    layer.msg('授权失败，请检查网络');
                 }
             });
         });
