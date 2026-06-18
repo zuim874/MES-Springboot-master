@@ -330,6 +330,7 @@ CREATE TABLE `sp_sys_department`  (
   `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
   `parent_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `descr` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门描述',
   `sort_num` int(11) NOT NULL,
   `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
@@ -338,6 +339,17 @@ CREATE TABLE `sp_sys_department`  (
   `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sp_sys_department
+-- ----------------------------
+INSERT INTO `sp_sys_department` (`id`, `parent_id`, `name`, `descr`, `sort_num`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('dept_process',  '0', '工艺部',  '负责工艺路线与BOM管理',        1, '0', NOW(), 'admin', NOW(), 'admin'),
+('dept_plan',     '0', '计划部',  '负责生产计划与工单下达',        2, '0', NOW(), 'admin', NOW(), 'admin'),
+('dept_prod',     '0', '生产部',  '负责生产执行与在制品管理',      3, '0', NOW(), 'admin', NOW(), 'admin'),
+('dept_purchase', '0', '采购部',  '负责物料采购与库房管理',        4, '0', NOW(), 'admin', NOW(), 'admin'),
+('dept_quality',  '0', '质量部',  '负责质量检验与数据管理',        5, '0', NOW(), 'admin', NOW(), 'admin');
 
 -- ----------------------------
 -- Table structure for sp_sys_dict

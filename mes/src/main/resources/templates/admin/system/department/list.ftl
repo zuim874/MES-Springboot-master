@@ -15,15 +15,9 @@
         <form id="js-search-form" class="layui-form" lay-filter="js-q-form-filter">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">姓名</label>
+                    <label class="layui-form-label">部门名称</label>
                     <div class="layui-input-inline">
                         <input type="text" name="nameLike" autocomplete="off" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">用户名</label>
-                    <div class="layui-input-inline">
-                        <input type="text" name="usernameLike" autocomplete="off" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-inline">
@@ -68,45 +62,21 @@
                 [{
                     type: 'checkbox'
                 }, {
-                    field: 'name', title: '姓名', width: 120
+                    field: 'name', title: '部门名称', width: 150
                 }, {
-                    field: 'username', title: '用户名', width: 130
+                    field: 'parentId', title: '父部门ID', width: 120
                 }, {
-                    field: 'password', title: '密码', width: 90
+                    field: 'sortNum', title: '排序号', width: 90
                 }, {
-                    field: 'deptId', title: '部门id', width: 90
+                    field: 'descr', title: '描述', width: 150
                 }, {
-                    field: 'email', title: '邮箱', width: 90
-                }, {
-                    field: 'mobile', title: '手机号', width: 120
-                }, {
-                    field: 'tel', title: '固定电话', width: 120
-                }, {
-                    field: 'sex', title: '性别', width: 60
-                }, {
-                    field: 'birthday', title: '出生年月日', width: 120
-                }, {
-                    field: 'picId', title: '图片id', width: 90
-                }, {
-                    field: 'idCard', title: '身份证', width: 120
-                }, {
-                    field: 'hobby', title: '爱好', width: 90
-                }, {
-                    field: 'province', title: '省份', width: 90
-                }, {
-                    field: 'city', title: '城市', width: 90
-                }, {
-                    field: 'district', title: '区县', width: 90
-                }, {
-                    field: 'street', title: '街道', width: 90
-                }, {
-                    field: 'streetNumber', title: '门牌号', width: 90
-                }, {
-                    field: 'descr', title: '描述', width: 90
-                }, {
-                    field: 'deleted', title: '状态', width: 90, templet: function (d) {
-                        return spConfig.isDeletedDict[d.deleted];
+                    field: 'isDeleted', title: '状态', width: 90, templet: function (d) {
+                        return spConfig.isDeletedDict[d.isDeleted];
                     }
+                }, {
+                    field: 'createUsername', title: '创建人', width: 120
+                }, {
+                    field: 'createTime', title: '创建时间', width: 160
                 }, {
                     fixed: 'right', field: 'operate', title: '操作', toolbar: '#js-record-table-toolbar-right', unresize: true, width: 150
                 }]

@@ -48,11 +48,11 @@
                     </div>
 
                     <div class="layui-form-item">
-                        <label for="js-dept-id" class="layui-form-label sp-required">
-                            部门id
-                        </label>
+                        <label for="js-dept-id" class="layui-form-label sp-required">归属机构</label>
                         <div class="layui-input-inline">
-                            <input type="text" id="js-dept-id" name="deptId" lay-verify="" autocomplete="off" class="layui-input" value="${result.deptId}">
+                            <select id="js-dept-id" name="deptId" lay-verify="required">
+                                <option value="">请选择部门</option>
+                            </select>
                         </div>
                     </div>
 
@@ -207,6 +207,27 @@
     layui.use(['form', 'util'], function () {
         var form = layui.form,
             util = layui.util;
+
+        // 加载部门列表
+        var currentDeptId = '${result.deptId}';
+        $.ajax({
+            url: '${request.contextPath}/admin/sys/department/list',
+            type: 'GET',
+            success: function (res) {
+                if (res.code === 0 && res.data) {
+                    var $select = $('#js-dept-id');
+                    for (var i = 0; i < res.data.length; i++) {
+                        var dept = res.data[i];
+                        var selected = (dept.id === currentDeptId) ? ' selected' : '';
+                        $select.append('<option value="' + dept.id + '"' + selected + '>' + dept.name + '</option>');
+                    }
+                    form.render('select');
+                }
+            },
+            error: function () {
+                console.log('部门列表加载失败');
+            }
+        });
 
         //失去焦点时判断值为空不验证，一旦填写必须验证
         $('input[name="email"]').blur(function () {

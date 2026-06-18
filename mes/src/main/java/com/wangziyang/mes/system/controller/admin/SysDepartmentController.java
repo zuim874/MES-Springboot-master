@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * <p>
  * 系统部门前端控制器
@@ -69,5 +71,15 @@ public class SysDepartmentController extends BaseController {
     public Result addOrUpdate(SysDepartment record) {
         sysDepartmentService.saveOrUpdate(record);
         return Result.success(record.getId());
+    }
+
+    /**
+     * 查询所有部门列表（下拉选择用）
+     */
+    @GetMapping("/list")
+    @ResponseBody
+    public Result list() {
+        List<SysDepartment> list = sysDepartmentService.list();
+        return Result.success(list);
     }
 }

@@ -20,6 +20,8 @@ public class SysDepartment extends BaseEntity {
 
     private String name;
 
+    private String descr;
+
     private Integer sortNum;
 
     /**
@@ -41,6 +43,14 @@ public class SysDepartment extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescr() {
+        return descr;
+    }
+
+    public void setDescr(String descr) {
+        this.descr = descr;
     }
 
     public Integer getSortNum() {
