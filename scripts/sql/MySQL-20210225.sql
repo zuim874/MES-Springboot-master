@@ -418,6 +418,7 @@ INSERT INTO `sp_sys_menu` VALUES ('103', 'role', '角色管理', '/admin/sys/rol
 INSERT INTO `sp_sys_menu` VALUES ('104', 'department', '部门管理', '/admin/sys/department/list-ui', '10', '3', 4, '0', 'user:add', 'fa fa-sitemap', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('105', 'basedata', '基础数据配置平台', '/basedata/manager/list-ui', '10', '3', 5, '0', 'user:add', 'fa fa-cog', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('106', 'basedatamanager', '基础数据维护', '/basedata/manager/item/list-ui', '10', '3', 6, '0', 'user:add', 'fa fa-database', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
+INSERT INTO `sp_sys_menu` VALUES ('107', 'workteam', '员工班组', '/admin/work/team/list-ui', '10', '3', 7, '0', 'user:add', 'fa fa-users', '', '2026-06-18 12:00:00', 'admin', '2026-06-18 12:00:00', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('12', 'order', '计划管理', '', '1', '2', 4, '0', 'user:add', 'fa fa-calendar', '', '2019-10-18 11:18:29', 'Wangziyang', '2021-02-21 14:59:56', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('121', 'orderRelease', '工单下达', '/order/release/list-ui', '12', '3', 1, '0', 'user:add', 'fa fa-flag-o', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('13', 'materiel', '物料管理', '#', '1', '2', 2, '0', 'user:add', 'fa fa-cubes', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
@@ -431,6 +432,55 @@ INSERT INTO `sp_sys_menu` VALUES ('16', 'wip', '在制品管理', '#', '1', '2',
 INSERT INTO `sp_sys_menu` VALUES ('161', 'generalSnProcess', 'SN通用过程采集', '/rrr', '16', '3', 1, '0', 'user:add', 'fa fa-product-hunt', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('17', 'DigitalSimulation', '黑科数字孪生', '#', '1', '2', 7, '0', 'user:add', 'fa fa-ravelry', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('171', 'DigitalSimulationFrom', '数字仿真3D仓库', '/digital/simulation/list-ui', '17', '3', 1, '0', 'user:add', 'fa fa-codepen', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
+
+-- ----------------------------
+-- Table structure for sp_work_team
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_work_team`;
+CREATE TABLE `sp_work_team`  (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '班组编码',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '班组名称',
+  `line_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '产线名称',
+  `descr` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '班组描述',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
+  `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `idx_sp_work_team_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '生产班组表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for sp_work_team_user
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_work_team_user`;
+CREATE TABLE `sp_work_team_user`  (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
+  `team_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '班组ID',
+  `user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户ID',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
+  `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_team_id`(`team_id`) USING BTREE,
+  INDEX `idx_user_id`(`user_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '班组员工关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sp_work_team
+-- ----------------------------
+INSERT INTO `sp_work_team` (`id`, `code`, `name`, `line_name`, `descr`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('team_001', 'BZ001', '生产作业班组1', '产线A', '第一生产作业班组', '0', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------
+-- Records of sp_work_team_user
+-- ----------------------------
+INSERT INTO `sp_work_team_user` (`id`, `team_id`, `user_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('tu_001', 'team_001', 'user_302', '0', NOW(), 'admin', NOW(), 'admin');
 
 SET FOREIGN_KEY_CHECKS = 1;
 
