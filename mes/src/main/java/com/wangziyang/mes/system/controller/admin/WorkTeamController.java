@@ -83,9 +83,9 @@ public class WorkTeamController extends BaseController {
     }
 
     @GetMapping("/add-or-update-ui")
-    public String addOrUpdateUI(Model model, WorkTeam record) {
-        if (StringUtils.isNotEmpty(record.getId())) {
-            WorkTeam team = workTeamService.getById(record.getId());
+    public String addOrUpdateUI(Model model, @RequestParam(required = false) String id) {
+        if (StringUtils.isNotEmpty(id)) {
+            WorkTeam team = workTeamService.getById(id);
             model.addAttribute("result", team);
         }
         return "admin/work/team/addOrUpdate";
@@ -93,13 +93,16 @@ public class WorkTeamController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
-    public Result addOrUpdate(WorkTeam record) {
+    public Result addOrUpdate(WorkTeam record, String isDeleted) {
+        if (StringUtils.isNotEmpty(isDeleted)) {
+            record.setIsDeleted(isDeleted);
+        }
         workTeamService.saveOrUpdate(record);
         return Result.success(record.getId());
     }
 
     @GetMapping("/bind-user-ui")
-    public String bindUserUI(Model model, String teamId) {
+    public String bindUserUI(Model model, @RequestParam(required = false) String teamId) {
         model.addAttribute("teamId", teamId);
         return "admin/work/team/bindUser";
     }
@@ -121,7 +124,7 @@ public class WorkTeamController extends BaseController {
      */
     @GetMapping("/bind-user-ids")
     @ResponseBody
-    public Result bindUserIds(String teamId) {
+    public Result bindUserIds(@RequestParam String teamId) {
         List<String> userIds = workTeamUserMapper.selectUserIdsByTeamId(teamId);
         return Result.success(userIds);
     }
@@ -131,7 +134,7 @@ public class WorkTeamController extends BaseController {
      */
     @PostMapping("/save-bind-users")
     @ResponseBody
-    public Result saveBindUsers(String teamId, @RequestParam(value = "userIds[]", required = false) List<String> userIds) {
+    public Result saveBindUsers(String teamId, @RequestParam(value = "userIds", required = false) List<String> userIds) {
         workTeamUserService.saveBindUsers(teamId, userIds);
         return Result.success();
     }

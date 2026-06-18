@@ -15,7 +15,7 @@
         <div class="layui-form-item layui-hide">
             <div class="layui-input-block">
                 <input id="js-team-id" value="${teamId}"/>
-                <button id="js-submit" class="layui-btn" lay-submit lay-filter="js-submit-filter">确定</button>
+                <button id="js-submit" class="layui-btn">确定</button>
             </div>
         </div>
     </div>
@@ -80,7 +80,6 @@
                     teamId: teamId,
                     userIds: userIds
                 },
-                traditional: true,
                 success: function (res) {
                     if (res.code === 0) {
                         layer.msg('绑定成功', {icon: 1, time: 1500});

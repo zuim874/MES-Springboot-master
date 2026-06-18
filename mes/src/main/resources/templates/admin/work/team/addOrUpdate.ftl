@@ -17,44 +17,44 @@
                     <div class="layui-form-item">
                         <label for="js-code" class="layui-form-label sp-required">班组编码</label>
                         <div class="layui-input-inline">
-                            <input type="text" id="js-code" name="code" lay-verify="required" autocomplete="off" class="layui-input" value="${result.code}">
+                            <input type="text" id="js-code" name="code" lay-verify="required" autocomplete="off" class="layui-input" value="${(result.code)!}">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label for="js-name" class="layui-form-label sp-required">班组名称</label>
                         <div class="layui-input-inline">
-                            <input type="text" id="js-name" name="name" lay-verify="required" autocomplete="off" class="layui-input" value="${result.name}">
+                            <input type="text" id="js-name" name="name" lay-verify="required" autocomplete="off" class="layui-input" value="${(result.name)!}">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label for="js-line-name" class="layui-form-label">产线名称</label>
                         <div class="layui-input-inline">
-                            <input type="text" id="js-line-name" name="lineName" lay-verify="" autocomplete="off" class="layui-input" value="${result.lineName}">
+                            <input type="text" id="js-line-name" name="lineName" lay-verify="" autocomplete="off" class="layui-input" value="${(result.lineName)!}">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label for="js-descr" class="layui-form-label">描述</label>
                         <div class="layui-input-inline">
-                            <input type="text" id="js-descr" name="descr" lay-verify="" autocomplete="off" class="layui-input" value="${result.descr}">
+                            <input type="text" id="js-descr" name="descr" lay-verify="" autocomplete="off" class="layui-input" value="${(result.descr)!}">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label for="js-is-deleted" class="layui-form-label sp-required">状态</label>
                         <div class="layui-input-block" id="js-is-deleted">
-                            <input type="radio" name="isDeleted" value="0" title="正常" <#if result.isDeleted == "0" || !(result??)>checked</#if>>
-                            <input type="radio" name="isDeleted" value="1" title="已删除" <#if result.isDeleted == "1">checked</#if>>
-                            <input type="radio" name="isDeleted" value="2" title="已禁用" <#if result.isDeleted == "2">checked</#if>>
+                            <input type="radio" name="isDeleted" value="0" title="正常" <#if !(result??) || result.isDeleted == "0">checked</#if>>
+                            <input type="radio" name="isDeleted" value="1" title="已删除" <#if result?? && result.isDeleted == "1">checked</#if>>
+                            <input type="radio" name="isDeleted" value="2" title="已禁用" <#if result?? && result.isDeleted == "2">checked</#if>>
                         </div>
                     </div>
                 </div>
 
                 <div class="layui-form-item layui-hide">
                     <div class="layui-input-block">
-                        <input id="js-id" name="id" value="${result.id}"/>
+                        <input id="js-id" name="id" value="${(result.id)!}"/>
                         <button id="js-submit" class="layui-btn" lay-submit lay-filter="js-submit-filter">确定</button>
                     </div>
                 </div>

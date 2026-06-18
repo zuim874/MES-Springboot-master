@@ -146,7 +146,8 @@
                 spLayer.open({
                     title: '编辑',
                     area: ['90%', '90%'],
-                    content: '${request.contextPath}/admin/work/team/add-or-update-ui?id=' + data.id
+                    spWhere: {id: data.id},
+                    content: '${request.contextPath}/admin/work/team/add-or-update-ui'
                 });
             }
 
@@ -154,7 +155,8 @@
                 spLayer.open({
                     title: '绑定员工 - ' + data.name,
                     area: ['600px', '500px'],
-                    content: '${request.contextPath}/admin/work/team/bind-user-ui?teamId=' + data.id
+                    spWhere: {teamId: data.id},
+                    content: '${request.contextPath}/admin/work/team/bind-user-ui'
                 });
             }
 
