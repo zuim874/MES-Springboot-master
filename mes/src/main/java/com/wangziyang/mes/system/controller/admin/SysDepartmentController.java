@@ -58,10 +58,10 @@ public class SysDepartmentController extends BaseController {
     }
 
     @GetMapping("/add-or-update-ui")
-    public String addOrUpdateUI(Model model, SysDict record) {
+    public String addOrUpdateUI(Model model, SysDepartment record) {
         if (StringUtils.isNotEmpty(record.getId())) {
             SysDepartment sysDepartment = sysDepartmentService.getById(record.getId());
-            model.addAttribute("department", sysDepartment);
+            model.addAttribute("result", sysDepartment);
         }
         return "admin/system/department/addOrUpdate";
     }
