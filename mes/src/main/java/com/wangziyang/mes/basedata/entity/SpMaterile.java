@@ -59,6 +59,31 @@ public class SpMaterile extends BaseEntity {
     private String model;
 
     /**
+     * 物料来源
+     */
+    private String source;
+
+    /**
+     * 图片地址
+     */
+    private String imgUrl;
+
+    /**
+     * 需求提前期（天）
+     */
+    private Integer leadTime;
+
+    /**
+     * 安全库存
+     */
+    private Integer safetyStock;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    /**
      * 状态(00:删除;01:正常;02:禁用)
      */
     @TableField(value = "is_deleted")
@@ -257,5 +282,75 @@ public class SpMaterile extends BaseEntity {
      */
     public void setFlowDesc(String flowDesc) {
         this.flowDesc = flowDesc;
+    }
+
+    /**
+     * 获取 物料来源
+     */
+    public String getSource() {
+        return this.source;
+    }
+
+    /**
+     * 设置 物料来源
+     */
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    /**
+     * 获取 图片地址
+     */
+    public String getImgUrl() {
+        return this.imgUrl;
+    }
+
+    /**
+     * 设置 图片地址
+     */
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    /**
+     * 获取 需求提前期
+     */
+    public Integer getLeadTime() {
+        return this.leadTime;
+    }
+
+    /**
+     * 设置 需求提前期
+     */
+    public void setLeadTime(Integer leadTime) {
+        this.leadTime = leadTime;
+    }
+
+    /**
+     * 获取 安全库存
+     */
+    public Integer getSafetyStock() {
+        return this.safetyStock;
+    }
+
+    /**
+     * 设置 安全库存
+     */
+    public void setSafetyStock(Integer safetyStock) {
+        this.safetyStock = safetyStock;
+    }
+
+    /**
+     * 获取 备注
+     */
+    public String getRemark() {
+        return this.remark;
+    }
+
+    /**
+     * 设置 备注
+     */
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -17,13 +17,29 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">物料编号</label>
                     <div class="layui-input-inline">
-                        <input type="materiel" name="materiel" autocomplete="off" class="layui-input">
+                        <input type="text" name="materielLike" autocomplete="off" class="layui-input">
                     </div>
                 </div>
                 <div class="layui-inline">
                     <label class="layui-form-label">物料名称</label>
                     <div class="layui-input-inline">
-                        <input type="materielDesc" name="materielDesc" autocomplete="off" class="layui-input">
+                        <input type="text" name="materielDescLike" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">物料类型</label>
+                    <div class="layui-input-inline">
+                        <select name="matType" id="js-search-matType">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">物料来源</label>
+                    <div class="layui-input-inline">
+                        <select name="source" id="js-search-source">
+                            <option value="">全部</option>
+                        </select>
                     </div>
                 </div>
                 <div class="layui-inline">
@@ -71,19 +87,36 @@
                 [{
                     type: 'checkbox'
                 }, {
-                    field: 'materiel', title: '物料编码'
+                    field: 'materiel', title: '物料编码', width: 120
                 }, {
-                    field: 'materielDesc', title: '物料描述'
+                    field: 'materielDesc', title: '物料描述', width: 180
                 }, {
-                    field: 'productGroup', title: '产品组'
+                    field: 'matType', title: '物料类型', width: 100
                 }, {
-                    field: 'size', title: '尺寸'
+                    field: 'source', title: '物料来源', width: 100
                 }, {
-                    field: 'flowDesc', title: '流程描述'
+                    field: 'productGroup', title: '产品组', width: 100
                 }, {
-                    field: 'model', title: '型号'
+                    field: 'model', title: '型号', width: 120
                 }, {
-                    field: 'deleted', title: '状态', templet: function (d) {
+                    field: 'size', title: '尺寸', width: 100
+                }, {
+                    field: 'leadTime', title: '提前期(天)', width: 100
+                }, {
+                    field: 'safetyStock', title: '安全库存', width: 100
+                }, {
+                    field: 'imgUrl', title: '图片', width: 80, templet: function (d) {
+                        if (d.imgUrl) {
+                            return '<img src="' + d.imgUrl + '" style="width:40px;height:40px;cursor:pointer;" onclick="window.open(\'' + d.imgUrl + '\')">';
+                        }
+                        return '-';
+                    }
+                }, {
+                    field: 'remark', title: '备注', width: 150
+                }, {
+                    field: 'flowDesc', title: '流程描述', width: 120
+                }, {
+                    field: 'deleted', title: '状态', width: 90, templet: function (d) {
                         return spConfig.isDeletedDict[d.deleted];
                     }
                 }, {
@@ -104,8 +137,28 @@
          * http://www.layui.com/doc/modules/form.html#render
          */
         $(function () {
+            // 初始化查询条件下拉框
+            loadDictOptions('material_type', '#js-search-matType');
+            loadDictOptions('material_source', '#js-search-source');
             form.render();
         });
+
+        function loadDictOptions(type, selector) {
+            spUtil.ajax({
+                url: '${request.contextPath}/basedata/dict/list/' + type,
+                async: false,
+                type: 'GET',
+                serializable: false,
+                data: {},
+                success: function (data) {
+                    if (data.data) {
+                        $.each(data.data, function (index, item) {
+                            $(selector).append(new Option(item.name, item.value));
+                        });
+                    }
+                }
+            });
+        }
 
         /**
          * 搜索按钮事件

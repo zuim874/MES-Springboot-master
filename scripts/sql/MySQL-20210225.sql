@@ -951,4 +951,28 @@ VALUES
 -- 质量部-检验员1：质量管理员
 ('ur_501_1', 'user_501', 'role_quality_mgr',   NOW(), 'admin', NOW(), 'admin');
 
+-- ----------------------------
+-- 物料维护模块扩展
+-- ----------------------------
+ALTER TABLE `sp_materile`
+ADD COLUMN `source` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源（自制/外购）' AFTER `mat_type`,
+ADD COLUMN `img_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址' AFTER `source`,
+ADD COLUMN `lead_time` int(11) NULL DEFAULT 1 COMMENT '需求提前期（天）' AFTER `img_url`,
+ADD COLUMN `safety_stock` int(11) NULL DEFAULT 0 COMMENT '安全库存' AFTER `lead_time`,
+ADD COLUMN `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `safety_stock`;
+
+-- 新增物料类型字典（产品、零件、标准件、其他）
+INSERT INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('1337618042191905', '产品',   '产品',   'material_type', '物料类型', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
+('1337618042191906', '零件',   '零件',   'material_type', '物料类型', 2, '""', '0', NOW(), 'admin', NOW(), 'admin'),
+('1337618042191907', '标准件', '标准件', 'material_type', '物料类型', 3, '""', '0', NOW(), 'admin', NOW(), 'admin'),
+('1337618042191908', '其他',   '其他',   'material_type', '物料类型', 4, '""', '0', NOW(), 'admin', NOW(), 'admin');
+
+-- 新增物料来源字典（自制、外购）
+INSERT INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('1337618042191909', '自制', '自制', 'material_source', '物料来源', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
+('1337618042191910', '外购', '外购', 'material_source', '物料来源', 2, '""', '0', NOW(), 'admin', NOW(), 'admin');
+
 SET FOREIGN_KEY_CHECKS = 1;
