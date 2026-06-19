@@ -2,12 +2,14 @@ package com.wangziyang.mes.system.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
 import com.wangziyang.mes.system.entity.Equipment;
 import com.wangziyang.mes.system.entity.EquipmentGroup;
 import com.wangziyang.mes.system.entity.EquipmentGroupItem;
 import com.wangziyang.mes.system.mapper.EquipmentGroupItemMapper;
+import com.wangziyang.mes.system.mapper.ProcessUnitEquipmentGroupMapper;
 import com.wangziyang.mes.system.request.EquipmentGroupPageReq;
 import com.wangziyang.mes.system.service.IEquipmentGroupItemService;
 import com.wangziyang.mes.system.service.IEquipmentGroupService;
@@ -49,6 +51,9 @@ public class EquipmentGroupController extends BaseController {
     @Autowired
     private IEquipmentService equipmentService;
 
+    @Autowired
+    private ProcessUnitEquipmentGroupMapper processUnitEquipmentGroupMapper;
+
     @ApiOperation("设备编组列表UI")
     @GetMapping("/list-ui")
     public String listUI(Model model) {
@@ -68,8 +73,27 @@ public class EquipmentGroupController extends BaseController {
         }
         wrapper.eq("is_deleted", "0");
         wrapper.orderByAsc("code");
-        IPage result = equipmentGroupService.page(req, wrapper);
-        return Result.success(result);
+        IPage<EquipmentGroup> result = equipmentGroupService.page(req, wrapper);
+
+        Page<Map<String, Object>> newPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        List<Map<String, Object>> records = new ArrayList<>();
+        for (EquipmentGroup group : result.getRecords()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", group.getId());
+            map.put("code", group.getCode());
+            map.put("name", group.getName());
+            map.put("descr", group.getDescr());
+            map.put("isDeleted", group.getIsDeleted());
+            map.put("createTime", group.getCreateTime());
+            map.put("createUsername", group.getCreateUsername());
+            map.put("updateTime", group.getUpdateTime());
+            map.put("updateUsername", group.getUpdateUsername());
+            List<String> puNames = processUnitEquipmentGroupMapper.selectProcessUnitNamesByEquipmentGroupId(group.getId());
+            map.put("processUnits", puNames != null && !puNames.isEmpty() ? String.join(", ", puNames) : "-");
+            records.add(map);
+        }
+        newPage.setRecords(records);
+        return Result.success(newPage);
     }
 
     @GetMapping("/add-or-update-ui")

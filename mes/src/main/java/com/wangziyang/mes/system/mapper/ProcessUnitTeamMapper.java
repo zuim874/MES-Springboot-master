@@ -16,4 +16,7 @@ public interface ProcessUnitTeamMapper extends BaseMapper<ProcessUnitTeam> {
 
     @Select("SELECT team_id FROM sp_process_unit_team WHERE process_unit_id = #{processUnitId} AND is_deleted = '0'")
     List<String> selectTeamIdsByProcessUnitId(@Param("processUnitId") String processUnitId);
+
+    @Select("SELECT CONCAT(p.code, '(', p.name, ')') FROM sp_process_unit p INNER JOIN sp_process_unit_team t ON p.id = t.process_unit_id WHERE t.team_id = #{teamId} AND t.is_deleted = '0' AND p.is_deleted = '0'")
+    List<String> selectProcessUnitNamesByTeamId(@Param("teamId") String teamId);
 }

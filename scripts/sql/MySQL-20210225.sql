@@ -536,6 +536,24 @@ INSERT INTO `sp_process_unit_team` (`id`, `process_unit_id`, `team_id`, `is_dele
 VALUES ('put_001', 'pu_002', 'team_001', '0', NOW(), 'admin', NOW(), 'admin');
 
 -- ----------------------------
+-- Table structure for sp_process_unit_equipment_group
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_process_unit_equipment_group`;
+CREATE TABLE `sp_process_unit_equipment_group`  (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
+  `process_unit_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '加工单元ID',
+  `equipment_group_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '设备编组ID',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
+  `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_pu_id`(`process_unit_id`) USING BTREE,
+  INDEX `idx_eg_id`(`equipment_group_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '加工单元设备编组关联表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for sp_equipment
 -- ----------------------------
 DROP TABLE IF EXISTS `sp_equipment`;

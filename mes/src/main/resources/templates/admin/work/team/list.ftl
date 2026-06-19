@@ -77,6 +77,8 @@
                 }, {
                     field: 'descr', title: '描述', width: 200
                 }, {
+                    field: 'processUnits', title: '已绑定加工单元', width: 220
+                }, {
                     field: 'isDeleted', title: '状态', width: 90, templet: function (d) {
                         return spConfig.isDeletedDict[d.isDeleted];
                     }

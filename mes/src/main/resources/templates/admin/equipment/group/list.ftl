@@ -69,6 +69,8 @@
                 }, {
                     field: 'descr', title: '描述', width: 200
                 }, {
+                    field: 'processUnits', title: '已绑定加工单元', width: 220
+                }, {
                     field: 'createUsername', title: '创建人', width: 120
                 }, {
                     field: 'createTime', title: '创建时间', width: 160

@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.system.entity.SysUser;
 import com.wangziyang.mes.system.entity.WorkTeam;
 import com.wangziyang.mes.system.entity.WorkTeamUser;
+import com.wangziyang.mes.system.mapper.ProcessUnitTeamMapper;
 import com.wangziyang.mes.system.mapper.WorkTeamUserMapper;
 import com.wangziyang.mes.system.request.WorkTeamPageReq;
 import com.wangziyang.mes.system.service.ISysUserService;
@@ -58,6 +60,9 @@ public class WorkTeamController extends BaseController {
     @Autowired
     private ISysUserService sysUserService;
 
+    @Autowired
+    private ProcessUnitTeamMapper processUnitTeamMapper;
+
     @ApiOperation("生产班组列表UI")
     @ApiImplicitParams({@ApiImplicitParam(name = "model", value = "模型", defaultValue = "模型")})
     @GetMapping("/list-ui")
@@ -78,8 +83,28 @@ public class WorkTeamController extends BaseController {
             wrapper.like("code", req.getCode());
         }
         wrapper.orderByAsc("code");
-        IPage result = workTeamService.page(req, wrapper);
-        return Result.success(result);
+        IPage<WorkTeam> result = workTeamService.page(req, wrapper);
+
+        Page<Map<String, Object>> newPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        List<Map<String, Object>> records = new ArrayList<>();
+        for (WorkTeam team : result.getRecords()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", team.getId());
+            map.put("code", team.getCode());
+            map.put("name", team.getName());
+            map.put("lineName", team.getLineName());
+            map.put("descr", team.getDescr());
+            map.put("isDeleted", team.getIsDeleted());
+            map.put("createTime", team.getCreateTime());
+            map.put("createUsername", team.getCreateUsername());
+            map.put("updateTime", team.getUpdateTime());
+            map.put("updateUsername", team.getUpdateUsername());
+            List<String> puNames = processUnitTeamMapper.selectProcessUnitNamesByTeamId(team.getId());
+            map.put("processUnits", puNames != null && !puNames.isEmpty() ? String.join(", ", puNames) : "-");
+            records.add(map);
+        }
+        newPage.setRecords(records);
+        return Result.success(newPage);
     }
 
     @GetMapping("/add-or-update-ui")

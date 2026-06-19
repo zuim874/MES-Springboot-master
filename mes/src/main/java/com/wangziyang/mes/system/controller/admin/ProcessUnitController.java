@@ -4,10 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
+import com.wangziyang.mes.system.entity.EquipmentGroup;
 import com.wangziyang.mes.system.entity.ProcessUnit;
+import com.wangziyang.mes.system.entity.ProcessUnitEquipmentGroup;
+import com.wangziyang.mes.system.entity.ProcessUnitTeam;
 import com.wangziyang.mes.system.entity.WorkTeam;
+import com.wangziyang.mes.system.mapper.ProcessUnitEquipmentGroupMapper;
 import com.wangziyang.mes.system.mapper.ProcessUnitTeamMapper;
 import com.wangziyang.mes.system.request.ProcessUnitPageReq;
+import com.wangziyang.mes.system.service.IEquipmentGroupService;
+import com.wangziyang.mes.system.service.IProcessUnitEquipmentGroupService;
 import com.wangziyang.mes.system.service.IProcessUnitService;
 import com.wangziyang.mes.system.service.IProcessUnitTeamService;
 import com.wangziyang.mes.system.service.IWorkTeamService;
@@ -43,7 +49,16 @@ public class ProcessUnitController extends BaseController {
     private ProcessUnitTeamMapper processUnitTeamMapper;
 
     @Autowired
+    private IProcessUnitEquipmentGroupService processUnitEquipmentGroupService;
+
+    @Autowired
+    private ProcessUnitEquipmentGroupMapper processUnitEquipmentGroupMapper;
+
+    @Autowired
     private IWorkTeamService workTeamService;
+
+    @Autowired
+    private IEquipmentGroupService equipmentGroupService;
 
     @ApiOperation("加工单元列表UI")
     @GetMapping("/list-ui")
@@ -85,6 +100,21 @@ public class ProcessUnitController extends BaseController {
         } else {
             record.setIsDeleted("0");
         }
+        // 如果编辑且类型变化，清除原绑定关系
+        if (StringUtils.isNotEmpty(record.getId()) && StringUtils.isNotEmpty(record.getType())) {
+            ProcessUnit oldUnit = processUnitService.getById(record.getId());
+            if (oldUnit != null && !record.getType().equals(oldUnit.getType())) {
+                if ("1".equals(oldUnit.getType())) {
+                    QueryWrapper<ProcessUnitTeam> wrapper = new QueryWrapper<>();
+                    wrapper.eq("process_unit_id", record.getId());
+                    processUnitTeamService.remove(wrapper);
+                } else if ("2".equals(oldUnit.getType())) {
+                    QueryWrapper<ProcessUnitEquipmentGroup> wrapper = new QueryWrapper<>();
+                    wrapper.eq("process_unit_id", record.getId());
+                    processUnitEquipmentGroupService.remove(wrapper);
+                }
+            }
+        }
         processUnitService.saveOrUpdate(record);
         return Result.success(record.getId());
     }
@@ -93,6 +123,13 @@ public class ProcessUnitController extends BaseController {
     public String bindTeamUI(Model model, @RequestParam(required = false) String processUnitId) {
         model.addAttribute("processUnitId", processUnitId);
         return "admin/process/unit/bindTeam";
+    }
+
+    @GetMapping("/detail")
+    @ResponseBody
+    public Result detail(@RequestParam String id) {
+        ProcessUnit unit = processUnitService.getById(id);
+        return Result.success(unit);
     }
 
     @GetMapping("/team-list")
@@ -104,11 +141,27 @@ public class ProcessUnitController extends BaseController {
         return Result.success(list);
     }
 
+    @GetMapping("/equipment-group-list")
+    @ResponseBody
+    public Result equipmentGroupList() {
+        QueryWrapper<EquipmentGroup> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_deleted", "0");
+        List<EquipmentGroup> list = equipmentGroupService.list(wrapper);
+        return Result.success(list);
+    }
+
     @GetMapping("/bind-team-ids")
     @ResponseBody
     public Result bindTeamIds(@RequestParam String processUnitId) {
         List<String> teamIds = processUnitTeamMapper.selectTeamIdsByProcessUnitId(processUnitId);
         return Result.success(teamIds);
+    }
+
+    @GetMapping("/bind-equipment-group-ids")
+    @ResponseBody
+    public Result bindEquipmentGroupIds(@RequestParam String processUnitId) {
+        List<String> equipmentGroupIds = processUnitEquipmentGroupMapper.selectEquipmentGroupIdsByProcessUnitId(processUnitId);
+        return Result.success(equipmentGroupIds);
     }
 
     @PostMapping("/save-bind-teams")
@@ -118,6 +171,16 @@ public class ProcessUnitController extends BaseController {
             return Result.failure("加工单元ID不能为空");
         }
         processUnitTeamService.saveBindTeams(processUnitId, teamIds);
+        return Result.success();
+    }
+
+    @PostMapping("/save-bind-equipment-groups")
+    @ResponseBody
+    public Result saveBindEquipmentGroups(@RequestParam String processUnitId, @RequestParam(value = "equipmentGroupIds", required = false) List<String> equipmentGroupIds) {
+        if (StringUtils.isEmpty(processUnitId)) {
+            return Result.failure("加工单元ID不能为空");
+        }
+        processUnitEquipmentGroupService.saveBindEquipmentGroups(processUnitId, equipmentGroupIds);
         return Result.success();
     }
 }

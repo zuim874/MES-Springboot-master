@@ -124,7 +124,7 @@
                 spLayer.open({
                     title: '绑定班组 - ' + data.name,
                     area: ['600px', '500px'],
-                    content: '${request.contextPath}/admin/process/unit/bind-team-ui?processUnitId=' + data.id
+                    content: '${request.contextPath}/admin/process/unit/bind-team-ui?processUnitId=' + data.id + '&_t=' + new Date().getTime()
                 });
             }
 
