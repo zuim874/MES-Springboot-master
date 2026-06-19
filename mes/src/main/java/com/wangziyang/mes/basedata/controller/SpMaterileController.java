@@ -4,6 +4,7 @@ package com.wangziyang.mes.basedata.controller;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.basedata.entity.SpMaterile;
 import com.wangziyang.mes.basedata.entity.SpTableManager;
 import com.wangziyang.mes.basedata.request.spMaterileReq;
@@ -94,7 +95,8 @@ public class SpMaterileController extends BaseController {
     @PostMapping("/page")
     @ResponseBody
     public Result page(spMaterileReq req) {
-        QueryWrapper queryWrapper = new QueryWrapper();
+        QueryWrapper<SpMaterile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_deleted", "0");
         if (StringUtils.isNotEmpty(req.getMaterielLike())) {
             queryWrapper.like("materiel", req.getMaterielLike());
         }
@@ -107,7 +109,8 @@ public class SpMaterileController extends BaseController {
         if (StringUtils.isNotEmpty(req.getSource())) {
             queryWrapper.eq("source", req.getSource());
         }
-        IPage result = iSpMaterileService.page(req, queryWrapper);
+        Page<SpMaterile> page = new Page<>(req.getCurrent(), req.getSize());
+        IPage result = iSpMaterileService.page(page, queryWrapper);
         return Result.success(result);
     }
 

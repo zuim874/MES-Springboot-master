@@ -627,7 +627,117 @@ VALUES ('eg_001', 'EG-1', '设备编组1', '第一设备编组', '0', NOW(), 'ad
 INSERT INTO `sp_equipment_group_item` (`id`, `group_id`, `equipment_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES ('egi_001', 'eg_001', 'eq_001', '0', NOW(), 'admin', NOW(), 'admin');
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- ----------------------------
+-- 库房库位定义模块
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_warehouse_location`;
+DROP TABLE IF EXISTS `sp_warehouse`;
+CREATE TABLE `sp_warehouse` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '库房编码',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '库房名称',
+  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '库房类型（零件库/产品库）',
+  `group_count` int(11) NOT NULL DEFAULT 1 COMMENT '组数',
+  `row_count` int(11) NOT NULL DEFAULT 1 COMMENT '排数',
+  `layer_count` int(11) NOT NULL DEFAULT 1 COMMENT '层数',
+  `column_count` int(11) NOT NULL DEFAULT 1 COMMENT '列数',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
+  `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
+  `is_deleted` char(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_warehouse_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库房表' ROW_FORMAT = Dynamic;
+
+CREATE TABLE `sp_warehouse_location` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键id',
+  `warehouse_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '库房ID',
+  `code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '库位编码',
+  `group_num` int(11) NOT NULL DEFAULT 1 COMMENT '组号',
+  `row_num` int(11) NOT NULL DEFAULT 1 COMMENT '排号',
+  `layer_num` int(11) NOT NULL DEFAULT 1 COMMENT '层号',
+  `column_num` int(11) NOT NULL DEFAULT 1 COMMENT '列号',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
+  `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '最后更新人',
+  `is_deleted` char(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '逻辑删除：1 表示删除，0 表示未删除，2 表示禁用',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_location_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '库位表' ROW_FORMAT = Dynamic;
+
+-- 库房类型字典
+INSERT IGNORE INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES
+('1337618042191911', '零件库', '零件库', 'warehouse_type', '库房类型', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
+('1337618042191912', '产品库', '产品库', 'warehouse_type', '库房类型', 2, '""', '0', NOW(), 'admin', NOW(), 'admin');
+
+-- 库房库位定义菜单
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('111', 'warehouse', '库房库位定义', '/admin/warehouse/list-ui', '10', '3', 11, '0', 'user:add', 'fa fa-building', '', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------
+-- 库房库位定义实例数据
+-- ----------------------------
+INSERT IGNORE INTO `sp_warehouse` (`id`, `code`, `name`, `type`, `group_count`, `row_count`, `layer_count`, `column_count`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('wh_001', 'PJK001', '电脑配件库', '零件库', 1, 2, 3, 4, NOW(), 'admin', NOW(), 'admin', '0'),
+('wh_002', 'CPK001', '台式主机产品库', '产品库', 1, 2, 3, 4, NOW(), 'admin', NOW(), 'admin', '0');
+
+-- 电脑配件库库位（1组×2排×3层×4列 = 24个）
+INSERT IGNORE INTO `sp_warehouse_location` (`id`, `warehouse_id`, `code`, `group_num`, `row_num`, `layer_num`, `column_num`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`) VALUES
+('loc_001_001','wh_001','PJK001-1-1-1-1',1,1,1,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_002','wh_001','PJK001-1-1-1-2',1,1,1,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_003','wh_001','PJK001-1-1-1-3',1,1,1,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_004','wh_001','PJK001-1-1-1-4',1,1,1,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_005','wh_001','PJK001-1-1-2-1',1,1,2,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_006','wh_001','PJK001-1-1-2-2',1,1,2,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_007','wh_001','PJK001-1-1-2-3',1,1,2,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_008','wh_001','PJK001-1-1-2-4',1,1,2,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_009','wh_001','PJK001-1-1-3-1',1,1,3,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_010','wh_001','PJK001-1-1-3-2',1,1,3,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_011','wh_001','PJK001-1-1-3-3',1,1,3,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_012','wh_001','PJK001-1-1-3-4',1,1,3,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_013','wh_001','PJK001-1-2-1-1',1,2,1,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_014','wh_001','PJK001-1-2-1-2',1,2,1,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_015','wh_001','PJK001-1-2-1-3',1,2,1,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_016','wh_001','PJK001-1-2-1-4',1,2,1,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_017','wh_001','PJK001-1-2-2-1',1,2,2,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_018','wh_001','PJK001-1-2-2-2',1,2,2,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_019','wh_001','PJK001-1-2-2-3',1,2,2,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_020','wh_001','PJK001-1-2-2-4',1,2,2,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_021','wh_001','PJK001-1-2-3-1',1,2,3,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_022','wh_001','PJK001-1-2-3-2',1,2,3,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_023','wh_001','PJK001-1-2-3-3',1,2,3,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_001_024','wh_001','PJK001-1-2-3-4',1,2,3,4,NOW(),'admin',NOW(),'admin','0');
+
+-- 台式主机产品库库位（1组×2排×3层×4列 = 24个）
+INSERT IGNORE INTO `sp_warehouse_location` (`id`, `warehouse_id`, `code`, `group_num`, `row_num`, `layer_num`, `column_num`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`) VALUES
+('loc_002_001','wh_002','CPK001-1-1-1-1',1,1,1,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_002','wh_002','CPK001-1-1-1-2',1,1,1,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_003','wh_002','CPK001-1-1-1-3',1,1,1,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_004','wh_002','CPK001-1-1-1-4',1,1,1,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_005','wh_002','CPK001-1-1-2-1',1,1,2,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_006','wh_002','CPK001-1-1-2-2',1,1,2,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_007','wh_002','CPK001-1-1-2-3',1,1,2,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_008','wh_002','CPK001-1-1-2-4',1,1,2,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_009','wh_002','CPK001-1-1-3-1',1,1,3,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_010','wh_002','CPK001-1-1-3-2',1,1,3,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_011','wh_002','CPK001-1-1-3-3',1,1,3,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_012','wh_002','CPK001-1-1-3-4',1,1,3,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_013','wh_002','CPK001-1-2-1-1',1,2,1,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_014','wh_002','CPK001-1-2-1-2',1,2,1,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_015','wh_002','CPK001-1-2-1-3',1,2,1,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_016','wh_002','CPK001-1-2-1-4',1,2,1,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_017','wh_002','CPK001-1-2-2-1',1,2,2,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_018','wh_002','CPK001-1-2-2-2',1,2,2,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_019','wh_002','CPK001-1-2-2-3',1,2,2,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_020','wh_002','CPK001-1-2-2-4',1,2,2,4,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_021','wh_002','CPK001-1-2-3-1',1,2,3,1,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_022','wh_002','CPK001-1-2-3-2',1,2,3,2,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_023','wh_002','CPK001-1-2-3-3',1,2,3,3,NOW(),'admin',NOW(),'admin','0'),
+('loc_002_024','wh_002','CPK001-1-2-3-4',1,2,3,4,NOW(),'admin',NOW(),'admin','0');
 
 -- ----------------------------
 -- Table structure for sp_sys_role
@@ -954,15 +1064,35 @@ VALUES
 -- ----------------------------
 -- 物料维护模块扩展
 -- ----------------------------
-ALTER TABLE `sp_materile`
-ADD COLUMN `source` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源（自制/外购）' AFTER `mat_type`,
-ADD COLUMN `img_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址' AFTER `source`,
-ADD COLUMN `lead_time` int(11) NULL DEFAULT 1 COMMENT '需求提前期（天）' AFTER `img_url`,
-ADD COLUMN `safety_stock` int(11) NULL DEFAULT 0 COMMENT '安全库存' AFTER `lead_time`,
-ADD COLUMN `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `safety_stock`;
+-- 使用存储过程安全添加字段（避免 Duplicate column name 错误）
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS AddColumnIfNotExists$$
+CREATE PROCEDURE AddColumnIfNotExists(IN p_table VARCHAR(64), IN p_column VARCHAR(64), IN p_definition TEXT)
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = p_table AND COLUMN_NAME = p_column
+  ) THEN
+    SET @sql = CONCAT('ALTER TABLE ', p_table, ' ADD COLUMN ', p_column, ' ', p_definition);
+    PREPARE stmt FROM @sql;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+  END IF;
+END$$
+
+DELIMITER ;
+
+CALL AddColumnIfNotExists('sp_materile', '`source`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源（自制/外购）' AFTER `mat_type`");
+CALL AddColumnIfNotExists('sp_materile', '`img_url`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址' AFTER `source`");
+CALL AddColumnIfNotExists('sp_materile', '`lead_time`', "int(11) NULL DEFAULT 1 COMMENT '需求提前期（天）' AFTER `img_url`");
+CALL AddColumnIfNotExists('sp_materile', '`safety_stock`', "int(11) NULL DEFAULT 0 COMMENT '安全库存' AFTER `lead_time`");
+CALL AddColumnIfNotExists('sp_materile', '`remark`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `safety_stock`");
+
+DROP PROCEDURE IF EXISTS AddColumnIfNotExists;
 
 -- 新增物料类型字典（产品、零件、标准件、其他）
-INSERT INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+INSERT IGNORE INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('1337618042191905', '产品',   '产品',   'material_type', '物料类型', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
 ('1337618042191906', '零件',   '零件',   'material_type', '物料类型', 2, '""', '0', NOW(), 'admin', NOW(), 'admin'),
@@ -970,7 +1100,7 @@ VALUES
 ('1337618042191908', '其他',   '其他',   'material_type', '物料类型', 4, '""', '0', NOW(), 'admin', NOW(), 'admin');
 
 -- 新增物料来源字典（自制、外购）
-INSERT INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
+INSERT IGNORE INTO `sp_sys_dict` (`id`, `name`, `value`, `type`, `descr`, `sort_num`, `parent_id`, `is_deleted`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('1337618042191909', '自制', '自制', 'material_source', '物料来源', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
 ('1337618042191910', '外购', '外购', 'material_source', '物料来源', 2, '""', '0', NOW(), 'admin', NOW(), 'admin');
