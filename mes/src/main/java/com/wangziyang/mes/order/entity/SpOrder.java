@@ -64,6 +64,11 @@ public class SpOrder extends BaseEntity {
      */
     private Integer statue;
 
+    /**
+     * 设备ID
+     */
+    private String equipmentId;
+
     public String getOrderCode() {
         return orderCode;
     }
@@ -134,6 +139,13 @@ public class SpOrder extends BaseEntity {
     public void setStatue(Integer statue) {
         this.statue = statue;
     }
+    public String getEquipmentId() {
+        return equipmentId;
+    }
+
+    public void setEquipmentId(String equipmentId) {
+        this.equipmentId = equipmentId;
+    }
 
     @Override
     public String toString() {
@@ -148,6 +160,7 @@ public class SpOrder extends BaseEntity {
             ", planStartTime=" + planStartTime +
             ", planEndTime=" + planEndTime +
             ", statue=" + statue +
+            ", equipmentId=" + equipmentId +
         "}";
     }
 }
