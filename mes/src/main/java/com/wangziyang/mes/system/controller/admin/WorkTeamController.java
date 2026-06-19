@@ -134,7 +134,10 @@ public class WorkTeamController extends BaseController {
      */
     @PostMapping("/save-bind-users")
     @ResponseBody
-    public Result saveBindUsers(String teamId, @RequestParam(value = "userIds", required = false) List<String> userIds) {
+    public Result saveBindUsers(@RequestParam String teamId, @RequestParam(value = "userIds", required = false) List<String> userIds) {
+        if (StringUtils.isEmpty(teamId)) {
+            return Result.failure("班组ID不能为空");
+        }
         workTeamUserService.saveBindUsers(teamId, userIds);
         return Result.success();
     }

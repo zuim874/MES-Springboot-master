@@ -155,8 +155,7 @@
                 spLayer.open({
                     title: '绑定员工 - ' + data.name,
                     area: ['600px', '500px'],
-                    spWhere: {teamId: data.id},
-                    content: '${request.contextPath}/admin/work/team/bind-user-ui'
+                    content: '${request.contextPath}/admin/work/team/bind-user-ui?teamId=' + data.id
                 });
             }
 

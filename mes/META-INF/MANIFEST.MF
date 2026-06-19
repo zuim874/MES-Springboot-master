@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Version: 3.1.2
+Build-Timestamp: 2019-06-25 22:19:22
+Built-By: wonde
+Bundle-DocURL: https://mybatis.plus/
+Build-OS: Windows 10
+Built-Gradle: 5.3.1
+Build-Jdk: 1.8.0_161
+

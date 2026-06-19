@@ -25,7 +25,7 @@
         var transfer = layui.transfer,
             layer = layui.layer;
 
-        var teamId = $('#js-team-id').val();
+        var teamId = spUtil.parseQueryString(window.location.href).teamId || $('#js-team-id').val();
 
         // 加载所有用户和已绑定用户
         $.when(
@@ -76,6 +76,7 @@
             $.ajax({
                 url: '${request.contextPath}/admin/work/team/save-bind-users',
                 type: 'POST',
+                traditional: true,
                 data: {
                     teamId: teamId,
                     userIds: userIds
