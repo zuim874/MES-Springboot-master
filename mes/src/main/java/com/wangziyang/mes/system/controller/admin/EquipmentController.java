@@ -74,6 +74,8 @@ public class EquipmentController extends BaseController {
     public Result addOrUpdate(Equipment record, String isDeleted) {
         if (StringUtils.isNotEmpty(isDeleted)) {
             record.setIsDeleted(isDeleted);
+        } else {
+            record.setIsDeleted("0");
         }
         equipmentService.saveOrUpdate(record);
         return Result.success(record.getId());

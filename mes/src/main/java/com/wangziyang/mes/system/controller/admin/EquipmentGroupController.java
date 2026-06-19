@@ -86,6 +86,8 @@ public class EquipmentGroupController extends BaseController {
     public Result addOrUpdate(EquipmentGroup record, String isDeleted) {
         if (StringUtils.isNotEmpty(isDeleted)) {
             record.setIsDeleted(isDeleted);
+        } else {
+            record.setIsDeleted("0");
         }
         equipmentGroupService.saveOrUpdate(record);
         return Result.success(record.getId());
