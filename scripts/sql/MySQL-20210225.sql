@@ -1105,4 +1105,35 @@ VALUES
 ('1337618042191909', '自制', '自制', 'material_source', '物料来源', 1, '""', '0', NOW(), 'admin', NOW(), 'admin'),
 ('1337618042191910', '外购', '外购', 'material_source', '物料来源', 2, '""', '0', NOW(), 'admin', NOW(), 'admin');
 
+-- 零部件定义模块
+DROP TABLE IF EXISTS `sp_part`;
+CREATE TABLE `sp_part` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '零部件编号',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '零部件名称',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注描述',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_part_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '零部件定义';
+
+-- 产品数据中心菜单
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('18', 'productData', '产品数据中心', '#', '1', '2', 8, '0', 'user:add', 'fa fa-cube', '', NOW(), 'admin', NOW(), 'admin');
+
+-- 零部件定义菜单
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('181', 'partDef', '零部件定义', '/admin/part/list-ui', '18', '3', 1, '0', 'user:add', 'fa fa-puzzle-piece', '', NOW(), 'admin', NOW(), 'admin');
+
+-- 零部件定义预置数据
+INSERT IGNORE INTO `sp_part` (`id`, `code`, `name`, `remark`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('part_001', 'BJ000001', '主板单元', '台式电脑主机主板集成组件', NOW(), 'admin', NOW(), 'admin', '0'),
+('part_002', 'BJ000002', '机箱单元', '台式电脑主机机箱组装组件', NOW(), 'admin', NOW(), 'admin', '0'),
+('part_003', 'BJ000003', '台式电脑主机半成品', '经过组装后的台式电脑主机半成品', NOW(), 'admin', NOW(), 'admin', '0');
+
 SET FOREIGN_KEY_CHECKS = 1;
