@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.wangziyang.mes.common.BaseEntity;
 
 /**
- * 产品BOM主表实体
+ * 产品BOM头表实体
  */
 @TableName("sp_product_bom")
 public class ProductBom extends BaseEntity {
@@ -12,29 +12,29 @@ public class ProductBom extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * BOM编码
-     */
-    private String bomCode;
-
-    /**
      * 产品物料编码
      */
-    private String productMaterielCode;
+    private String code;
 
     /**
-     * 产品物料描述
+     * 产品物料名称
      */
-    private String productMaterielDesc;
+    private String name;
 
     /**
-     * 版本号
+     * 版本
      */
     private String version;
 
     /**
-     * 状态 0草稿 1定版
+     * 有效性 0:无效 1:有效
      */
-    private String state;
+    private String isValid;
+
+    /**
+     * 定版标识 0:未定版 1:已定版
+     */
+    private String isFrozen;
 
     /**
      * 备注
@@ -42,32 +42,24 @@ public class ProductBom extends BaseEntity {
     private String remark;
 
     /**
-     * 逻辑删除
+     * 是否删除
      */
     private String isDeleted;
 
-    public String getBomCode() {
-        return bomCode;
+    public String getCode() {
+        return code;
     }
 
-    public void setBomCode(String bomCode) {
-        this.bomCode = bomCode;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getProductMaterielCode() {
-        return productMaterielCode;
+    public String getName() {
+        return name;
     }
 
-    public void setProductMaterielCode(String productMaterielCode) {
-        this.productMaterielCode = productMaterielCode;
-    }
-
-    public String getProductMaterielDesc() {
-        return productMaterielDesc;
-    }
-
-    public void setProductMaterielDesc(String productMaterielDesc) {
-        this.productMaterielDesc = productMaterielDesc;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getVersion() {
@@ -78,12 +70,20 @@ public class ProductBom extends BaseEntity {
         this.version = version;
     }
 
-    public String getState() {
-        return state;
+    public String getIsValid() {
+        return isValid;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setIsValid(String isValid) {
+        this.isValid = isValid;
+    }
+
+    public String getIsFrozen() {
+        return isFrozen;
+    }
+
+    public void setIsFrozen(String isFrozen) {
+        this.isFrozen = isFrozen;
     }
 
     public String getRemark() {

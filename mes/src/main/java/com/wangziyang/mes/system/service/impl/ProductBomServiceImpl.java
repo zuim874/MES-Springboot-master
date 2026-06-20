@@ -7,7 +7,7 @@ import com.wangziyang.mes.system.service.IProductBomService;
 import org.springframework.stereotype.Service;
 
 /**
- * 产品BOM服务实现
+ * 产品BOM头表服务实现
  */
 @Service
 public class ProductBomServiceImpl extends ServiceImpl<ProductBomMapper, ProductBom> implements IProductBomService {

@@ -36,8 +36,7 @@
     </div>
 
     <div class="layui-form-item" style="text-align: center;">
-        <button class="layui-btn" lay-submit lay-filter="part-form-filter">保存</button>
-        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        <button id="js-submit" lay-submit lay-filter="part-form-filter" style="display:none;"></button>
     </div>
 </div>
 
