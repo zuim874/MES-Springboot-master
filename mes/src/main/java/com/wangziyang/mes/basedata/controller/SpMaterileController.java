@@ -1,7 +1,6 @@
 package com.wangziyang.mes.basedata.controller;
 
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,8 +10,6 @@ import com.wangziyang.mes.basedata.request.spMaterileReq;
 import com.wangziyang.mes.basedata.service.ISpMaterileService;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
-import com.wangziyang.mes.technology.entity.SpFlow;
-import com.wangziyang.mes.technology.service.ISpFlowService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Objects;
+
 
 /**
  * <p>
@@ -46,12 +43,6 @@ public class SpMaterileController extends BaseController {
      */
     @Autowired
     private ISpMaterileService iSpMaterileService;
-    /**
-     * 流程服务
-     */
-    @Autowired
-    private ISpFlowService iSpFlowService;
-
     /**
      * 物料管理界面
      *
@@ -168,12 +159,6 @@ public class SpMaterileController extends BaseController {
             }
         }
 
-        if (StrUtil.isNotBlank(record.getFlowId())) {
-            SpFlow spflow = iSpFlowService.getById(record.getFlowId());
-            if (Objects.nonNull(spflow)) {
-                record.setFlowDesc(spflow.getFlowDesc());
-            }
-        }
         iSpMaterileService.saveOrUpdate(record);
         return Result.success();
     }

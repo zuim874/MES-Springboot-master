@@ -46,6 +46,11 @@ public class ProductBom extends BaseEntity {
      */
     private String isDeleted;
 
+    /**
+     * 工艺规划是否锁定 0:否 1:是
+     */
+    private String processPlanLocked;
+
     public String getCode() {
         return code;
     }
@@ -100,5 +105,13 @@ public class ProductBom extends BaseEntity {
 
     public void setIsDeleted(String isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public String getProcessPlanLocked() {
+        return processPlanLocked;
+    }
+
+    public void setProcessPlanLocked(String processPlanLocked) {
+        this.processPlanLocked = processPlanLocked;
     }
 }

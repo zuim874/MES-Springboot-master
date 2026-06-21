@@ -1185,4 +1185,255 @@ CREATE TABLE `sp_product_bom_node` (
 INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES ('182', 'productBom', '产品BOM管理', '/admin/productBom/list-ui', '18', '3', 2, '0', 'user:add', 'fa fa-sitemap', '', NOW(), 'admin', NOW(), 'admin');
 
+-- ----------------------------
+-- 工序信息定义模块
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_process`;
+CREATE TABLE `sp_process` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工序编号',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工序名称',
+  `process_unit_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '加工单元ID',
+  `process_unit_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '加工单元名称',
+  `labor_hours` int(11) NOT NULL DEFAULT 1 COMMENT '工序工时(h)',
+  `manufacturing_cycle` int(11) NOT NULL DEFAULT 2 COMMENT '制造周期(h)',
+  `generate_production_plan` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '是' COMMENT '是否生成生产计划：是/否',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_process_code`(`code`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '工序信息定义';
+
+-- 工序信息定义菜单（迁移至工艺管理板块下）
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('183', 'processDef', '工序信息定义', '/admin/process/list-ui', '15', '3', 3, '0', 'user:add', 'fa fa-cogs', '', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------
+-- 工艺流程管理模块
+-- ----------------------------
+-- sp_product_bom 增加工艺规划锁定字段
+ALTER TABLE `sp_product_bom` ADD COLUMN `process_plan_locked` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '工艺规划是否锁定 0：否 1：是';
+
+DROP TABLE IF EXISTS `sp_process_plan`;
+CREATE TABLE `sp_process_plan` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `bom_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'BOM头ID',
+  `bom_node_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'BOM节点ID',
+  `parent_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '上级工艺规划ID',
+  `flow_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序流程定义ID',
+  `process_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序ID',
+  `process_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序名称',
+  `process_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序编号',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_bom_id`(`bom_id`) USING BTREE,
+  INDEX `idx_bom_node_id`(`bom_node_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '工艺规划表';
+
+-- 工艺流程管理菜单（迁移至工艺管理板块下）
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('184', 'processPlan', '工艺流程管理', '/admin/processPlan/list-ui', '15', '3', 4, '0', 'user:add', 'fa fa-sitemap', '', NOW(), 'admin', NOW(), 'admin');
+
+-- 迁移：将已存在的工序信息定义和工艺流程管理菜单从"产品数据中心"移到"工艺管理"
+UPDATE `sp_sys_menu` SET `parent_id` = '15' WHERE `id` IN ('183', '184');
+
+-- 补充角色权限：工艺员角色拥有工序信息定义和工艺流程管理权限
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_pe_05', 'role_process_eng', '183', NOW(), 'admin', NOW(), 'admin'),
+('rm_pe_06', 'role_process_eng', '184', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------
+-- 工艺内容编制模块
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_process_content`;
+CREATE TABLE `sp_process_content` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `bom_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'BOM头ID',
+  `bom_node_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'BOM节点ID',
+  `process_plan_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工艺规划ID',
+  `process_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工序ID',
+  `operation_steps` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作步骤',
+  `equipment_tools` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备工装',
+  `material_list` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所需物料清单',
+  `tech_params` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '技术参数',
+  `self_check_std` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '自检标准',
+  `safety_req` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安全/防静电要求',
+  `process_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工艺附图（JSON数组）',
+  `tech_docs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '技术文档（JSON数组）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_bom_node_process`(`bom_id`, `bom_node_id`, `process_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '工艺内容编制';
+
+-- 工艺内容编制菜单
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('185', 'processContent', '工艺内容编制', '/admin/processContent/list-ui', '15', '3', 5, '0', 'user:add', 'fa fa-file-text-o', '', NOW(), 'admin', NOW(), 'admin');
+
+-- 补充角色权限：工艺员角色拥有工艺内容编制权限
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_pe_07', 'role_process_eng', '185', NOW(), 'admin', NOW(), 'admin');
+
+-- ----------------------------
+-- 工序流程定义模块（迁移自原工艺路线管理）
+-- ----------------------------
+DROP TABLE IF EXISTS `sp_process_flow`;
+CREATE TABLE `sp_process_flow` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '流程编码',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '流程名称',
+  `process_chain` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '时序流程字符串（如：装配工序->测试工序->...）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '工序流程定义';
+
+DROP TABLE IF EXISTS `sp_process_flow_detail`;
+CREATE TABLE `sp_process_flow_detail` (
+  `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '主键ID',
+  `flow_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '流程头ID',
+  `process_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工序ID',
+  `process_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序名称',
+  `process_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '工序编号',
+  `sort_num` int(11) NULL DEFAULT 0 COMMENT '排序号',
+  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人',
+  `is_deleted` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '是否删除 0：否 1：是',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_flow_id`(`flow_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '工序流程明细';
+
+-- 工序流程定义菜单（挂在工艺管理下）
+INSERT IGNORE INTO `sp_sys_menu` (`id`, `code`, `name`, `url`, `parent_id`, `grade`, `sort_num`, `type`, `permission`, `icon`, `descr`, `create_time`, `create_username`, `update_time`, `update_username`)
+VALUES ('186', 'processFlowDef', '工序流程定义', '/admin/processFlow/list-ui', '15', '3', 6, '0', 'user:add', 'fa fa-retweet', '', NOW(), 'admin', NOW(), 'admin');
+
+-- 补充角色权限：工艺员角色拥有工序流程定义权限
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_pe_08', 'role_process_eng', '186', NOW(), 'admin', NOW(), 'admin');
+
+-- 删除旧模块：工艺路线管理菜单（151）及其子菜单、工艺BOM管理菜单（152）及其子菜单
+DELETE FROM `sp_sys_role_menu` WHERE `menu_id` IN ('151', '152');
+DELETE FROM `sp_sys_menu` WHERE `id` IN ('151', '152');
+
+-- 删除旧模块数据库表
+DROP TABLE IF EXISTS `sp_flow`;
+DROP TABLE IF EXISTS `sp_flow_oper_relation`;
+DROP TABLE IF EXISTS `sp_bom`;
+DROP TABLE IF EXISTS `sp_bom_item`;
+
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- ============================================================================
+-- 第三部分：工艺管理板块完整初始化数据
+-- ============================================================================
+
+-- ----------------------------
+-- 1. 工序信息定义预置数据
+-- ----------------------------
+INSERT IGNORE INTO `sp_process` (`id`, `code`, `name`, `process_unit_id`, `process_unit_name`, `labor_hours`, `manufacturing_cycle`, `generate_production_plan`, `remark`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('proc_001', 'P001', '装配工序', 'pu_002', '电脑组装单元', 2, 4, '是', '将主板、CPU、内存、硬盘等核心组件安装到机箱中，连接电源线和数据线', NOW(), 'admin', NOW(), 'admin', '0'),
+('proc_002', 'P002', '测试工序', 'pu_002', '电脑组装单元', 1, 2, '是', '通电测试各硬件模块是否正常运行，检查BIOS识别情况', NOW(), 'admin', NOW(), 'admin', '0'),
+('proc_003', 'P003', '集成测试工序', 'pu_002', '电脑组装单元', 3, 6, '是', '运行整机压力测试、兼容性测试、性能基准测试', NOW(), 'admin', NOW(), 'admin', '0'),
+('proc_004', 'P004', '封胶工序', 'pu_002', '电脑组装单元', 1, 2, '否', '对关键接口和焊点进行点胶加固，提升抗震和防潮性能', NOW(), 'admin', NOW(), 'admin', '0'),
+('proc_005', 'P005', '清洗工序', 'pu_002', '电脑组装单元', 1, 2, '否', '使用防静电毛刷和离子风机清除内部灰尘与碎屑', NOW(), 'admin', NOW(), 'admin', '0'),
+('proc_006', 'P006', '包装工序', 'pu_002', '电脑组装单元', 1, 2, '是', '贴防伪标签、装箱、放入说明书与配件包、封箱贴码', NOW(), 'admin', NOW(), 'admin', '0');
+
+-- ----------------------------
+-- 2. 工序流程定义预置数据
+-- ----------------------------
+INSERT IGNORE INTO `sp_process_flow` (`id`, `code`, `name`, `process_chain`, `remark`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('flow_001', 'FL001', '台式电脑主机标准装配流程', '装配工序->测试工序->集成测试工序->封胶工序->清洗工序->包装工序', '适用于所有台式电脑主机产品的标准制造流程', NOW(), 'admin', NOW(), 'admin', '0'),
+('flow_002', 'FL002', '简配版装配流程', '装配工序->测试工序->包装工序', '适用于低端/简配机型的快速制造流程', NOW(), 'admin', NOW(), 'admin', '0');
+
+INSERT IGNORE INTO `sp_process_flow_detail` (`id`, `flow_id`, `process_id`, `process_name`, `process_code`, `sort_num`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('fd_001', 'flow_001', 'proc_001', '装配工序', 'P001', 1, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_002', 'flow_001', 'proc_002', '测试工序', 'P002', 2, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_003', 'flow_001', 'proc_003', '集成测试工序', 'P003', 3, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_004', 'flow_001', 'proc_004', '封胶工序', 'P004', 4, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_005', 'flow_001', 'proc_005', '清洗工序', 'P005', 5, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_006', 'flow_001', 'proc_006', '包装工序', 'P006', 6, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_007', 'flow_002', 'proc_001', '装配工序', 'P001', 1, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_008', 'flow_002', 'proc_002', '测试工序', 'P002', 2, NOW(), 'admin', NOW(), 'admin', '0'),
+('fd_009', 'flow_002', 'proc_006', '包装工序', 'P006', 3, NOW(), 'admin', NOW(), 'admin', '0');
+
+-- ----------------------------
+-- 3. 产品BOM预置数据（用于工艺规划演示）
+-- ----------------------------
+INSERT IGNORE INTO `sp_product_bom` (`id`, `code`, `name`, `version`, `is_valid`, `is_frozen`, `remark`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('bom_demo_001', 'PC-DESKTOP-001', '台式电脑主机（标准版）', 'V1.0', '1', '0', '演示用产品BOM，用于验证工艺流程管理功能', NOW(), 'admin', NOW(), 'admin', '0');
+
+INSERT IGNORE INTO `sp_product_bom_node` (`id`, `bom_id`, `parent_id`, `node_code`, `node_name`, `node_level`, `node_type`, `ref_code`, `ref_name`, `qty`, `remark`, `sort_num`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('bn_root_001', 'bom_demo_001', NULL, '0', '台式电脑主机（标准版）', 0, '0', NULL, NULL, 1.00, '根节点', 0, NOW(), 'admin', NOW(), 'admin', '0'),
+('bn_001', 'bom_demo_001', 'bn_root_001', '1', '主机装配', 1, '1', 'BJ000003', '台式电脑主机半成品', 1.00, '核心装配节点', 1, NOW(), 'admin', NOW(), 'admin', '0'),
+('bn_002', 'bom_demo_001', 'bn_root_001', '2', '主板单元', 1, '1', 'BJ000001', '主板单元', 1.00, '主板组件', 2, NOW(), 'admin', NOW(), 'admin', '0'),
+('bn_003', 'bom_demo_001', 'bn_root_001', '3', '机箱单元', 1, '1', 'BJ000002', '机箱单元', 1.00, '机箱组件', 3, NOW(), 'admin', NOW(), 'admin', '0'),
+('bn_004', 'bom_demo_001', 'bn_root_001', '4', 'CPU处理器', 1, '2', 'MAT-CPU-001', 'Intel i7-12700', 1.00, '中央处理器', 4, NOW(), 'admin', NOW(), 'admin', '0'),
+('bn_005', 'bom_demo_001', 'bn_root_001', '5', '内存条', 1, '2', 'MAT-RAM-001', 'DDR4 16GB', 2.00, '内存组件', 5, NOW(), 'admin', NOW(), 'admin', '0');
+
+-- ----------------------------
+-- 4. 工艺规划预置数据（主机装配节点绑定装配工序，来源为流程定义 FL001）
+-- ----------------------------
+INSERT IGNORE INTO `sp_process_plan` (`id`, `bom_id`, `bom_node_id`, `parent_id`, `flow_id`, `process_id`, `process_name`, `process_code`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('plan_001', 'bom_demo_001', 'bn_001', NULL, 'flow_001', 'proc_001', '装配工序', 'P001', NOW(), 'admin', NOW(), 'admin', '0');
+
+-- ----------------------------
+-- 5. 工艺内容编制预置数据（为装配工序编制SOP）
+-- ----------------------------
+INSERT IGNORE INTO `sp_process_content` (`id`, `bom_id`, `bom_node_id`, `process_plan_id`, `process_id`, `operation_steps`, `equipment_tools`, `material_list`, `tech_params`, `self_check_std`, `safety_req`, `process_images`, `tech_docs`, `remark`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`)
+VALUES
+('content_001', 'bom_demo_001', 'bn_001', 'plan_001', 'proc_001',
+'1. 检查机箱内部是否清洁，确认无异物；\n2. 安装主板铜柱，将主板固定到机箱托盘；\n3. 安装CPU到主板插槽，扣紧压杆；\n4. 安装内存条到DIMM插槽，确保卡扣到位；\n5. 安装M.2固态硬盘并固定螺丝；\n6. 安装电源到机箱电源位并固定；\n7. 连接24pin主板供电、8pin CPU供电、SATA数据线；\n8. 检查所有线缆走线，扣合机箱侧板。',
+'防静电手环、电动螺丝刀（扭矩0.5N·m）、主板铜柱套筒、扎带',
+'主板x1、CPU x1、内存条x2、M.2硬盘x1、电源x1、机箱x1、数据线若干',
+'主板供电：24pin + 8pin；内存频率：DDR4-3200；CPU插槽：LGA1700；扭矩：0.5N·m',
+'1. 主板固定螺丝无滑丝；\n2. CPU压杆完全扣合；\n3. 内存卡扣完全闭合；\n4. 所有供电线插接到位无松动；\n5. 机箱内部无线缆干涉。',
+'1. 作业前必须佩戴防静电手环并接地；\n2. 禁止在铺有化纤地毯的环境中裸手接触电路板；\n3. 工具金属部分需做绝缘包裹，防止短路；\n4. 拆封的静电敏感元件需在30分钟内完成安装。',
+'[]',
+'[]',
+'标准装配SOP v1.0',
+NOW(), 'admin', NOW(), 'admin', '0');
+
+-- ----------------------------
+-- 6. 角色菜单权限补充（为各角色补充工艺管理相关菜单权限）
+-- ----------------------------
+
+-- 管理员（admin）已拥有全部菜单权限，此处无需补充
+
+-- 生产主管（role_prod_supervisor）补充新工艺管理菜单权限
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_ps_11', 'role_prod_supervisor', '183', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_12', 'role_prod_supervisor', '184', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_13', 'role_prod_supervisor', '185', NOW(), 'admin', NOW(), 'admin'),
+('rm_ps_14', 'role_prod_supervisor', '186', NOW(), 'admin', NOW(), 'admin');
+
+-- 生产计划员（role_prod_planner）补充工艺管理查看权限
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_pp_04', 'role_prod_planner', '15',  NOW(), 'admin', NOW(), 'admin'),
+('rm_pp_05', 'role_prod_planner', '183', NOW(), 'admin', NOW(), 'admin'),
+('rm_pp_06', 'role_prod_planner', '184', NOW(), 'admin', NOW(), 'admin'),
+('rm_pp_07', 'role_prod_planner', '186', NOW(), 'admin', NOW(), 'admin');
