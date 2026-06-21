@@ -42,6 +42,11 @@ public class WarehouseLocation extends BaseEntity {
     private Integer columnNum;
 
     /**
+     * 当前存放物料ID
+     */
+    private String materielId;
+
+    /**
      * 逻辑删除
      */
     private String isDeleted;
@@ -92,6 +97,14 @@ public class WarehouseLocation extends BaseEntity {
 
     public void setColumnNum(Integer columnNum) {
         this.columnNum = columnNum;
+    }
+
+    public String getMaterielId() {
+        return materielId;
+    }
+
+    public void setMaterielId(String materielId) {
+        this.materielId = materielId;
     }
 
     public String getIsDeleted() {

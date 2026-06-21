@@ -84,6 +84,16 @@ public class SpMaterile extends BaseEntity {
     private String remark;
 
     /**
+     * 默认存放库房ID
+     */
+    private String warehouseId;
+
+    /**
+     * 默认存放库位ID
+     */
+    private String locationId;
+
+    /**
      * 状态(00:删除;01:正常;02:禁用)
      */
     @TableField(value = "is_deleted")
@@ -352,5 +362,33 @@ public class SpMaterile extends BaseEntity {
      */
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    /**
+     * 获取 默认存放库房ID
+     */
+    public String getWarehouseId() {
+        return this.warehouseId;
+    }
+
+    /**
+     * 设置 默认存放库房ID
+     */
+    public void setWarehouseId(String warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    /**
+     * 获取 默认存放库位ID
+     */
+    public String getLocationId() {
+        return this.locationId;
+    }
+
+    /**
+     * 设置 默认存放库位ID
+     */
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
     }
 }

@@ -83,6 +83,17 @@ public class ProcessFlowController extends BaseController {
         return "admin/processFlow/addOrUpdate";
     }
 
+    @ApiOperation("工序流程列表（不分页）")
+    @GetMapping("/list")
+    @ResponseBody
+    public Result list() {
+        QueryWrapper<ProcessFlow> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_deleted", "0");
+        wrapper.orderByDesc("create_time");
+        List<ProcessFlow> list = processFlowService.list(wrapper);
+        return Result.success(list);
+    }
+
     @ApiOperation("工序流程分页列表")
     @PostMapping("/page")
     @ResponseBody

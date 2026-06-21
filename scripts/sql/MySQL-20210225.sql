@@ -1088,6 +1088,9 @@ CALL AddColumnIfNotExists('sp_materile', '`img_url`', "varchar(500) CHARACTER SE
 CALL AddColumnIfNotExists('sp_materile', '`lead_time`', "int(11) NULL DEFAULT 1 COMMENT '需求提前期（天）' AFTER `img_url`");
 CALL AddColumnIfNotExists('sp_materile', '`safety_stock`', "int(11) NULL DEFAULT 0 COMMENT '安全库存' AFTER `lead_time`");
 CALL AddColumnIfNotExists('sp_materile', '`remark`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `safety_stock`");
+CALL AddColumnIfNotExists('sp_materile', '`warehouse_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库房ID' AFTER `remark`");
+CALL AddColumnIfNotExists('sp_materile', '`location_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库位ID' AFTER `warehouse_id`");
+CALL AddColumnIfNotExists('sp_warehouse_location', '`materiel_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '当前存放物料ID' AFTER `column_num`");
 
 DROP PROCEDURE IF EXISTS AddColumnIfNotExists;
 

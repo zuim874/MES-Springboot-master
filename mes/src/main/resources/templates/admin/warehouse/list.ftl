@@ -20,6 +20,87 @@
             font-size: 14px;
             margin-left: 10px;
         }
+        /* 可视化二维表样式 */
+        .matrix-container {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 4px;
+        }
+        .matrix-toolbar {
+            margin-bottom: 10px;
+        }
+        .matrix-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+        .matrix-cell {
+            width: 120px;
+            min-height: 80px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+            position: relative;
+        }
+        .matrix-cell:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .matrix-cell.occupied {
+            background: #e6f7ff;
+            border-color: #1890ff;
+        }
+        .matrix-cell .cell-code {
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+        .matrix-cell .cell-status {
+            font-size: 11px;
+            margin-top: 4px;
+            padding: 2px 4px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+        .matrix-cell .cell-status.empty {
+            background: #f0f0f0;
+            color: #999;
+        }
+        .matrix-cell .cell-status.has-materiel {
+            background: #1890ff;
+            color: #fff;
+        }
+        .matrix-cell .cell-materiel {
+            font-size: 11px;
+            color: #333;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .matrix-legend {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .matrix-legend span {
+            margin-right: 15px;
+        }
+        .legend-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 4px;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+        }
+        .legend-dot.empty { background: #fff; }
+        .legend-dot.occupied { background: #e6f7ff; border-color: #1890ff; }
     </style>
 </head>
 <body>
@@ -63,7 +144,63 @@
             <span class="location-info" id="js-location-title"></span>
         </div>
         <table class="layui-hide" id="js-location-table" lay-filter="js-location-table-filter"></table>
+
+        <!-- 可视化二维表 -->
+        <div class="location-title">
+            库位可视化看板
+            <span class="location-info" id="js-matrix-title">请先选择库房</span>
+        </div>
+        <div class="matrix-container">
+            <div class="matrix-toolbar layui-form">
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:auto;">排号</label>
+                    <div class="layui-input-inline" style="width:80px;">
+                        <select id="js-matrix-row" lay-filter="matrix-row-filter"></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="width:auto;">层号</label>
+                    <div class="layui-input-inline" style="width:80px;">
+                        <select id="js-matrix-layer" lay-filter="matrix-layer-filter"></select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layui-btn-sm layui-btn-primary" id="js-refresh-matrix"><i class="layui-icon">&#xe669;</i>刷新</button>
+                </div>
+            </div>
+            <div class="matrix-grid" id="js-matrix-grid"></div>
+            <div class="matrix-legend">
+                <span><i class="legend-dot empty"></i>空闲库位</span>
+                <span><i class="legend-dot occupied"></i>已存放物料</span>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- 物料绑定弹窗 -->
+<div id="js-bind-popup" style="display:none; padding:20px;">
+    <form class="layui-form">
+        <input type="hidden" id="bind-location-id">
+        <div class="layui-form-item">
+            <label class="layui-form-label">库位编码</label>
+            <div class="layui-input-block">
+                <input type="text" id="bind-location-code" class="layui-input" readonly>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">存放物料</label>
+            <div class="layui-input-block">
+                <select id="bind-materiel-select" lay-search>
+                    <option value="">请选择物料（空表示解绑）</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" id="btn-save-bind">保存</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/html" id="js-warehouse-table-toolbar-top">
@@ -87,6 +224,9 @@
             spLayer = layui.spLayer,
             spTable = layui.spTable;
 
+        var g_currentWarehouse = null;
+        var g_materielList = [];
+
         // 加载库房类型字典
         spUtil.ajax({
             url: '${request.contextPath}/basedata/dict/list/warehouse_type',
@@ -102,6 +242,22 @@
                 }
             }
         });
+
+        // 预加载物料列表（用于绑定弹窗）
+        function loadMaterielList(callback) {
+            spUtil.ajax({
+                url: '${request.contextPath}/basedata/materile/page',
+                type: 'POST',
+                data: {size: 999, current: 1},
+                success: function (res) {
+                    if (res.code === 0 && res.data && res.data.records) {
+                        g_materielList = res.data.records;
+                    }
+                    callback && callback();
+                }
+            });
+        }
+        loadMaterielList();
 
         var warehouseTableIns = spTable.render({
             url: '${request.contextPath}/admin/warehouse/page',
@@ -123,12 +279,15 @@
             ]]
         });
 
-        // 库房行点击事件：加载库位
+        // 库房行点击事件：加载库位和可视化
         table.on('row(js-warehouse-table-filter)', function(obj) {
             var data = obj.data;
+            g_currentWarehouse = data;
             var total = data.groupCount * data.rowCount * data.layerCount * data.columnCount;
             $('#js-location-title').text('【' + data.name + '】 规格：' + data.groupCount + '组 x ' + data.rowCount + '排 x ' + data.layerCount + '层 x ' + data.columnCount + '列 = ' + total + '个库位');
             loadLocationTable(data.id);
+            initMatrixSelectors(data);
+            loadMatrix(data.id, 1, 1);
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
         });
 
@@ -223,10 +382,145 @@
                     {field: 'groupNum', title: '组号', width: 80},
                     {field: 'rowNum', title: '排号', width: 80},
                     {field: 'layerNum', title: '层号', width: 80},
-                    {field: 'columnNum', title: '列号', width: 80}
+                    {field: 'columnNum', title: '列号', width: 80},
+                    {field: 'materielId', title: '存放物料', width: 200, templet: function(d) {
+                        if (d.materielId) {
+                            var m = g_materielList.find(function(item) { return item.id === d.materielId; });
+                            return m ? (m.materiel + ' - ' + m.materielDesc) : '未知物料';
+                        }
+                        return '<span style="color:#999">空闲</span>';
+                    }}
                 ]]
             });
         }
+
+        // ==================== 可视化二维表 ====================
+
+        // 初始化排号和层号选择器
+        function initMatrixSelectors(warehouse) {
+            var rowSelect = $('#js-matrix-row');
+            var layerSelect = $('#js-matrix-layer');
+            rowSelect.empty();
+            layerSelect.empty();
+            for (var r = 1; r <= warehouse.rowCount; r++) {
+                rowSelect.append('<option value="' + r + '">第' + r + '排</option>');
+            }
+            for (var l = 1; l <= warehouse.layerCount; l++) {
+                layerSelect.append('<option value="' + l + '">第' + l + '层</option>');
+            }
+            form.render('select');
+            $('#js-matrix-title').text('【' + warehouse.name + '】 选择排号和层号查看库位分布');
+        }
+
+        // 监听排号/层号变化
+        form.on('select(matrix-row-filter)', function() { refreshMatrix(); });
+        form.on('select(matrix-layer-filter)', function() { refreshMatrix(); });
+        $('#js-refresh-matrix').click(function() { refreshMatrix(); });
+
+        function refreshMatrix() {
+            if (!g_currentWarehouse) {
+                layer.msg('请先选择库房', {icon: 0});
+                return;
+            }
+            var row = $('#js-matrix-row').val() || 1;
+            var layer = $('#js-matrix-layer').val() || 1;
+            loadMatrix(g_currentWarehouse.id, parseInt(row), parseInt(layer));
+        }
+
+        // 加载二维矩阵
+        function loadMatrix(warehouseId, rowNum, layerNum) {
+            spUtil.ajax({
+                url: '${request.contextPath}/admin/warehouse/location-matrix',
+                data: {warehouseId: warehouseId, rowNum: rowNum, layerNum: layerNum},
+                success: function (res) {
+                    if (res.code === 0) {
+                        renderMatrix(res.data, rowNum, layerNum);
+                    }
+                }
+            });
+        }
+
+        // 渲染二维网格
+        function renderMatrix(data, rowNum, layerNum) {
+            var container = $('#js-matrix-grid');
+            container.empty();
+            if (!data || data.length === 0) {
+                container.html('<div style="color:#999;padding:20px;">该排层暂无库位数据</div>');
+                return;
+            }
+            for (var i = 0; i < data.length; i++) {
+                var item = data[i];
+                var occupied = item.materielId ? true : false;
+                var cssClass = occupied ? 'occupied' : '';
+                var statusText = occupied ? '已占用' : '空闲';
+                var statusClass = occupied ? 'has-materiel' : 'empty';
+                var materielText = occupied ? (item.materielCode + ' ' + (item.materielDesc || '')) : '';
+
+                var html = '<div class="matrix-cell ' + cssClass + '" data-id="' + item.id + '" data-code="' + item.code + '" data-materiel="' + (item.materielId || '') + '">' +
+                    '<div class="cell-code">' + item.code + '</div>' +
+                    '<div class="cell-status ' + statusClass + '">' + statusText + '</div>' +
+                    (occupied ? '<div class="cell-materiel" title="' + materielText + '">' + materielText + '</div>' : '') +
+                    '</div>';
+                container.append(html);
+            }
+
+            // 绑定点击事件
+            $('.matrix-cell').click(function() {
+                var locationId = $(this).data('id');
+                var locationCode = $(this).data('code');
+                var currentMaterielId = $(this).data('materiel');
+                openBindPopup(locationId, locationCode, currentMaterielId);
+            });
+        }
+
+        // 打开物料绑定弹窗
+        function openBindPopup(locationId, locationCode, currentMaterielId) {
+            $('#bind-location-id').val(locationId);
+            $('#bind-location-code').val(locationCode);
+
+            var select = $('#bind-materiel-select');
+            select.empty();
+            select.append('<option value="">请选择物料（空表示解绑）</option>');
+            for (var i = 0; i < g_materielList.length; i++) {
+                var m = g_materielList[i];
+                var selected = (m.id === currentMaterielId) ? 'selected' : '';
+                select.append('<option value="' + m.id + '" ' + selected + '>' + m.materiel + ' - ' + m.materielDesc + '</option>');
+            }
+            form.render('select');
+
+            layer.open({
+                type: 1,
+                title: '库位物料绑定',
+                area: ['500px', '300px'],
+                content: $('#js-bind-popup'),
+                success: function() {
+                    form.render();
+                }
+            });
+        }
+
+        // 保存绑定
+        $('#btn-save-bind').click(function() {
+            var locationId = $('#bind-location-id').val();
+            var materielId = $('#bind-materiel-select').val();
+            spUtil.ajax({
+                url: '${request.contextPath}/admin/warehouse/bind-materiel',
+                type: 'POST',
+                data: {locationId: locationId, materielId: materielId},
+                success: function(res) {
+                    if (res.code === 0) {
+                        layer.msg('保存成功', {icon: 1});
+                        layer.closeAll();
+                        refreshMatrix();
+                        if (g_currentWarehouse) {
+                            loadLocationTable(g_currentWarehouse.id);
+                        }
+                    } else {
+                        layer.msg(res.msg || '保存失败', {icon: 2});
+                    }
+                }
+            });
+        });
     });
 </script>
 </body>

@@ -148,6 +148,22 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">存放库房</label>
+                        <div class="layui-input-inline">
+                            <select id="js-warehouse" name="warehouseId" lay-filter="warehouse-filter">
+                                <option value="">请选择库房</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">存放库位</label>
+                        <div class="layui-input-inline">
+                            <select id="js-location" name="locationId">
+                                <option value="">请选择库位</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
                         <label for="js-flowId" class="layui-form-label ">工艺流程
                         </label>
                         <div class="layui-input-inline">
@@ -194,6 +210,11 @@
         getMatTypeData();
         //物料来源
         getSourceData();
+        //库房库位
+        loadWarehouseData();
+        form.on('select(warehouse-filter)', function (data) {
+            loadLocationData(data.value);
+        });
 
         // 图片上传
         upload.render({
@@ -254,7 +275,7 @@
          */
         function getFlowData() {
             spUtil.ajax({
-                url: '${request.contextPath}/basedata/flow/list',
+                url: '${request.contextPath}/admin/processFlow/list',
                 async: false,
                 type: 'GET',
                 showLoading: true,
@@ -262,11 +283,14 @@
                 data: {},
                 success: function (data) {
                     flowRows = data.data;
+                },
+                error: function () {
+                    flowRows = [];
                 }
             });
 
             $.each(flowRows, function (index, item) {
-                $('#js-flowId').append(new Option(item.flowDesc, item.id));
+                $('#js-flowId').append(new Option(item.name, item.id));
             });
             //编辑时候根据回显的ID 绘制流程
             flowProssbyId("${(result.flowId)!}")
@@ -283,7 +307,7 @@
                 return obj.id == flowId;
             });
             if (newArr.length > 0) {
-                procssArr = newArr[0].process.split("->")
+                procssArr = newArr[0].processChain.split("->")
                 $("#js-flowProcess").empty();
                 $.each(procssArr, function (i, val) {
 
@@ -300,8 +324,78 @@
         form.val("formTest", {
             "flowId": "${(result.flowId)!}",
             "matType": "${(result.matType)!}",
-            "source": "${(result.source)!}"
+            "source": "${(result.source)!}",
+            "warehouseId": "${(result.warehouseId)!}",
+            "locationId": "${(result.locationId)!}"
         });
+
+        // 编辑时若已有库房，联动加载库位
+        var editWarehouseId = "${(result.warehouseId)!}";
+        if (editWarehouseId) {
+            loadLocationData(editWarehouseId, "${(result.locationId)!}");
+        }
+
+        /**
+         * 加载库房列表
+         */
+        function loadWarehouseData() {
+            spUtil.ajax({
+                url: '${request.contextPath}/admin/warehouse/page',
+                async: false,
+                type: 'POST',
+                showLoading: false,
+                data: {current: 1, size: 999},
+                success: function (res) {
+                    if (res.code === 0 && res.data && res.data.records) {
+                        var whSelect = $('#js-warehouse');
+                        whSelect.empty();
+                        whSelect.append('<option value="">请选择库房</option>');
+                        $.each(res.data.records, function (index, item) {
+                            whSelect.append(new Option(item.name + ' (' + item.code + ')', item.id));
+                        });
+                        form.render('select');
+                    }
+                },
+                error: function () {
+                    // 静默处理，避免弹窗影响用户体验
+                }
+            });
+        }
+
+        /**
+         * 根据库房加载库位列表
+         */
+        function loadLocationData(warehouseId, selectedLocationId) {
+            var locSelect = $('#js-location');
+            locSelect.empty();
+            locSelect.append('<option value="">请选择库位</option>');
+            if (!warehouseId) {
+                form.render('select');
+                return;
+            }
+            spUtil.ajax({
+                url: '${request.contextPath}/admin/warehouse/location-list',
+                async: false,
+                type: 'GET',
+                showLoading: false,
+                data: {warehouseId: warehouseId},
+                success: function (res) {
+                    if (res.code === 0 && res.data) {
+                        $.each(res.data, function (index, item) {
+                            var opt = new Option(item.code + ' (排' + item.rowNum + '-层' + item.layerNum + '-列' + item.columnNum + ')', item.id);
+                            if (selectedLocationId && item.id === selectedLocationId) {
+                                opt.selected = true;
+                            }
+                            locSelect.append(opt);
+                        });
+                    }
+                    form.render('select');
+                },
+                error: function () {
+                    form.render('select');
+                }
+            });
+        }
 
         //监听提交
         form.on('submit(js-submit-filter)', function (data) {
