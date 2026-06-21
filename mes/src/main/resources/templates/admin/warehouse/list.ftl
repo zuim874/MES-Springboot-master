@@ -83,6 +83,10 @@
             background: #e6f7ff;
             border-color: #1890ff;
         }
+        .matrix-cell.occupied-full {
+            background: #fff2e8;
+            border-color: #ff5722;
+        }
         .matrix-cell .cell-code {
             font-size: 11px;
             color: #666;
@@ -109,6 +113,10 @@
         }
         .matrix-cell .cell-status.has-materiel {
             background: #1890ff;
+            color: #fff;
+        }
+        .matrix-cell .cell-status.has-materiel-full {
+            background: #ff5722;
             color: #fff;
         }
         .matrix-cell .cell-materiel {
@@ -139,12 +147,25 @@
         }
         .legend-dot.empty { background: #fff; }
         .legend-dot.occupied { background: #e6f7ff; border-color: #1890ff; }
+        .legend-dot.occupied-full { background: #fff2e8; border-color: #ff5722; }
         .column-header {
             text-align: center;
             font-size: 12px;
             color: #666;
             padding: 4px 0;
             font-weight: bold;
+        }
+        .volume-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .volume-bar-inner {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
         }
     </style>
 </head>
@@ -218,6 +239,7 @@
             <div class="matrix-legend">
                 <span><i class="legend-dot empty"></i>空闲库位</span>
                 <span><i class="legend-dot occupied"></i>已存放物料</span>
+                <span><i class="legend-dot occupied-full"></i>满载(&ge;80%)</span>
             </div>
         </div>
     </div>
@@ -251,6 +273,12 @@
                 <div class="layui-input-inline" style="width:80px;">
                     <input type="number" id="bind-location-height" class="layui-input" value="50">
                 </div>
+            </div>
+        </div>
+        <div class="layui-form-item" id="bind-volume-info" style="display:none; margin-bottom:5px;">
+            <label class="layui-form-label" style="width:auto;padding:0 10px;">容积</label>
+            <div class="layui-input-block" style="margin-left:60px; line-height:28px; color:#666; font-size:12px;">
+                <span id="bind-volume-info-text"></span>
             </div>
         </div>
         <div class="layui-form-item">
@@ -454,11 +482,20 @@
                 page: false,
                 cols: [[
                     {type: 'numbers', width: 60, title: '序号'},
-                    {field: 'code', title: '库位编码', width: 180},
-                    {field: 'groupNum', title: '组号', width: 80},
-                    {field: 'rowNum', title: '排号', width: 80},
-                    {field: 'layerNum', title: '层号', width: 80},
-                    {field: 'columnNum', title: '列号', width: 80},
+                    {field: 'code', title: '库位编码', width: 160},
+                    {field: 'groupNum', title: '组号', width: 70},
+                    {field: 'rowNum', title: '排号', width: 70},
+                    {field: 'layerNum', title: '层号', width: 70},
+                    {field: 'columnNum', title: '列号', width: 70},
+                    {field: 'volumeUtilization', title: '容积利用率', width: 120, templet: function(d) {
+                        var util = d.volumeUtilization || 0;
+                        var color = util >= 80 ? '#ff5722' : (util >= 50 ? '#ff9800' : '#5fb878');
+                        var barWidth = Math.min(util, 100);
+                        return '<div style="display:flex;align-items:center;gap:4px;">' +
+                            '<div style="flex:1;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;">' +
+                            '<div style="width:' + barWidth + '%;height:100%;background:' + color + ';border-radius:3px;"></div></div>' +
+                            '<span style="font-size:11px;color:' + color + ';">' + util + '%</span></div>';
+                    }},
                     {field: 'materiels', title: '存放物料', width: 260, templet: function(d) {
                         var materiels = d.materiels || [];
                         if (materiels.length === 0) {
@@ -575,9 +612,20 @@
                     if (item) {
                         var materiels = item.materiels || [];
                         var occupied = materiels.length > 0;
-                        var cssClass = occupied ? 'occupied' : '';
-                        var statusText = occupied ? ('已占用(' + (item.totalQuantity || materiels.length) + ')') : '空闲';
-                        var statusClass = occupied ? 'has-materiel' : 'empty';
+                        var volumeUtil = item.volumeUtilization || 0;
+                        
+                        // 根据容积利用率设置颜色
+                        var cssClass = '';
+                        if (volumeUtil >= 80) {
+                            cssClass = 'occupied-full';
+                        } else if (volumeUtil > 0) {
+                            cssClass = 'occupied';
+                        } else {
+                            cssClass = '';
+                        }
+                        
+                        var statusText = occupied ? ('已占用 ' + volumeUtil + '%') : '空闲';
+                        var statusClass = volumeUtil >= 80 ? 'has-materiel-full' : (occupied ? 'has-materiel' : 'empty');
 
                         var materielTooltip = '';
                         var materielText = '';
@@ -600,11 +648,19 @@
 
                         var layerLabel = (isAllLayers && c === 1) ? '<div class="layer-label">层' + l + '</div>' : '';
 
+                        // 容积利用率进度条
+                        var progressBarHtml = '';
+                        if (occupied) {
+                            var barColor = volumeUtil >= 80 ? '#ff5722' : (volumeUtil >= 50 ? '#ff9800' : '#5fb878');
+                            progressBarHtml = '<div class="volume-bar" style="margin-top:2px;"><div class="volume-bar-inner" style="width:' + volumeUtil + '%;background:' + barColor + ';"></div></div>';
+                        }
+
                         var html = '<div class="matrix-cell-wrapper">' + layerLabel +
                             '<div class="matrix-cell ' + cssClass + '" data-id="' + item.id + '" data-code="' + item.code + '" data-materiel="' + (item.materielId || '') + '" style="--box-width:' + boxWidth + '%; --box-height:' + boxHeight + '%;">' +
                             '<div class="cell-code">' + item.code + '</div>' +
                             '<div class="cell-size">' + sizeText + ' cm</div>' +
                             '<div class="cell-status ' + statusClass + '">' + statusText + '</div>' +
+                            progressBarHtml +
                             (occupied ? '<div class="cell-materiel" title="' + materielTooltip.replace(/"/g, '&quot;') + '">' + materielText + (materiels.length > 1 ? ' 等' + materiels.length + '种' : '') + '</div>' : '') +
                             '</div></div>';
                         container.append(html);
@@ -672,6 +728,20 @@
                         $('#bind-location-width').val(loc.width || 50);
                         $('#bind-location-height').val(loc.height || 50);
 
+                        // 显示容积信息
+                        var volInfo = '';
+                        if (res.data.locationVolume) {
+                            volInfo = '库位容积: ' + res.data.locationVolume + ' cm³';
+                            if (res.data.usedVolume > 0) {
+                                volInfo += ' | 已用: ' + res.data.usedVolume + ' cm³';
+                                volInfo += ' | 剩余: ' + res.data.remainingVolume + ' cm³';
+                                volInfo += ' | 利用率: ' + res.data.volumeUtilization + '%';
+                            }
+                            $('#bind-volume-info-text').text(volInfo).parent().parent().show();
+                        } else {
+                            $('#bind-volume-info').hide();
+                        }
+
                         // 渲染已绑定的物料列表
                         var materiels = res.data.materiels || [];
                         if (materiels.length > 0) {
@@ -691,7 +761,7 @@
             layer.open({
                 type: 1,
                 title: '库位信息编辑',
-                area: ['560px', '480px'],
+                area: ['580px', '520px'],
                 content: $('#js-bind-popup'),
                 success: function() {
                     form.render();

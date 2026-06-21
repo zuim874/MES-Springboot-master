@@ -1,6 +1,7 @@
 package com.wangziyang.mes.basedata.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.wangziyang.mes.common.BaseEntity;
 
@@ -114,6 +115,7 @@ public class SpMaterile extends BaseEntity {
      * 状态(00:删除;01:正常;02:禁用)
      */
     @TableField(value = "is_deleted")
+    @TableLogic(value = "0", delval = "1")
     private String deleted;
 
 

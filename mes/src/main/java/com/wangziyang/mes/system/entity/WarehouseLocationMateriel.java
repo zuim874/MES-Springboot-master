@@ -1,5 +1,6 @@
 package com.wangziyang.mes.system.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.wangziyang.mes.common.BaseEntity;
 
@@ -29,6 +30,7 @@ public class WarehouseLocationMateriel extends BaseEntity {
     /**
      * 逻辑删除
      */
+    @TableLogic(value = "0", delval = "1")
     private String isDeleted;
 
     public String getLocationId() {

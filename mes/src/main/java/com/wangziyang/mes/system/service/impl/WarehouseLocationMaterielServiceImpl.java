@@ -20,10 +20,13 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveBindMateriels(String locationId, List<WarehouseLocationMateriel> materiels) {
-        // 物理删除旧关系
+        // 逻辑删除旧关系（不再物理删除，由@TableLogic处理）
         QueryWrapper<WarehouseLocationMateriel> wrapper = new QueryWrapper<>();
         wrapper.eq("location_id", locationId);
-        baseMapper.delete(wrapper);
+        List<WarehouseLocationMateriel> oldList = baseMapper.selectList(wrapper);
+        for (WarehouseLocationMateriel old : oldList) {
+            baseMapper.deleteById(old.getId());
+        }
 
         // 保存新关系
         if (materiels != null && !materiels.isEmpty()) {
@@ -36,7 +39,6 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
                 if (item.getQuantity() == null || item.getQuantity() < 1) {
                     item.setQuantity(1);
                 }
-                item.setIsDeleted("0");
                 baseMapper.insert(item);
             }
         }
@@ -46,7 +48,6 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
     public List<WarehouseLocationMateriel> listByLocationId(String locationId) {
         QueryWrapper<WarehouseLocationMateriel> wrapper = new QueryWrapper<>();
         wrapper.eq("location_id", locationId);
-        wrapper.eq("is_deleted", "0");
         return baseMapper.selectList(wrapper);
     }
 }

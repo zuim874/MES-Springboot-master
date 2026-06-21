@@ -1284,3 +1284,69 @@ INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`
 ('rm_pp_05', 'role_prod_planner', '183', NOW(), 'admin', NOW(), 'admin'),
 ('rm_pp_06', 'role_prod_planner', '184', NOW(), 'admin', NOW(), 'admin'),
 ('rm_pp_07', 'role_prod_planner', '186', NOW(), 'admin', NOW(), 'admin');
+
+-- ============================================================================
+-- 第四部分：权限修正与游客角色初始化
+-- ============================================================================
+
+-- ----------------------------
+-- 1. 修正 sp_sys_menu 权限字段（将错误的 user:add 改为正确的模块化权限）
+-- ----------------------------
+UPDATE `sp_sys_menu` SET `permission` = CASE `id`
+    WHEN '1'   THEN 'sys:dashboard:view'
+    WHEN '10'  THEN 'sys:manage:view'
+    WHEN '101' THEN 'sys:menu:view,sys:menu:edit,sys:menu:delete'
+    WHEN '102' THEN 'sys:user:view,sys:user:edit,sys:user:delete'
+    WHEN '103' THEN 'sys:role:view,sys:role:edit,sys:role:auth,sys:role:delete'
+    WHEN '104' THEN 'sys:dept:view,sys:dept:edit,sys:dept:delete'
+    WHEN '11'  THEN 'basedata:config:view,basedata:config:edit'
+    WHEN '111' THEN 'basedata:item:view,basedata:item:edit'
+    WHEN '112' THEN 'basedata:team:view,basedata:team:edit'
+    WHEN '113' THEN 'basedata:equipment:view,basedata:equipment:edit'
+    WHEN '114' THEN 'basedata:equipgroup:view,basedata:equipgroup:edit'
+    WHEN '115' THEN 'basedata:unit:view,basedata:unit:edit'
+    WHEN '12'  THEN 'order:manage:view'
+    WHEN '121' THEN 'order:release:view,order:release:edit'
+    WHEN '13'  THEN 'materiel:manage:view'
+    WHEN '131' THEN 'materiel:view,materiel:edit'
+    WHEN '14'  THEN 'digit:manage:view'
+    WHEN '141' THEN 'digit:plan:view'
+    WHEN '15'  THEN 'process:manage:view'
+    WHEN '183' THEN 'process:def:view,process:def:edit'
+    WHEN '184' THEN 'process:plan:view,process:plan:edit'
+    WHEN '185' THEN 'process:content:view,process:content:edit'
+    WHEN '186' THEN 'process:flowdef:view,process:flowdef:edit'
+    WHEN '16'  THEN 'wip:manage:view'
+    WHEN '161' THEN 'wip:sn:view,wip:sn:edit'
+    WHEN '17'  THEN 'sim:manage:view'
+    WHEN '171' THEN 'sim:warehouse:view'
+    WHEN '18'  THEN 'product:manage:view'
+    WHEN '181' THEN 'product:part:view,product:part:edit'
+    WHEN '182' THEN 'product:bom:view,product:bom:edit'
+    ELSE `permission`
+END;
+
+-- ----------------------------
+-- 2. 为游客角色分配只读业务菜单权限（不分配系统管理菜单）
+--    游客角色ID: 1232532514523213826
+-- ----------------------------
+INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
+('rm_guest_01', '1232532514523213826', '1',   NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_02', '1232532514523213826', '12',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_03', '1232532514523213826', '121', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_04', '1232532514523213826', '13',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_05', '1232532514523213826', '131', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_06', '1232532514523213826', '14',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_07', '1232532514523213826', '141', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_08', '1232532514523213826', '15',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_09', '1232532514523213826', '183', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_10', '1232532514523213826', '184', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_11', '1232532514523213826', '185', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_12', '1232532514523213826', '186', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_13', '1232532514523213826', '16',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_14', '1232532514523213826', '161', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_15', '1232532514523213826', '17',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_16', '1232532514523213826', '171', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_17', '1232532514523213826', '18',  NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_18', '1232532514523213826', '181', NOW(), 'admin', NOW(), 'admin'),
+('rm_guest_19', '1232532514523213826', '182', NOW(), 'admin', NOW(), 'admin');

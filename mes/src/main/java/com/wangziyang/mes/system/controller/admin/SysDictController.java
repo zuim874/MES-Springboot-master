@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -49,6 +51,7 @@ public class SysDictController extends BaseController {
 
     @PostMapping("/page")
     @ResponseBody
+    @RequiresPermissions("sys:dict:view")
     public Result page(SysDictPageReq req) {
         IPage result = sysDictService.page(req);
         return Result.success(result);
@@ -65,8 +68,22 @@ public class SysDictController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
+    @RequiresPermissions("sys:dict:edit")
     public Result addOrUpdate(SysDict record) {
         sysDictService.saveOrUpdate(record);
         return Result.success(record.getId());
+    }
+
+    @PostMapping("/delete")
+    @ResponseBody
+    @RequiresPermissions("sys:dict:delete")
+    public Result delete(@RequestParam String id) {
+        SysDict dict = sysDictService.getById(id);
+        if (dict == null) {
+            return Result.failure("字典不存在");
+        }
+        dict.setDeleted("1");
+        sysDictService.updateById(dict);
+        return Result.success();
     }
 }

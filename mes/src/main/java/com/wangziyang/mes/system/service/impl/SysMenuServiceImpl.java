@@ -154,7 +154,17 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     public Map<String, Object> listIndexMenuSearchTree(String menuName) throws Exception {
         Map<String, Object> result = new LinkedHashMap<>(4);
         Map<String, Object> menuInfo = new LinkedHashMap<>(8);
-        List<SysMenu> sysMenus = sysMenuMapper.listBySearchByName(menuName);
+        List<SysMenu> allMenus = sysMenuMapper.listBySearchByName(menuName);
+
+        // 根据当前用户角色过滤菜单
+        Set<String> validIds = getCurrentUserMenuIds(allMenus);
+        List<SysMenu> sysMenus = new ArrayList<>();
+        for (SysMenu m : allMenus) {
+            if (validIds.contains(m.getId())) {
+                sysMenus.add(m);
+            }
+        }
+
         List<TreeVO<SysMenu>> menus = new ArrayList<>();
         for (SysMenu m : sysMenus) {
             TreeVO<SysMenu> tree = new TreeVO<>();
@@ -166,7 +176,6 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             tree.setIcon(m.getIcon());
             tree.setType(m.getType());
             tree.setPermission(m.getPermission());
-            // TODO 是否需要更改？
             tree.setTarget("_self");
             menus.add(tree);
         }

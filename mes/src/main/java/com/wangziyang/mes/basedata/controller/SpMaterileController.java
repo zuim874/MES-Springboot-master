@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.basedata.entity.SpMaterile;
-import com.wangziyang.mes.basedata.entity.SpTableManager;
 import com.wangziyang.mes.basedata.request.spMaterileReq;
 import com.wangziyang.mes.basedata.service.ISpMaterileService;
 import com.wangziyang.mes.common.BaseController;
@@ -70,10 +69,10 @@ public class SpMaterileController extends BaseController {
      */
     @ApiOperation("物料管理修改界面")
     @GetMapping("/add-or-update-ui")
-    public String addOrUpdateUI(Model model, SpTableManager record) {
+    public String addOrUpdateUI(Model model, SpMaterile record) {
         if (StringUtils.isNotEmpty(record.getId())) {
-            SpMaterile SpMaterile = iSpMaterileService.getById(record.getId());
-            model.addAttribute("result", SpMaterile);
+            SpMaterile spMaterile = iSpMaterileService.getById(record.getId());
+            model.addAttribute("result", spMaterile);
         }
         return "basedata/materile/addOrUpdate";
     }
@@ -92,7 +91,6 @@ public class SpMaterileController extends BaseController {
     public Result page(spMaterileReq req) {
         try {
             QueryWrapper<SpMaterile> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("is_deleted", "0");
             if (StringUtils.isNotEmpty(req.getMaterielLike())) {
                 queryWrapper.like("materiel", req.getMaterielLike());
             }
@@ -105,10 +103,12 @@ public class SpMaterileController extends BaseController {
             if (StringUtils.isNotEmpty(req.getSource())) {
                 queryWrapper.eq("source", req.getSource());
             }
+            queryWrapper.orderByDesc("update_time");
             Page<SpMaterile> page = new Page<>(req.getCurrent(), req.getSize());
-            logger.info("物料分页查询参数: current={}, size={}", req.getCurrent(), req.getSize());
+            logger.info("物料分页查询参数: current={}, size={}, materielLike={}, materielDescLike={}, matType={}, source={}",
+                    req.getCurrent(), req.getSize(), req.getMaterielLike(), req.getMaterielDescLike(), req.getMatType(), req.getSource());
             IPage result = iSpMaterileService.page(page, queryWrapper);
-            logger.info("物料分页查询结果: total={}", result.getTotal());
+            logger.info("物料分页查询结果: total={}, pages={}, current={}", result.getTotal(), result.getPages(), result.getCurrent());
             return Result.success(result);
         } catch (Exception e) {
             logger.error("物料分页查询异常", e);
@@ -127,9 +127,6 @@ public class SpMaterileController extends BaseController {
     @ResponseBody
     public Result addOrUpdate(SpMaterile record) {
         // 默认值处理
-        if (StringUtils.isEmpty(record.getDeleted())) {
-            record.setDeleted("0");
-        }
         if (record.getLeadTime() == null) {
             record.setLeadTime(1);
         }
@@ -160,7 +157,6 @@ public class SpMaterileController extends BaseController {
             QueryWrapper<SpMaterile> checkWrapper = new QueryWrapper<>();
             checkWrapper.eq("mat_type", "产品");
             checkWrapper.eq("materiel_desc", record.getMaterielDesc());
-            checkWrapper.eq("is_deleted", "0");
             if (StringUtils.isNotEmpty(record.getId())) {
                 checkWrapper.ne("id", record.getId());
             }
@@ -171,7 +167,7 @@ public class SpMaterileController extends BaseController {
         }
 
         iSpMaterileService.saveOrUpdate(record);
-        return Result.success();
+        return Result.success(record.getId(), StringUtils.isEmpty(record.getId()) ? "新增成功" : "修改成功");
     }
 
     /**
@@ -212,12 +208,17 @@ public class SpMaterileController extends BaseController {
      * @param req 请求参数
      * @return Result 执行结果
      */
-    @ApiOperation("删除物料信息")
+    @ApiOperation("删除物料信息（逻辑删除）")
     @ApiImplicitParams({@ApiImplicitParam(name = "req", value = "物料实体", defaultValue = "物料实体")})
     @PostMapping("/delete")
     @ResponseBody
     public Result deleteByTableNameId(SpMaterile req) throws Exception {
-        iSpMaterileService.removeById(req.getId());
-        return Result.success();
+        logger.info("逻辑删除物料, id={}", req.getId());
+        boolean result = iSpMaterileService.removeById(req.getId());
+        if (result) {
+            return Result.success("删除成功");
+        } else {
+            return Result.failure("删除失败，物料不存在或已删除");
+        }
     }
 }

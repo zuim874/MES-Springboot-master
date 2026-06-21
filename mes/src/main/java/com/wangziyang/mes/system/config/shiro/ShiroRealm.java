@@ -40,8 +40,13 @@ public class ShiroRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SysUserDTO user = (SysUserDTO) principalCollection.getPrimaryPrincipal();
         Set<String> perms = new HashSet<>();
+        boolean isGuest = false;
         if (CollectionUtils.isNotEmpty(user.getSysRoleDTOs())) {
             for (SysRoleDTO sr : user.getSysRoleDTOs()) {
+                // 标记游客角色
+                if ("1232532514523213826".equals(sr.getId()) || "guest".equals(sr.getCode())) {
+                    isGuest = true;
+                }
                 if (CollectionUtils.isEmpty(sr.getSysMenuDtos())) {
                     continue;
                 }
@@ -52,6 +57,21 @@ public class ShiroRealm extends AuthorizingRealm {
                 }
             }
         }
+
+        // 游客角色仅保留 view 权限，屏蔽所有增删改操作
+        if (isGuest) {
+            Set<String> viewPerms = new HashSet<>();
+            for (String p : perms) {
+                if (p.endsWith(":view")) {
+                    viewPerms.add(p);
+                }
+            }
+            perms = viewPerms;
+        } else {
+            // 非游客角色兼容旧版 user:add 权限（业务模块前端按钮通用标识）
+            perms.add("user:add");
+        }
+
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setStringPermissions(perms);
         return info;

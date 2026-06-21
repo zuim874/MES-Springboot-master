@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ public class SysDepartmentController extends BaseController {
     @ApiImplicitParams({@ApiImplicitParam(name = "page", value = "模型", defaultValue = "模型")})
     @PostMapping("/page")
     @ResponseBody
+    @RequiresPermissions("sys:dept:view")
     public Result page(SysDepartmentPageReq req) {
         IPage result = sysDepartmentService.page(req);
         return Result.success(result);
@@ -68,6 +70,7 @@ public class SysDepartmentController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
+    @RequiresPermissions("sys:dept:edit")
     public Result addOrUpdate(SysDepartment record) {
         sysDepartmentService.saveOrUpdate(record);
         return Result.success(record.getId());
@@ -78,8 +81,22 @@ public class SysDepartmentController extends BaseController {
      */
     @GetMapping("/list")
     @ResponseBody
+    @RequiresPermissions("sys:dept:view")
     public Result list() {
         List<SysDepartment> list = sysDepartmentService.list();
         return Result.success(list);
+    }
+
+    @PostMapping("/delete")
+    @ResponseBody
+    @RequiresPermissions("sys:dept:delete")
+    public Result delete(@org.springframework.web.bind.annotation.RequestParam String id) {
+        SysDepartment dept = sysDepartmentService.getById(id);
+        if (dept == null) {
+            return Result.failure("部门不存在");
+        }
+        dept.setIsDeleted("1");
+        sysDepartmentService.updateById(dept);
+        return Result.success();
     }
 }
