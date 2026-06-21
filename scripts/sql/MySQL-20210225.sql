@@ -84,6 +84,16 @@ CREATE TABLE `sp_materile`  (
   `size` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '尺寸',
   `flow_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '流程',
   `flow_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '流程描述',
+  `source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源',
+  `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址',
+  `lead_time` int(0) NULL DEFAULT NULL COMMENT '需求提前期（天）',
+  `safety_stock` int(0) NULL DEFAULT NULL COMMENT '安全库存',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `warehouse_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库房ID',
+  `location_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库位ID',
+  `length` int(0) NULL DEFAULT NULL COMMENT '物料长度(cm)',
+  `width` int(0) NULL DEFAULT NULL COMMENT '物料宽度(cm)',
+  `height` int(0) NULL DEFAULT NULL COMMENT '物料高度(cm)',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `create_username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '创建人',
   `update_time` datetime(0) NOT NULL COMMENT '最后更新时间',
@@ -95,12 +105,13 @@ CREATE TABLE `sp_materile`  (
 -- ----------------------------
 -- Records of sp_materile
 -- ----------------------------
-INSERT INTO `sp_materile` VALUES ('1284051625900748801', '000001', '成品测试', '件', '产品1组', 'FG', '大', '8*8', '1279942838902304770', '0005', '2020-07-17 17:05:39', 'admin', '2020-07-21 08:32:19', 'admin', '0');
-INSERT INTO `sp_materile` VALUES ('mat_1001', 'RM-001', '铝合金板材', 'KG', '原材料组', 'RM', 'AL-6061', '1220*2440*3', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
-INSERT INTO `sp_materile` VALUES ('mat_1002', 'RM-002', '不锈钢棒材', 'KG', '原材料组', 'RM', 'SUS-304', '直径20*L6000', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
-INSERT INTO `sp_materile` VALUES ('mat_1003', 'SFG-001', '机加工半成品', '件', '半成品组', 'SFG', 'M-001', '150*80*40', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
-INSERT INTO `sp_materile` VALUES ('mat_1004', 'FG-002', '电脑主机外壳', '件', '产品1组', 'FG', 'C-001', '450*200*400', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
-INSERT INTO `sp_materile` VALUES ('mat_1005', 'RM-003', '铜线材', 'KG', '原材料组', 'RM', 'CU-T2', '直径2*卷', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
+INSERT INTO `sp_materile` (`id`, `materiel`, `materiel_desc`, `unit`, `product_group`, `mat_type`, `model`, `size`, `flow_id`, `flow_desc`, `source`, `img_url`, `lead_time`, `safety_stock`, `remark`, `warehouse_id`, `location_id`, `length`, `width`, `height`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`) VALUES
+('1284051625900748801', '000001', '成品测试', '件', '产品1组', 'FG', '大', '8*8', '1279942838902304770', '0005', NULL, NULL, 1, 100, NULL, NULL, NULL, 8, 8, 2, '2020-07-17 17:05:39', 'admin', '2020-07-21 08:32:19', 'admin', '0'),
+('mat_1001', 'RM-001', '铝合金板材', 'KG', '原材料组', 'RM', 'AL-6061', '1220*2440*3', NULL, NULL, '外购', NULL, 7, 200, NULL, NULL, NULL, 122, 244, 1, NOW(), 'admin', NOW(), 'admin', '0'),
+('mat_1002', 'RM-002', '不锈钢棒材', 'KG', '原材料组', 'RM', 'SUS-304', '直径20*L6000', NULL, NULL, '外购', NULL, 7, 150, NULL, NULL, NULL, 600, 2, 2, NOW(), 'admin', NOW(), 'admin', '0'),
+('mat_1003', 'SFG-001', '机加工半成品', '件', '半成品组', 'SFG', 'M-001', '150*80*40', NULL, NULL, '自制', NULL, 3, 80, NULL, NULL, NULL, 15, 8, 4, NOW(), 'admin', NOW(), 'admin', '0'),
+('mat_1004', 'FG-002', '电脑主机外壳', '件', '产品1组', 'FG', 'C-001', '450*200*400', NULL, NULL, '自制', NULL, 1, 50, NULL, NULL, NULL, 45, 20, 40, NOW(), 'admin', NOW(), 'admin', '0'),
+('mat_1005', 'RM-003', '铜线材', 'KG', '原材料组', 'RM', 'CU-T2', '直径2*卷', NULL, NULL, '外购', NULL, 7, 300, NULL, NULL, NULL, 50, 50, 10, NOW(), 'admin', NOW(), 'admin', '0');
 
 -- ----------------------------
 -- Table structure for sp_oper
