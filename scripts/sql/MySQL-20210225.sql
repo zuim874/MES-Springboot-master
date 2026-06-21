@@ -87,7 +87,7 @@ CREATE TABLE `sp_materile`  (
   `source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源',
   `img_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址',
   `lead_time` int(0) NULL DEFAULT NULL COMMENT '需求提前期（天）',
-  `safety_stock` int(0) NULL DEFAULT NULL COMMENT '实际库存',
+  `stock` int(0) NULL DEFAULT NULL COMMENT '实际库存',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `warehouse_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库房ID',
   `location_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库位ID',
@@ -105,7 +105,7 @@ CREATE TABLE `sp_materile`  (
 -- ----------------------------
 -- Records of sp_materile
 -- ----------------------------
-INSERT INTO `sp_materile` (`id`, `materiel`, `materiel_desc`, `unit`, `product_group`, `mat_type`, `model`, `size`, `flow_id`, `flow_desc`, `source`, `img_url`, `lead_time`, `safety_stock`, `remark`, `warehouse_id`, `location_id`, `length`, `width`, `height`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`) VALUES
+INSERT INTO `sp_materile` (`id`, `materiel`, `materiel_desc`, `unit`, `product_group`, `mat_type`, `model`, `size`, `flow_id`, `flow_desc`, `source`, `img_url`, `lead_time`, `stock`, `remark`, `warehouse_id`, `location_id`, `length`, `width`, `height`, `create_time`, `create_username`, `update_time`, `update_username`, `is_deleted`) VALUES
 ('1284051625900748801', '000001', '成品测试', '件', '产品1组', 'FG', '大', '8*8', '1279942838902304770', '0005', NULL, NULL, 1, 100, NULL, NULL, NULL, 8, 8, 2, '2020-07-17 17:05:39', 'admin', '2020-07-21 08:32:19', 'admin', '0'),
 ('mat_1001', 'RM-001', '铝合金板材', 'KG', '原材料组', 'RM', 'AL-6061', '1220*2440*3', NULL, NULL, '外购', NULL, 7, 200, NULL, NULL, NULL, 122, 244, 1, NOW(), 'admin', NOW(), 'admin', '0'),
 ('mat_1002', 'RM-002', '不锈钢棒材', 'KG', '原材料组', 'RM', 'SUS-304', '直径20*L6000', NULL, NULL, '外购', NULL, 7, 150, NULL, NULL, NULL, 600, 2, 2, NOW(), 'admin', NOW(), 'admin', '0'),
@@ -913,8 +913,8 @@ DELIMITER ;
 CALL AddColumnIfNotExists('sp_materile', '`source`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '物料来源（自制/外购）' AFTER `mat_type`");
 CALL AddColumnIfNotExists('sp_materile', '`img_url`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图片地址' AFTER `source`");
 CALL AddColumnIfNotExists('sp_materile', '`lead_time`', "int(11) NULL DEFAULT 1 COMMENT '需求提前期（天）' AFTER `img_url`");
-CALL AddColumnIfNotExists('sp_materile', '`safety_stock`', "int(11) NULL DEFAULT 0 COMMENT '安全库存' AFTER `lead_time`");
-CALL AddColumnIfNotExists('sp_materile', '`remark`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `safety_stock`");
+CALL AddColumnIfNotExists('sp_materile', '`stock`', "int(11) NULL DEFAULT 0 COMMENT '实际库存' AFTER `lead_time`");
+CALL AddColumnIfNotExists('sp_materile', '`remark`', "varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注' AFTER `stock`");
 CALL AddColumnIfNotExists('sp_materile', '`warehouse_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库房ID' AFTER `remark`");
 CALL AddColumnIfNotExists('sp_materile', '`location_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库位ID' AFTER `warehouse_id`");
 CALL AddColumnIfNotExists('sp_warehouse', '`default_length`', "int(11) NULL DEFAULT 50 COMMENT '默认库位长度(cm)' AFTER `column_count`");

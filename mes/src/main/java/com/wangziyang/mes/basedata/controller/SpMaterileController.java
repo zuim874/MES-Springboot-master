@@ -130,8 +130,8 @@ public class SpMaterileController extends BaseController {
         if (record.getLeadTime() == null) {
             record.setLeadTime(1);
         }
-        if (record.getSafetyStock() == null) {
-            record.setSafetyStock(0);
+        if (record.getStock() == null) {
+            record.setStock(0);
         }
 
         // 校验：需求提前期至少为1天
@@ -139,7 +139,7 @@ public class SpMaterileController extends BaseController {
             return Result.failure("物料需求提前期不可为0，至少为1天");
         }
         // 校验：实际库存不可为负数
-        if (record.getSafetyStock() < 0) {
+        if (record.getStock() < 0) {
             return Result.failure("实际库存不能为负数");
         }
 

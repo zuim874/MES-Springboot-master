@@ -115,11 +115,11 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label for="js-safetyStock" class="layui-form-label">实际库存
+                        <label for="js-stock" class="layui-form-label">实际库存
                         </label>
                         <div class="layui-input-inline">
-                            <input type="number" id="js-safetyStock" name="safetyStock" lay-verify="number"
-                                   autocomplete="off" class="layui-input" value="${(result.safetyStock)!0}">
+                            <input type="number" id="js-stock" name="stock" lay-verify="number"
+                                   autocomplete="off" class="layui-input" value="${(result.stock)!0}">
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -286,8 +286,8 @@
                 layer.msg('物料需求提前期不可为0，至少为1天');
                 return false;
             }
-            var safetyStock = parseInt(data.field.safetyStock);
-            if (isNaN(safetyStock) || safetyStock < 0) {
+            var stock = parseInt(data.field.stock);
+            if (isNaN(stock) || stock < 0) {
                 layer.msg('实际库存不能为负数');
                 return false;
             }

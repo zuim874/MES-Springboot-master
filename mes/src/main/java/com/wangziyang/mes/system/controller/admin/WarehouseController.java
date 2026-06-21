@@ -339,11 +339,11 @@ public class WarehouseController extends BaseController {
                 }
 
                 // 校验实际库存
-                if (materiel.getSafetyStock() != null) {
+                if (materiel.getStock() != null) {
                     int totalInOtherLocations = getTotalQuantityByMaterielIdExcludeLocation(materielId, locationId);
                     int newTotal = totalInOtherLocations + 1;
-                    if (newTotal > materiel.getSafetyStock()) {
-                        return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getSafetyStock()
+                    if (newTotal > materiel.getStock()) {
+                        return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getStock()
                                 + "，所有库位总存放量将达到" + newTotal + "，超出实际库存");
                     }
                 }
@@ -356,14 +356,7 @@ public class WarehouseController extends BaseController {
         }
 
         locationMaterielService.saveBindMateriels(locationId, materielList);
-
-        // 更新location的materiel_id为主物料（兼容旧逻辑）
-        if (!materielList.isEmpty()) {
-            location.setMaterielId(materielList.get(0).getMaterielId());
-        } else {
-            location.setMaterielId(null);
-        }
-        warehouseLocationService.updateById(location);
+        // saveBindMateriels 内部已自动同步 materiel_id，无需重复处理
 
         return Result.success("保存成功");
     }
@@ -512,25 +505,19 @@ public class WarehouseController extends BaseController {
                     continue;
                 }
                 SpMaterile materiel = materileService.getById(item.getMaterielId());
-                if (materiel == null || materiel.getSafetyStock() == null) {
+                if (materiel == null || materiel.getStock() == null) {
                     continue;
                 }
                 int totalInOtherLocations = getTotalQuantityByMaterielIdExcludeLocation(item.getMaterielId(), locationId);
                 int newTotal = totalInOtherLocations + item.getQuantity();
-                if (newTotal > materiel.getSafetyStock()) {
-                    return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getSafetyStock()
+                if (newTotal > materiel.getStock()) {
+                    return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getStock()
                             + "，所有库位总存放量将达到" + newTotal + "，超出实际库存");
                 }
             }
 
             locationMaterielService.saveBindMateriels(locationId, materielList);
-
-            // 更新location的materiel_id为主物料（兼容旧逻辑）
-            if (!materielList.isEmpty()) {
-                location.setMaterielId(materielList.get(0).getMaterielId());
-            } else {
-                location.setMaterielId(null);
-            }
+            // saveBindMateriels 内部已自动同步 materiel_id，无需重复处理
         }
         warehouseLocationService.updateById(location);
         return Result.success("保存成功");

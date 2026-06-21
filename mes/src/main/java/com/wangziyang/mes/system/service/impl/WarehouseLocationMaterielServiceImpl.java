@@ -1,10 +1,16 @@
 package com.wangziyang.mes.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wangziyang.mes.basedata.entity.SpMaterile;
+import com.wangziyang.mes.basedata.service.ISpMaterileService;
+import com.wangziyang.mes.system.entity.WarehouseLocation;
 import com.wangziyang.mes.system.entity.WarehouseLocationMateriel;
 import com.wangziyang.mes.system.mapper.WarehouseLocationMaterielMapper;
 import com.wangziyang.mes.system.service.IWarehouseLocationMaterielService;
+import com.wangziyang.mes.system.service.IWarehouseLocationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +21,12 @@ import java.util.*;
  */
 @Service
 public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseLocationMaterielMapper, WarehouseLocationMateriel> implements IWarehouseLocationMaterielService {
+
+    @Autowired
+    private IWarehouseLocationService warehouseLocationService;
+
+    @Autowired
+    private ISpMaterileService spMaterileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -35,20 +47,28 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
                     continue;
                 }
                 String mid = item.getMaterielId().trim();
+                Integer qty = item.getQuantity() != null ? item.getQuantity() : 1;
+
+                // 数量小于等于0，删除该绑定关系（支持部分删除后清空库存）
+                if (qty <= 0) {
+                    if (existingMap.containsKey(mid)) {
+                        baseMapper.deleteById(existingMap.get(mid).getId());
+                    }
+                    continue;
+                }
+
                 newMaterielIds.add(mid);
 
                 if (existingMap.containsKey(mid)) {
                     // 已存在，更新数量
                     WarehouseLocationMateriel existing = existingMap.get(mid);
-                    existing.setQuantity(item.getQuantity() != null && item.getQuantity() >= 1 ? item.getQuantity() : 1);
+                    existing.setQuantity(qty);
                     baseMapper.updateById(existing);
                 } else {
                     // 不存在，插入新记录
                     item.setId(UUID.randomUUID().toString().replace("-", ""));
                     item.setLocationId(locationId);
-                    if (item.getQuantity() == null || item.getQuantity() < 1) {
-                        item.setQuantity(1);
-                    }
+                    item.setQuantity(qty);
                     baseMapper.insert(item);
                 }
             }
@@ -60,6 +80,52 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
                 baseMapper.deleteById(existing.getId());
             }
         }
+
+        // 同步更新 sp_warehouse_location 的 materiel_id
+        syncLocationMaterielId(locationId);
+
+        // 反向同步：如果当前库位是物料的默认库位，同步更新 sp_materile.stock
+        List<WarehouseLocationMateriel> currentList = baseMapper.selectList(
+                new QueryWrapper<WarehouseLocationMateriel>().eq("location_id", locationId)
+        );
+        for (WarehouseLocationMateriel item : currentList) {
+            if (item.getMaterielId() == null || item.getQuantity() == null) {
+                continue;
+            }
+            SpMaterile materiel = spMaterileService.getById(item.getMaterielId());
+            if (materiel != null && locationId.equals(materiel.getLocationId())) {
+                materiel.setStock(item.getQuantity());
+                spMaterileService.updateById(materiel);
+            }
+        }
+        // 处理被删除的物料：如果默认库位是当前库位且已删除，则 stock 设为0
+        for (WarehouseLocationMateriel old : existingList) {
+            if (!newMaterielIds.contains(old.getMaterielId())) {
+                SpMaterile materiel = spMaterileService.getById(old.getMaterielId());
+                if (materiel != null && locationId.equals(materiel.getLocationId())) {
+                    materiel.setStock(0);
+                    spMaterileService.updateById(materiel);
+                }
+            }
+        }
+    }
+
+    /**
+     * 同步库位主物料ID：根据当前有效绑定关系更新 materiel_id
+     */
+    private void syncLocationMaterielId(String locationId) {
+        QueryWrapper<WarehouseLocationMateriel> wrapper = new QueryWrapper<>();
+        wrapper.eq("location_id", locationId);
+        wrapper.orderByAsc("create_time");
+        List<WarehouseLocationMateriel> list = baseMapper.selectList(wrapper);
+        UpdateWrapper<WarehouseLocation> locationWrapper = new UpdateWrapper<>();
+        locationWrapper.eq("id", locationId);
+        if (list.isEmpty()) {
+            locationWrapper.set("materiel_id", null);
+        } else {
+            locationWrapper.set("materiel_id", list.get(0).getMaterielId());
+        }
+        warehouseLocationService.update(null, locationWrapper);
     }
 
     @Override

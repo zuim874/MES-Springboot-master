@@ -109,7 +109,7 @@
                 }, {
                     field: 'leadTime', title: '提前期(天)', width: 100
                 }, {
-                    field: 'safetyStock', title: '实际库存', width: 100
+                    field: 'stock', title: '实际库存', width: 100
                 }, {
                     field: 'remark', title: '备注', width: 150
                 }, {

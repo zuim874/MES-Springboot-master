@@ -79,7 +79,7 @@ public class SpMaterile extends BaseEntity {
     /**
      * 实际库存
      */
-    private Integer safetyStock;
+    private Integer stock;
 
     /**
      * 备注
@@ -358,15 +358,15 @@ public class SpMaterile extends BaseEntity {
     /**
      * 获取 实际库存
      */
-    public Integer getSafetyStock() {
-        return this.safetyStock;
+    public Integer getStock() {
+        return this.stock;
     }
 
     /**
      * 设置 实际库存
      */
-    public void setSafetyStock(Integer safetyStock) {
-        this.safetyStock = safetyStock;
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 
     /**
