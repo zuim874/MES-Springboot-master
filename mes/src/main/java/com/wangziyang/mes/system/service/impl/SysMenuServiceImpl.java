@@ -43,6 +43,44 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
+     * 获取当前登录用户有权限的菜单ID集合（包含父节点）
+     */
+    private Set<String> getCurrentUserMenuIds(List<SysMenu> allMenus) {
+        Set<String> permittedMenuIds = new HashSet<>();
+        SysUserDTO user = (SysUserDTO) SecurityUtils.getSubject().getPrincipal();
+        if (user != null && user.getSysRoleDTOs() != null) {
+            for (SysRoleDTO role : user.getSysRoleDTOs()) {
+                if (role.getSysMenuDtos() != null) {
+                    for (SysMenuDTO menu : role.getSysMenuDtos()) {
+                        permittedMenuIds.add(menu.getId());
+                    }
+                }
+            }
+        }
+
+        if (permittedMenuIds.isEmpty()) {
+            return permittedMenuIds;
+        }
+
+        // 构建菜单映射，用于查找父节点
+        Map<String, SysMenu> menuMap = new HashMap<>();
+        for (SysMenu m : allMenus) {
+            menuMap.put(m.getId(), m);
+        }
+
+        // 递归添加父节点ID
+        Set<String> validIds = new HashSet<>(permittedMenuIds);
+        for (String id : permittedMenuIds) {
+            SysMenu current = menuMap.get(id);
+            while (current != null && !"0".equals(current.getParentId())) {
+                validIds.add(current.getParentId());
+                current = menuMap.get(current.getParentId());
+            }
+        }
+        return validIds;
+    }
+
+    /**
      * 系统首页初始化菜单树数据
      *
      * @return 系统首页初始化菜单树数据
@@ -53,7 +91,16 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Map<String, Object> result = new LinkedHashMap<>(4);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.orderBy(true, true, "sort_num");
-        List<SysMenu> sysMenus = sysMenuMapper.selectList(queryWrapper);
+        List<SysMenu> allMenus = sysMenuMapper.selectList(queryWrapper);
+
+        // 根据当前用户角色过滤菜单
+        Set<String> validIds = getCurrentUserMenuIds(allMenus);
+        List<SysMenu> sysMenus = new ArrayList<>();
+        for (SysMenu m : allMenus) {
+            if (validIds.contains(m.getId())) {
+                sysMenus.add(m);
+            }
+        }
 
         Map<String, String> clearInfo = new HashMap<>(2);
         clearInfo.put("clearUrl", "json/clear.json");
@@ -81,7 +128,6 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             tree.setIcon(m.getIcon());
             tree.setType(m.getType());
             tree.setPermission(m.getPermission());
-            // TODO 是否需要更改？
             tree.setTarget("_self");
             menus.add(tree);
         }
