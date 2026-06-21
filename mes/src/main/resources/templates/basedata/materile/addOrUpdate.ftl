@@ -148,6 +148,26 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">长(cm)</label>
+                            <div class="layui-input-inline" style="width:80px;">
+                                <input type="number" id="js-length" name="length" autocomplete="off" class="layui-input" value="${(result.length)!0}">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">宽(cm)</label>
+                            <div class="layui-input-inline" style="width:80px;">
+                                <input type="number" id="js-width" name="width" autocomplete="off" class="layui-input" value="${(result.width)!0}">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">高(cm)</label>
+                            <div class="layui-input-inline" style="width:80px;">
+                                <input type="number" id="js-height" name="height" autocomplete="off" class="layui-input" value="${(result.height)!0}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
                         <label class="layui-form-label">存放库房</label>
                         <div class="layui-input-inline">
                             <select id="js-warehouse" name="warehouseId" lay-filter="warehouse-filter">

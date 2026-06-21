@@ -31,41 +31,77 @@
             margin-bottom: 10px;
         }
         .matrix-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: flex-start;
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+            background: #e8e8e8;
+            border-radius: 6px;
         }
-        .matrix-cell {
-            width: 120px;
-            min-height: 80px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: #fff;
+        .matrix-cell-wrapper {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            border-radius: 6px;
+            min-height: 60px;
             position: relative;
         }
+        .matrix-cell-wrapper .layer-label {
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #666;
+            width: 24px;
+            text-align: right;
+        }
+        .matrix-cell {
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3px;
+            box-sizing: border-box;
+            overflow: hidden;
+            width: var(--box-width, 80%);
+            height: var(--box-height, 80%);
+        }
         .matrix-cell:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: scale(1.08);
+            z-index: 10;
         }
         .matrix-cell.occupied {
             background: #e6f7ff;
             border-color: #1890ff;
         }
         .matrix-cell .cell-code {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             word-break: break-all;
+            line-height: 1.2;
+        }
+        .matrix-cell .cell-size {
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+            line-height: 1.2;
         }
         .matrix-cell .cell-status {
-            font-size: 11px;
-            margin-top: 4px;
-            padding: 2px 4px;
+            font-size: 10px;
+            margin-top: 2px;
+            padding: 1px 3px;
             border-radius: 2px;
             display: inline-block;
+            line-height: 1.2;
         }
         .matrix-cell .cell-status.empty {
             background: #f0f0f0;
@@ -76,12 +112,14 @@
             color: #fff;
         }
         .matrix-cell .cell-materiel {
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
-            margin-top: 4px;
+            margin-top: 2px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            max-width: 100%;
+            line-height: 1.2;
         }
         .matrix-legend {
             margin-top: 10px;
@@ -101,6 +139,13 @@
         }
         .legend-dot.empty { background: #fff; }
         .legend-dot.occupied { background: #e6f7ff; border-color: #1890ff; }
+        .column-header {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding: 4px 0;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -160,7 +205,7 @@
                 </div>
                 <div class="layui-inline">
                     <label class="layui-form-label" style="width:auto;">层号</label>
-                    <div class="layui-input-inline" style="width:80px;">
+                    <div class="layui-input-inline" style="width:90px;">
                         <select id="js-matrix-layer" lay-filter="matrix-layer-filter"></select>
                     </div>
                 </div>
@@ -168,6 +213,7 @@
                     <button class="layui-btn layui-btn-sm layui-btn-primary" id="js-refresh-matrix"><i class="layui-icon">&#xe669;</i>刷新</button>
                 </div>
             </div>
+            <div id="js-column-headers" style="display:grid; gap:10px; padding:0 10px; margin-bottom:4px;"></div>
             <div class="matrix-grid" id="js-matrix-grid"></div>
             <div class="matrix-legend">
                 <span><i class="legend-dot empty"></i>空闲库位</span>
@@ -177,7 +223,7 @@
     </div>
 </div>
 
-<!-- 物料绑定弹窗 -->
+<!-- 库位编辑弹窗 -->
 <div id="js-bind-popup" style="display:none; padding:20px;">
     <form class="layui-form">
         <input type="hidden" id="bind-location-id">
@@ -193,6 +239,26 @@
                 <select id="bind-materiel-select" lay-search>
                     <option value="">请选择物料（空表示解绑）</option>
                 </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">长(cm)</label>
+                <div class="layui-input-inline" style="width:80px;">
+                    <input type="number" id="bind-location-length" class="layui-input" value="50">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">宽(cm)</label>
+                <div class="layui-input-inline" style="width:80px;">
+                    <input type="number" id="bind-location-width" class="layui-input" value="50">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">高(cm)</label>
+                <div class="layui-input-inline" style="width:80px;">
+                    <input type="number" id="bind-location-height" class="layui-input" value="50">
+                </div>
             </div>
         </div>
         <div class="layui-form-item">
@@ -405,11 +471,13 @@
             for (var r = 1; r <= warehouse.rowCount; r++) {
                 rowSelect.append('<option value="' + r + '">第' + r + '排</option>');
             }
+            layerSelect.append('<option value="">全部层</option>');
             for (var l = 1; l <= warehouse.layerCount; l++) {
                 layerSelect.append('<option value="' + l + '">第' + l + '层</option>');
             }
+            layerSelect.val('');
             form.render('select');
-            $('#js-matrix-title').text('【' + warehouse.name + '】 选择排号和层号查看库位分布');
+            $('#js-matrix-title').text('【' + warehouse.name + '】 选择排号查看库位分布');
         }
 
         // 监听排号/层号变化
@@ -423,15 +491,20 @@
                 return;
             }
             var row = $('#js-matrix-row').val() || 1;
-            var layer = $('#js-matrix-layer').val() || 1;
-            loadMatrix(g_currentWarehouse.id, parseInt(row), parseInt(layer));
+            var layer = $('#js-matrix-layer').val();
+            var layerNum = layer ? parseInt(layer) : null;
+            loadMatrix(g_currentWarehouse.id, parseInt(row), layerNum);
         }
 
         // 加载二维矩阵
         function loadMatrix(warehouseId, rowNum, layerNum) {
+            var params = {warehouseId: warehouseId, rowNum: rowNum};
+            if (layerNum != null) {
+                params.layerNum = layerNum;
+            }
             spUtil.ajax({
                 url: '${request.contextPath}/admin/warehouse/location-matrix',
-                data: {warehouseId: warehouseId, rowNum: rowNum, layerNum: layerNum},
+                data: params,
                 success: function (res) {
                     if (res.code === 0) {
                         renderMatrix(res.data, rowNum, layerNum);
@@ -443,25 +516,77 @@
         // 渲染二维网格
         function renderMatrix(data, rowNum, layerNum) {
             var container = $('#js-matrix-grid');
+            var headerContainer = $('#js-column-headers');
             container.empty();
-            if (!data || data.length === 0) {
-                container.html('<div style="color:#999;padding:20px;">该排层暂无库位数据</div>');
+            headerContainer.empty();
+            if (!g_currentWarehouse) {
+                container.html('<div style="color:#999;padding:20px;">请先选择库房</div>');
                 return;
             }
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                var occupied = item.materielId ? true : false;
-                var cssClass = occupied ? 'occupied' : '';
-                var statusText = occupied ? '已占用' : '空闲';
-                var statusClass = occupied ? 'has-materiel' : 'empty';
-                var materielText = occupied ? (item.materielCode + ' ' + (item.materielDesc || '')) : '';
 
-                var html = '<div class="matrix-cell ' + cssClass + '" data-id="' + item.id + '" data-code="' + item.code + '" data-materiel="' + (item.materielId || '') + '">' +
-                    '<div class="cell-code">' + item.code + '</div>' +
-                    '<div class="cell-status ' + statusClass + '">' + statusText + '</div>' +
-                    (occupied ? '<div class="cell-materiel" title="' + materielText + '">' + materielText + '</div>' : '') +
-                    '</div>';
-                container.append(html);
+            var colCount = g_currentWarehouse.columnCount;
+            var startLayer = layerNum || 1;
+            var endLayer = layerNum || g_currentWarehouse.layerCount;
+            var isAllLayers = !layerNum;
+
+            // 设置 grid 列数
+            var gridCols = 'repeat(' + colCount + ', 1fr)';
+            container.css('grid-template-columns', gridCols);
+            headerContainer.css('grid-template-columns', gridCols);
+
+            // 渲染列标题
+            for (var c = 1; c <= colCount; c++) {
+                headerContainer.append('<div class="column-header">列' + c + '</div>');
+            }
+
+            if (!data || data.length === 0) {
+                container.html('<div style="color:#999;padding:20px; grid-column: 1 / -1;">该排暂无库位数据</div>');
+                return;
+            }
+
+            var baseSize = 50;
+
+            // 从顶层到底层遍历（layer 1 在最上方）
+            for (var l = startLayer; l <= endLayer; l++) {
+                for (var c = 1; c <= colCount; c++) {
+                    var item = null;
+                    for (var d = 0; d < data.length; d++) {
+                        if (data[d].layerNum === l && data[d].columnNum === c) {
+                            item = data[d];
+                            break;
+                        }
+                    }
+
+                    if (item) {
+                        var occupied = item.materielId ? true : false;
+                        var cssClass = occupied ? 'occupied' : '';
+                        var statusText = occupied ? '已占用' : '空闲';
+                        var statusClass = occupied ? 'has-materiel' : 'empty';
+                        var materielText = occupied ? (item.materielCode + ' ' + (item.materielDesc || '')) : '';
+                        var sizeText = (item.length || 50) + '×' + (item.width || 50) + '×' + (item.height || 50);
+
+                        // 根据尺寸计算方框缩放比例
+                        var wRatio = Math.min(Math.max((item.width || 50) / baseSize, 0.5), 1.3);
+                        var hRatio = Math.min(Math.max((item.height || 50) / baseSize, 0.5), 1.3);
+                        var boxWidth = Math.round(wRatio * 85);
+                        var boxHeight = Math.round(hRatio * 85);
+
+                        var layerLabel = (isAllLayers && c === 1) ? '<div class="layer-label">层' + l + '</div>' : '';
+
+                        var html = '<div class="matrix-cell-wrapper">' + layerLabel +
+                            '<div class="matrix-cell ' + cssClass + '" data-id="' + item.id + '" data-code="' + item.code + '" data-materiel="' + (item.materielId || '') + '" style="--box-width:' + boxWidth + '%; --box-height:' + boxHeight + '%;">' +
+                            '<div class="cell-code">' + item.code + '</div>' +
+                            '<div class="cell-size">' + sizeText + ' cm</div>' +
+                            '<div class="cell-status ' + statusClass + '">' + statusText + '</div>' +
+                            (occupied ? '<div class="cell-materiel" title="' + materielText + '">' + materielText + '</div>' : '') +
+                            '</div></div>';
+                        container.append(html);
+                    } else {
+                        // 空白占位
+                        var layerLabel = (isAllLayers && c === 1) ? '<div class="layer-label">层' + l + '</div>' : '';
+                        container.append('<div class="matrix-cell-wrapper" style="background:#e0e0e0;">' + layerLabel + '</div>');
+                    }
+                }
             }
 
             // 绑定点击事件
@@ -473,10 +598,24 @@
             });
         }
 
-        // 打开物料绑定弹窗
+        // 打开库位编辑弹窗
         function openBindPopup(locationId, locationCode, currentMaterielId) {
             $('#bind-location-id').val(locationId);
             $('#bind-location-code').val(locationCode);
+
+            // 加载库位详情
+            spUtil.ajax({
+                url: '${request.contextPath}/admin/warehouse/location-detail',
+                data: {locationId: locationId},
+                success: function(res) {
+                    if (res.code === 0 && res.data && res.data.location) {
+                        var loc = res.data.location;
+                        $('#bind-location-length').val(loc.length || 50);
+                        $('#bind-location-width').val(loc.width || 50);
+                        $('#bind-location-height').val(loc.height || 50);
+                    }
+                }
+            });
 
             var select = $('#bind-materiel-select');
             select.empty();
@@ -490,8 +629,8 @@
 
             layer.open({
                 type: 1,
-                title: '库位物料绑定',
-                area: ['500px', '300px'],
+                title: '库位信息编辑',
+                area: ['500px', '380px'],
                 content: $('#js-bind-popup'),
                 success: function() {
                     form.render();
@@ -499,14 +638,17 @@
             });
         }
 
-        // 保存绑定
+        // 保存库位信息
         $('#btn-save-bind').click(function() {
             var locationId = $('#bind-location-id').val();
             var materielId = $('#bind-materiel-select').val();
+            var length = parseInt($('#bind-location-length').val()) || 50;
+            var width = parseInt($('#bind-location-width').val()) || 50;
+            var height = parseInt($('#bind-location-height').val()) || 50;
             spUtil.ajax({
-                url: '${request.contextPath}/admin/warehouse/bind-materiel',
+                url: '${request.contextPath}/admin/warehouse/location-update',
                 type: 'POST',
-                data: {locationId: locationId, materielId: materielId},
+                data: {locationId: locationId, materielId: materielId, length: length, width: width, height: height},
                 success: function(res) {
                     if (res.code === 0) {
                         layer.msg('保存成功', {icon: 1});

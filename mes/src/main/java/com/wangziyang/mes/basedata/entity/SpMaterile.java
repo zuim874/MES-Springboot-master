@@ -94,6 +94,21 @@ public class SpMaterile extends BaseEntity {
     private String locationId;
 
     /**
+     * 物料长度(cm)
+     */
+    private Integer length;
+
+    /**
+     * 物料宽度(cm)
+     */
+    private Integer width;
+
+    /**
+     * 物料高度(cm)
+     */
+    private Integer height;
+
+    /**
      * 状态(00:删除;01:正常;02:禁用)
      */
     @TableField(value = "is_deleted")
@@ -390,5 +405,47 @@ public class SpMaterile extends BaseEntity {
      */
     public void setLocationId(String locationId) {
         this.locationId = locationId;
+    }
+
+    /**
+     * 获取 物料长度(cm)
+     */
+    public Integer getLength() {
+        return this.length;
+    }
+
+    /**
+     * 设置 物料长度(cm)
+     */
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    /**
+     * 获取 物料宽度(cm)
+     */
+    public Integer getWidth() {
+        return this.width;
+    }
+
+    /**
+     * 设置 物料宽度(cm)
+     */
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    /**
+     * 获取 物料高度(cm)
+     */
+    public Integer getHeight() {
+        return this.height;
+    }
+
+    /**
+     * 设置 物料高度(cm)
+     */
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 }

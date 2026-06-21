@@ -154,6 +154,9 @@ public class WarehouseController extends BaseController {
                         location.setRowNum(r);
                         location.setLayerNum(l);
                         location.setColumnNum(c);
+                        location.setLength(50);
+                        location.setWidth(50);
+                        location.setHeight(50);
                         location.setIsDeleted("0");
                         warehouseLocationService.save(location);
                     }
@@ -251,12 +254,15 @@ public class WarehouseController extends BaseController {
     @ResponseBody
     public Result locationMatrix(@RequestParam String warehouseId,
                                   @RequestParam(defaultValue = "1") Integer rowNum,
-                                  @RequestParam(defaultValue = "1") Integer layerNum) {
+                                  @RequestParam(required = false) Integer layerNum) {
         QueryWrapper<WarehouseLocation> wrapper = new QueryWrapper<>();
         wrapper.eq("warehouse_id", warehouseId);
         wrapper.eq("row_num", rowNum);
-        wrapper.eq("layer_num", layerNum);
+        if (layerNum != null) {
+            wrapper.eq("layer_num", layerNum);
+        }
         wrapper.eq("is_deleted", "0");
+        wrapper.orderByAsc("layer_num");
         wrapper.orderByAsc("column_num");
         List<WarehouseLocation> list = warehouseLocationService.list(wrapper);
 
@@ -266,16 +272,70 @@ public class WarehouseController extends BaseController {
             item.put("id", loc.getId());
             item.put("code", loc.getCode());
             item.put("columnNum", loc.getColumnNum());
+            item.put("layerNum", loc.getLayerNum());
+            item.put("length", loc.getLength());
+            item.put("width", loc.getWidth());
+            item.put("height", loc.getHeight());
             item.put("materielId", loc.getMaterielId());
             if (StringUtils.isNotEmpty(loc.getMaterielId())) {
                 SpMaterile materiel = materileService.getById(loc.getMaterielId());
                 if (materiel != null) {
                     item.put("materielCode", materiel.getMateriel());
                     item.put("materielDesc", materiel.getMaterielDesc());
+                    item.put("materielLength", materiel.getLength());
+                    item.put("materielWidth", materiel.getWidth());
+                    item.put("materielHeight", materiel.getHeight());
                 }
             }
             result.add(item);
         }
         return Result.success(result);
+    }
+
+    @ApiOperation("更新库位信息（尺寸等）")
+    @PostMapping("/location-update")
+    @ResponseBody
+    public Result locationUpdate(@RequestParam String locationId,
+                                  @RequestParam(required = false) Integer length,
+                                  @RequestParam(required = false) Integer width,
+                                  @RequestParam(required = false) Integer height,
+                                  @RequestParam(required = false) String materielId) {
+        WarehouseLocation location = warehouseLocationService.getById(locationId);
+        if (location == null) {
+            return Result.failure("库位不存在");
+        }
+        if (length != null) {
+            location.setLength(length);
+        }
+        if (width != null) {
+            location.setWidth(width);
+        }
+        if (height != null) {
+            location.setHeight(height);
+        }
+        if (materielId != null) {
+            // 如果该库位已绑定其他物料，先解绑原物料
+            String oldMaterielId = location.getMaterielId();
+            if (StringUtils.isNotEmpty(oldMaterielId) && !oldMaterielId.equals(materielId)) {
+                SpMaterile oldMateriel = materileService.getById(oldMaterielId);
+                if (oldMateriel != null) {
+                    oldMateriel.setLocationId(null);
+                    oldMateriel.setWarehouseId(null);
+                    materileService.updateById(oldMateriel);
+                }
+            }
+            location.setMaterielId(materielId);
+            // 更新物料的默认库位
+            if (StringUtils.isNotEmpty(materielId)) {
+                SpMaterile materiel = materileService.getById(materielId);
+                if (materiel != null) {
+                    materiel.setLocationId(locationId);
+                    materiel.setWarehouseId(location.getWarehouseId());
+                    materileService.updateById(materiel);
+                }
+            }
+        }
+        warehouseLocationService.updateById(location);
+        return Result.success();
     }
 }

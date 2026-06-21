@@ -47,6 +47,21 @@ public class WarehouseLocation extends BaseEntity {
     private String materielId;
 
     /**
+     * 库位长度(cm)
+     */
+    private Integer length;
+
+    /**
+     * 库位宽度(cm)
+     */
+    private Integer width;
+
+    /**
+     * 库位高度(cm)
+     */
+    private Integer height;
+
+    /**
      * 逻辑删除
      */
     private String isDeleted;
@@ -105,6 +120,30 @@ public class WarehouseLocation extends BaseEntity {
 
     public void setMaterielId(String materielId) {
         this.materielId = materielId;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
     }
 
     public String getIsDeleted() {

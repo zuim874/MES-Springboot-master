@@ -1091,6 +1091,12 @@ CALL AddColumnIfNotExists('sp_materile', '`remark`', "varchar(500) CHARACTER SET
 CALL AddColumnIfNotExists('sp_materile', '`warehouse_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库房ID' AFTER `remark`");
 CALL AddColumnIfNotExists('sp_materile', '`location_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认存放库位ID' AFTER `warehouse_id`");
 CALL AddColumnIfNotExists('sp_warehouse_location', '`materiel_id`', "varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '当前存放物料ID' AFTER `column_num`");
+CALL AddColumnIfNotExists('sp_warehouse_location', '`length`', "int(11) NULL DEFAULT 50 COMMENT '库位长度(cm)' AFTER `materiel_id`");
+CALL AddColumnIfNotExists('sp_warehouse_location', '`width`', "int(11) NULL DEFAULT 50 COMMENT '库位宽度(cm)' AFTER `length`");
+CALL AddColumnIfNotExists('sp_warehouse_location', '`height`', "int(11) NULL DEFAULT 50 COMMENT '库位高度(cm)' AFTER `width`");
+CALL AddColumnIfNotExists('sp_materile', '`length`', "int(11) NULL DEFAULT 0 COMMENT '物料长度(cm)' AFTER `location_id`");
+CALL AddColumnIfNotExists('sp_materile', '`width`', "int(11) NULL DEFAULT 0 COMMENT '物料宽度(cm)' AFTER `length`");
+CALL AddColumnIfNotExists('sp_materile', '`height`', "int(11) NULL DEFAULT 0 COMMENT '物料高度(cm)' AFTER `width`");
 
 DROP PROCEDURE IF EXISTS AddColumnIfNotExists;
 
