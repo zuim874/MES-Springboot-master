@@ -13,6 +13,7 @@ import com.wangziyang.mes.system.service.ISysMenuService;
 import com.wangziyang.mes.system.service.ISysRoleService;
 import com.wangziyang.mes.system.vo.TreeVO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,6 +51,7 @@ public class SysRoleController extends BaseController {
 
     @PostMapping("/page")
     @ResponseBody
+    @RequiresPermissions("sys:role:view")
     public Result page(SysRolePageReq req) {
         QueryWrapper qw = new QueryWrapper();
         qw.orderByDesc(req.getOrderBy());
@@ -68,6 +70,7 @@ public class SysRoleController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
+    @RequiresPermissions("sys:role:edit")
     public Result addOrUpdate(SysRole record) {
         sysRoleService.saveOrUpdate(record);
         return Result.success(record.getId());
@@ -125,6 +128,7 @@ public class SysRoleController extends BaseController {
      */
     @PostMapping("/save-auth-menu")
     @ResponseBody
+    @RequiresPermissions("sys:role:auth")
     public Result saveAuthMenu(String roleId, @RequestParam(value = "menuIds[]", required = false) List<String> menuIds) throws Exception {
         sysRoleService.saveAuthMenu(roleId, menuIds);
         return Result.success();

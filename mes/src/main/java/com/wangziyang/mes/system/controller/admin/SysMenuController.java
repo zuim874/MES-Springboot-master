@@ -10,6 +10,7 @@ import com.wangziyang.mes.system.service.ISysMenuService;
 import com.wangziyang.mes.system.vo.TreeVO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,6 +43,7 @@ public class SysMenuController extends BaseController {
 
     @PostMapping("/page")
     @ResponseBody
+    @RequiresPermissions("sys:menu:view")
     public Result page(SysMenuPageReq req) {
         IPage result = sysMenuService.page(req);
         return Result.success(result);
@@ -58,6 +60,7 @@ public class SysMenuController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
+    @RequiresPermissions("sys:menu:edit")
     public Result addOrUpdate(SysMenu record) {
         sysMenuService.saveOrUpdate(record);
         return Result.success(record.getId());

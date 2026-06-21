@@ -47,6 +47,21 @@ public class Warehouse extends BaseEntity {
     private Integer columnCount;
 
     /**
+     * 默认库位长度(cm)
+     */
+    private Integer defaultLength;
+
+    /**
+     * 默认库位宽度(cm)
+     */
+    private Integer defaultWidth;
+
+    /**
+     * 默认库位高度(cm)
+     */
+    private Integer defaultHeight;
+
+    /**
      * 逻辑删除
      */
     private String isDeleted;
@@ -105,6 +120,30 @@ public class Warehouse extends BaseEntity {
 
     public void setColumnCount(Integer columnCount) {
         this.columnCount = columnCount;
+    }
+
+    public Integer getDefaultLength() {
+        return defaultLength;
+    }
+
+    public void setDefaultLength(Integer defaultLength) {
+        this.defaultLength = defaultLength;
+    }
+
+    public Integer getDefaultWidth() {
+        return defaultWidth;
+    }
+
+    public void setDefaultWidth(Integer defaultWidth) {
+        this.defaultWidth = defaultWidth;
+    }
+
+    public Integer getDefaultHeight() {
+        return defaultHeight;
+    }
+
+    public void setDefaultHeight(Integer defaultHeight) {
+        this.defaultHeight = defaultHeight;
     }
 
     public String getIsDeleted() {

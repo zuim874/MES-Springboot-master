@@ -234,14 +234,6 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">存放物料</label>
-            <div class="layui-input-block">
-                <select id="bind-materiel-select" lay-search>
-                    <option value="">请选择物料（空表示解绑）</option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item">
             <div class="layui-inline">
                 <label class="layui-form-label">长(cm)</label>
                 <div class="layui-input-inline" style="width:80px;">
@@ -259,6 +251,24 @@
                 <div class="layui-input-inline" style="width:80px;">
                     <input type="number" id="bind-location-height" class="layui-input" value="50">
                 </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">存放物料</label>
+            <div class="layui-input-block">
+                <table class="layui-table" lay-size="sm" style="margin:0;">
+                    <thead>
+                        <tr>
+                            <th style="width:60%;">物料</th>
+                            <th style="width:25%;">数量</th>
+                            <th style="width:15%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bind-materiel-tbody">
+                        <!-- 动态生成 -->
+                    </tbody>
+                </table>
+                <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" id="btn-add-materiel" style="margin-top:8px;"><i class="layui-icon">&#xe654;</i>添加物料</button>
             </div>
         </div>
         <div class="layui-form-item">
@@ -449,12 +459,17 @@
                     {field: 'rowNum', title: '排号', width: 80},
                     {field: 'layerNum', title: '层号', width: 80},
                     {field: 'columnNum', title: '列号', width: 80},
-                    {field: 'materielId', title: '存放物料', width: 200, templet: function(d) {
-                        if (d.materielId) {
-                            var m = g_materielList.find(function(item) { return item.id === d.materielId; });
-                            return m ? (m.materiel + ' - ' + m.materielDesc) : '未知物料';
+                    {field: 'materiels', title: '存放物料', width: 260, templet: function(d) {
+                        var materiels = d.materiels || [];
+                        if (materiels.length === 0) {
+                            return '<span style="color:#999">空闲</span>';
                         }
-                        return '<span style="color:#999">空闲</span>';
+                        var html = '';
+                        for (var i = 0; i < materiels.length; i++) {
+                            var m = materiels[i];
+                            html += '<div>' + (m.materielCode || '未知') + ' - ' + (m.materielDesc || '') + ' x' + (m.quantity || 1) + '</div>';
+                        }
+                        return html;
                     }}
                 ]]
             });
@@ -558,11 +573,23 @@
                     }
 
                     if (item) {
-                        var occupied = item.materielId ? true : false;
+                        var materiels = item.materiels || [];
+                        var occupied = materiels.length > 0;
                         var cssClass = occupied ? 'occupied' : '';
-                        var statusText = occupied ? '已占用' : '空闲';
+                        var statusText = occupied ? ('已占用(' + (item.totalQuantity || materiels.length) + ')') : '空闲';
                         var statusClass = occupied ? 'has-materiel' : 'empty';
-                        var materielText = occupied ? (item.materielCode + ' ' + (item.materielDesc || '')) : '';
+
+                        var materielTooltip = '';
+                        var materielText = '';
+                        if (occupied) {
+                            var texts = [];
+                            for (var mi = 0; mi < materiels.length; mi++) {
+                                var mm = materiels[mi];
+                                texts.push((mm.materielCode || '') + ' ' + (mm.materielDesc || '') + ' x' + (mm.quantity || 1));
+                            }
+                            materielText = texts[0];
+                            materielTooltip = texts.join('\n');
+                        }
                         var sizeText = (item.length || 50) + '×' + (item.width || 50) + '×' + (item.height || 50);
 
                         // 根据尺寸计算方框缩放比例
@@ -578,7 +605,7 @@
                             '<div class="cell-code">' + item.code + '</div>' +
                             '<div class="cell-size">' + sizeText + ' cm</div>' +
                             '<div class="cell-status ' + statusClass + '">' + statusText + '</div>' +
-                            (occupied ? '<div class="cell-materiel" title="' + materielText + '">' + materielText + '</div>' : '') +
+                            (occupied ? '<div class="cell-materiel" title="' + materielTooltip.replace(/"/g, '&quot;') + '">' + materielText + (materiels.length > 1 ? ' 等' + materiels.length + '种' : '') + '</div>' : '') +
                             '</div></div>';
                         container.append(html);
                     } else {
@@ -598,10 +625,41 @@
             });
         }
 
+        // 渲染弹窗中的物料行
+        function renderBindMaterielRow(materielId, quantity) {
+            var rowId = 'bind-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            var html = '<tr id="' + rowId + '">';
+            html += '<td><select class="bind-materiel-select" lay-search lay-filter="bind-materiel-select">';
+            html += '<option value="">请选择物料</option>';
+            for (var i = 0; i < g_materielList.length; i++) {
+                var m = g_materielList[i];
+                var selected = (m.id === materielId) ? 'selected' : '';
+                html += '<option value="' + m.id + '" ' + selected + '>' + m.materiel + ' - ' + m.materielDesc + '</option>';
+            }
+            html += '</select></td>';
+            html += '<td><input type="number" class="layui-input bind-materiel-quantity" value="' + (quantity || 1) + '" min="1" style="height:30px;"></td>';
+            html += '<td><button type="button" class="layui-btn layui-btn-danger layui-btn-xs btn-del-materiel" data-row="' + rowId + '"><i class="layui-icon">&#xe640;</i></button></td>';
+            html += '</tr>';
+            $('#bind-materiel-tbody').append(html);
+            form.render('select');
+        }
+
+        // 添加物料行
+        $('#btn-add-materiel').click(function() {
+            renderBindMaterielRow(null, 1);
+        });
+
+        // 删除物料行
+        $(document).on('click', '.btn-del-materiel', function() {
+            var rowId = $(this).data('row');
+            $('#' + rowId).remove();
+        });
+
         // 打开库位编辑弹窗
         function openBindPopup(locationId, locationCode, currentMaterielId) {
             $('#bind-location-id').val(locationId);
             $('#bind-location-code').val(locationCode);
+            $('#bind-materiel-tbody').empty();
 
             // 加载库位详情
             spUtil.ajax({
@@ -613,24 +671,27 @@
                         $('#bind-location-length').val(loc.length || 50);
                         $('#bind-location-width').val(loc.width || 50);
                         $('#bind-location-height').val(loc.height || 50);
+
+                        // 渲染已绑定的物料列表
+                        var materiels = res.data.materiels || [];
+                        if (materiels.length > 0) {
+                            for (var i = 0; i < materiels.length; i++) {
+                                renderBindMaterielRow(materiels[i].materielId, materiels[i].quantity);
+                            }
+                        } else {
+                            // 兼容旧数据：如果只有单个materielId
+                            if (currentMaterielId) {
+                                renderBindMaterielRow(currentMaterielId, 1);
+                            }
+                        }
                     }
                 }
             });
 
-            var select = $('#bind-materiel-select');
-            select.empty();
-            select.append('<option value="">请选择物料（空表示解绑）</option>');
-            for (var i = 0; i < g_materielList.length; i++) {
-                var m = g_materielList[i];
-                var selected = (m.id === currentMaterielId) ? 'selected' : '';
-                select.append('<option value="' + m.id + '" ' + selected + '>' + m.materiel + ' - ' + m.materielDesc + '</option>');
-            }
-            form.render('select');
-
             layer.open({
                 type: 1,
                 title: '库位信息编辑',
-                area: ['500px', '380px'],
+                area: ['560px', '480px'],
                 content: $('#js-bind-popup'),
                 success: function() {
                     form.render();
@@ -641,14 +702,30 @@
         // 保存库位信息
         $('#btn-save-bind').click(function() {
             var locationId = $('#bind-location-id').val();
-            var materielId = $('#bind-materiel-select').val();
             var length = parseInt($('#bind-location-length').val()) || 50;
             var width = parseInt($('#bind-location-width').val()) || 50;
             var height = parseInt($('#bind-location-height').val()) || 50;
+
+            // 收集物料列表
+            var materiels = [];
+            $('#bind-materiel-tbody tr').each(function() {
+                var materielId = $(this).find('.bind-materiel-select').val();
+                var quantity = parseInt($(this).find('.bind-materiel-quantity').val()) || 1;
+                if (materielId) {
+                    materiels.push({materielId: materielId, quantity: quantity});
+                }
+            });
+
             spUtil.ajax({
                 url: '${request.contextPath}/admin/warehouse/location-update',
                 type: 'POST',
-                data: {locationId: locationId, materielId: materielId, length: length, width: width, height: height},
+                data: {
+                    locationId: locationId,
+                    length: length,
+                    width: width,
+                    height: height,
+                    materielsJson: JSON.stringify(materiels)
+                },
                 success: function(res) {
                     if (res.code === 0) {
                         layer.msg('保存成功', {icon: 1});

@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +37,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/basedata/materile")
 public class SpMaterileController extends BaseController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpMaterileController.class);
 
     /**
      * 物料服务
@@ -86,23 +90,30 @@ public class SpMaterileController extends BaseController {
     @PostMapping("/page")
     @ResponseBody
     public Result page(spMaterileReq req) {
-        QueryWrapper<SpMaterile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("is_deleted", "0");
-        if (StringUtils.isNotEmpty(req.getMaterielLike())) {
-            queryWrapper.like("materiel", req.getMaterielLike());
+        try {
+            QueryWrapper<SpMaterile> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("is_deleted", "0");
+            if (StringUtils.isNotEmpty(req.getMaterielLike())) {
+                queryWrapper.like("materiel", req.getMaterielLike());
+            }
+            if (StringUtils.isNotEmpty(req.getMaterielDescLike())) {
+                queryWrapper.like("materiel_desc", req.getMaterielDescLike());
+            }
+            if (StringUtils.isNotEmpty(req.getMatType())) {
+                queryWrapper.eq("mat_type", req.getMatType());
+            }
+            if (StringUtils.isNotEmpty(req.getSource())) {
+                queryWrapper.eq("source", req.getSource());
+            }
+            Page<SpMaterile> page = new Page<>(req.getCurrent(), req.getSize());
+            logger.info("物料分页查询参数: current={}, size={}", req.getCurrent(), req.getSize());
+            IPage result = iSpMaterileService.page(page, queryWrapper);
+            logger.info("物料分页查询结果: total={}", result.getTotal());
+            return Result.success(result);
+        } catch (Exception e) {
+            logger.error("物料分页查询异常", e);
+            return Result.failure("查询物料数据异常: " + e.getMessage());
         }
-        if (StringUtils.isNotEmpty(req.getMaterielDescLike())) {
-            queryWrapper.like("materiel_desc", req.getMaterielDescLike());
-        }
-        if (StringUtils.isNotEmpty(req.getMatType())) {
-            queryWrapper.eq("mat_type", req.getMatType());
-        }
-        if (StringUtils.isNotEmpty(req.getSource())) {
-            queryWrapper.eq("source", req.getSource());
-        }
-        Page<SpMaterile> page = new Page<>(req.getCurrent(), req.getSize());
-        IPage result = iSpMaterileService.page(page, queryWrapper);
-        return Result.success(result);
     }
 
     /**

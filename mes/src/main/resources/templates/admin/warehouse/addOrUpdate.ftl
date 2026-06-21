@@ -70,6 +70,30 @@
                 </div>
             </div>
 
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label sp-required">默认长(cm)</label>
+                    <div class="layui-input-inline">
+                        <input type="number" name="defaultLength" lay-verify="required|number|positive" autocomplete="off" class="layui-input" value="${(result.defaultLength)!50}">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label sp-required">默认宽(cm)</label>
+                    <div class="layui-input-inline">
+                        <input type="number" name="defaultWidth" lay-verify="required|number|positive" autocomplete="off" class="layui-input" value="${(result.defaultWidth)!50}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label sp-required">默认高(cm)</label>
+                    <div class="layui-input-inline">
+                        <input type="number" name="defaultHeight" lay-verify="required|number|positive" autocomplete="off" class="layui-input" value="${(result.defaultHeight)!50}">
+                    </div>
+                </div>
+            </div>
+
             <#if result.id??>
             <div class="layui-form-item">
                 <div class="layui-inline">

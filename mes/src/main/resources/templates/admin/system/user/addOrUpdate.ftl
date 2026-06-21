@@ -32,18 +32,18 @@
                     </div>
 
                     <div class="layui-form-item">
-                        <label for="js-password" class="layui-form-label sp-required">密码
+                        <label for="js-password" class="layui-form-label <#if !(result.id??)>sp-required</#if>">密码
                         </label>
                         <div class="layui-input-inline">
-                            <input type="password" id="js-password" name="password" lay-verify="required" autocomplete="off" class="layui-input" value="${result.password}">
+                            <input type="password" id="js-password" name="password" lay-verify="<#if !(result.id??)>required</#if>" autocomplete="off" class="layui-input" value="" placeholder="<#if result.id??>不填表示不修改</#if>">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
-                        <label for="js-repassword" class="layui-form-label sp-required">确认密码
+                        <label for="js-repassword" class="layui-form-label <#if !(result.id??)>sp-required</#if>">确认密码
                         </label>
                         <div class="layui-input-inline">
-                            <input type="password" id="js-repassword" name="repassword" lay-verify="required" autocomplete="off" class="layui-input" value="${result.password}">
+                            <input type="password" id="js-repassword" name="repassword" lay-verify="<#if !(result.id??)>required</#if>" autocomplete="off" class="layui-input" value="" placeholder="<#if result.id??>不填表示不修改</#if>">
                         </div>
                     </div>
 
@@ -187,7 +187,7 @@
                         <label class="layui-form-label">分配权限</label>
                         <div class="layui-input-block">
                             <#list sysRoles as sysRole>
-                                <input type="checkbox" name="sysRoleIds[]" title="${sysRole.name}" value="${sysRole.id}" <#if sysRole.checked >checked</#if>>
+                                <input type="checkbox" name="sysRoleIds" title="${sysRole.name}" value="${sysRole.id}" <#if sysRole.checked >checked</#if>>
                             </#list>
                         </div>
                     </div>

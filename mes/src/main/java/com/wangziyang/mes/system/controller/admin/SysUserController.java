@@ -18,9 +18,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
@@ -59,6 +61,7 @@ public class SysUserController extends BaseController {
 
     @PostMapping("/page")
     @ResponseBody
+    @RequiresPermissions("sys:user:view")
     public Result page(SysUserPageReq req) throws Exception {
         QueryWrapper qw = new QueryWrapper();
         if (StringUtils.isNotEmpty(req.getNameLike())) {
@@ -125,12 +128,33 @@ public class SysUserController extends BaseController {
 
     @PostMapping("/add-or-update")
     @ResponseBody
+    @RequiresPermissions("sys:user:edit")
     public Result addOrUpdate(SysUserDTO record) throws Exception {
         if (StringUtils.isEmpty(record.getId())) {
             sysUserService.save(record);
         } else {
+            // 编辑时如果密码为空，则不更新密码，避免重复加密
+            if (StringUtils.isEmpty(record.getPassword())) {
+                SysUser exist = sysUserService.getById(record.getId());
+                if (exist != null) {
+                    record.setPassword(exist.getPassword());
+                }
+            }
             sysUserService.update(record);
         }
         return Result.success(record.getId());
+    }
+
+    @PostMapping("/delete")
+    @ResponseBody
+    @RequiresPermissions("sys:user:delete")
+    public Result delete(@RequestParam String id) {
+        SysUser user = sysUserService.getById(id);
+        if (user == null) {
+            return Result.failure("用户不存在");
+        }
+        user.setDeleted("1");
+        sysUserService.updateById(user);
+        return Result.success();
     }
 }

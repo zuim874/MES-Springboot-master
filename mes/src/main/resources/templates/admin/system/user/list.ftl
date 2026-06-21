@@ -62,8 +62,12 @@
 
 <!--行操作模板-->
 <script type="text/html" id="js-record-table-toolbar-right">
+    <@shiro.hasPermission name="sys:user:edit">
     <a class="layui-btn layui-btn-xs" lay-event="edit" style="padding: 0 6px;"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    </@shiro.hasPermission>
+    <@shiro.hasPermission name="sys:user:delete">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete" style="padding: 0 6px;"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    </@shiro.hasPermission>
 </script>
 
 <!--js逻辑-->
@@ -185,7 +189,19 @@
             // 删除
             if (obj.event === 'delete') {
                 layer.confirm('确认要删除吗？', function (index) {
-                    obj.del();
+                    spUtil.ajax({
+                        url: '${request.contextPath}/admin/sys/user/delete',
+                        type: 'POST',
+                        data: {id: data.id},
+                        success: function(res) {
+                            if (res.code === 0) {
+                                layer.msg('删除成功', {icon: 1});
+                                obj.del();
+                            } else {
+                                layer.msg(res.msg || '删除失败', {icon: 2});
+                            }
+                        }
+                    });
                     layer.close(index);
                 });
             }

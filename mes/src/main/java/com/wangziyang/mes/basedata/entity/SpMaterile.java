@@ -1,6 +1,7 @@
 package com.wangziyang.mes.basedata.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.wangziyang.mes.common.BaseEntity;
 
 /**
@@ -11,6 +12,7 @@ import com.wangziyang.mes.common.BaseEntity;
  * @author WangZiYang
  * @since 2020-03-19
  */
+@TableName("sp_materile")
 public class SpMaterile extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
