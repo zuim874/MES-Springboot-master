@@ -338,6 +338,16 @@ public class WarehouseController extends BaseController {
                     return Result.failure("物料体积(" + matVolume + "cm³)加入后总容积将超出库位容积(" + locationVolume + "cm³)，无法存放");
                 }
 
+                // 校验实际库存
+                if (materiel.getSafetyStock() != null) {
+                    int totalInOtherLocations = getTotalQuantityByMaterielIdExcludeLocation(materielId, locationId);
+                    int newTotal = totalInOtherLocations + 1;
+                    if (newTotal > materiel.getSafetyStock()) {
+                        return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getSafetyStock()
+                                + "，所有库位总存放量将达到" + newTotal + "，超出实际库存");
+                    }
+                }
+
                 WarehouseLocationMateriel item = new WarehouseLocationMateriel();
                 item.setMaterielId(materielId);
                 item.setQuantity(1);
@@ -496,6 +506,23 @@ public class WarehouseController extends BaseController {
                         + Math.round(totalUsedVolume * 100.0 / locationVolume) + "%，请减少物料数量或更换更大库位");
             }
 
+            // 校验实际库存
+            for (WarehouseLocationMateriel item : materielList) {
+                if (item.getMaterielId() == null || item.getMaterielId().trim().isEmpty() || item.getQuantity() == null) {
+                    continue;
+                }
+                SpMaterile materiel = materileService.getById(item.getMaterielId());
+                if (materiel == null || materiel.getSafetyStock() == null) {
+                    continue;
+                }
+                int totalInOtherLocations = getTotalQuantityByMaterielIdExcludeLocation(item.getMaterielId(), locationId);
+                int newTotal = totalInOtherLocations + item.getQuantity();
+                if (newTotal > materiel.getSafetyStock()) {
+                    return Result.failure("物料【" + materiel.getMaterielDesc() + "】实际库存为" + materiel.getSafetyStock()
+                            + "，所有库位总存放量将达到" + newTotal + "，超出实际库存");
+                }
+            }
+
             locationMaterielService.saveBindMateriels(locationId, materielList);
 
             // 更新location的materiel_id为主物料（兼容旧逻辑）
@@ -507,6 +534,24 @@ public class WarehouseController extends BaseController {
         }
         warehouseLocationService.updateById(location);
         return Result.success("保存成功");
+    }
+
+    /**
+     * 查询某物料在所有库位中的总存放数量（排除指定库位）
+     */
+    private int getTotalQuantityByMaterielIdExcludeLocation(String materielId, String excludeLocationId) {
+        QueryWrapper<WarehouseLocationMateriel> wrapper = new QueryWrapper<>();
+        wrapper.eq("materiel_id", materielId);
+        wrapper.eq("is_deleted", "0");
+        if (excludeLocationId != null) {
+            wrapper.ne("location_id", excludeLocationId);
+        }
+        List<WarehouseLocationMateriel> list = locationMaterielService.list(wrapper);
+        int total = 0;
+        for (WarehouseLocationMateriel item : list) {
+            total += item.getQuantity() != null ? item.getQuantity() : 0;
+        }
+        return total;
     }
 
     /**

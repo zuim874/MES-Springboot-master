@@ -138,9 +138,9 @@ public class SpMaterileController extends BaseController {
         if (record.getLeadTime() < 1) {
             return Result.failure("物料需求提前期不可为0，至少为1天");
         }
-        // 校验：安全库存不可为负数
+        // 校验：实际库存不可为负数
         if (record.getSafetyStock() < 0) {
-            return Result.failure("安全库存不能为负数");
+            return Result.failure("实际库存不能为负数");
         }
 
         // 新增时自动生成物料编码

@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label for="js-safetyStock" class="layui-form-label">安全库存
+                        <label for="js-safetyStock" class="layui-form-label">实际库存
                         </label>
                         <div class="layui-input-inline">
                             <input type="number" id="js-safetyStock" name="safetyStock" lay-verify="number"
@@ -205,9 +205,20 @@
                 serializable: false,
                 data: {},
                 success: function (data) {
-                    $.each(data.data, function (index, item) {
-                        $('#js-source').append(new Option(item.name, item.value));
-                    });
+                    if (data.data && data.data.length > 0) {
+                        $.each(data.data, function (index, item) {
+                            $('#js-source').append(new Option(item.name, item.value));
+                        });
+                    } else {
+                        // 兜底：若字典表无数据，默认显示自制/外购
+                        $('#js-source').append(new Option('自制', '自制'));
+                        $('#js-source').append(new Option('外购', '外购'));
+                    }
+                },
+                error: function () {
+                    // 兜底：若请求失败，默认显示自制/外购
+                    $('#js-source').append(new Option('自制', '自制'));
+                    $('#js-source').append(new Option('外购', '外购'));
                 }
             });
         }
@@ -277,7 +288,7 @@
             }
             var safetyStock = parseInt(data.field.safetyStock);
             if (isNaN(safetyStock) || safetyStock < 0) {
-                layer.msg('安全库存不能为负数');
+                layer.msg('实际库存不能为负数');
                 return false;
             }
             spUtil.submitForm({

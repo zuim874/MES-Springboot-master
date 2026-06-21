@@ -77,7 +77,7 @@ public class SpMaterile extends BaseEntity {
     private Integer leadTime;
 
     /**
-     * 安全库存
+     * 实际库存
      */
     private Integer safetyStock;
 
@@ -356,14 +356,14 @@ public class SpMaterile extends BaseEntity {
     }
 
     /**
-     * 获取 安全库存
+     * 获取 实际库存
      */
     public Integer getSafetyStock() {
         return this.safetyStock;
     }
 
     /**
-     * 设置 安全库存
+     * 设置 实际库存
      */
     public void setSafetyStock(Integer safetyStock) {
         this.safetyStock = safetyStock;
