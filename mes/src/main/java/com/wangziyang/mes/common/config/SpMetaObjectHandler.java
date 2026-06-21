@@ -33,14 +33,26 @@ public class SpMetaObjectHandler implements MetaObjectHandler {
     }
 
     private void setInsertData(MetaObject metaObject) {
-        SysUser sysUser = (SysUser) SecurityUtils.getSubject().getPrincipal();
-        this.setInsertFieldValByName("createUsername", sysUser.getUsername(), metaObject);
+        String username = getCurrentUsername();
+        this.setInsertFieldValByName("createUsername", username, metaObject);
         this.setInsertFieldValByName("createTime", LocalDateTime.now(), metaObject);
     }
 
     private void setUpdateData(MetaObject metaObject) {
-        SysUser sysUser = (SysUser) SecurityUtils.getSubject().getPrincipal();
-        this.setUpdateFieldValByName("updateUsername", sysUser.getUsername(), metaObject);
+        String username = getCurrentUsername();
+        this.setUpdateFieldValByName("updateUsername", username, metaObject);
         this.setUpdateFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+    }
+
+    private String getCurrentUsername() {
+        try {
+            Object principal = SecurityUtils.getSubject().getPrincipal();
+            if (principal != null) {
+                return ((SysUser) principal).getUsername();
+            }
+        } catch (Exception e) {
+            logger.warn("获取当前用户失败", e);
+        }
+        return "system";
     }
 }

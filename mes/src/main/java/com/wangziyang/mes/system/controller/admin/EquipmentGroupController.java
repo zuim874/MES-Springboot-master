@@ -75,7 +75,6 @@ public class EquipmentGroupController extends BaseController {
         wrapper.orderByAsc("code");
         IPage<EquipmentGroup> result = equipmentGroupService.page(req, wrapper);
 
-        Page<Map<String, Object>> newPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
         List<Map<String, Object>> records = new ArrayList<>();
         for (EquipmentGroup group : result.getRecords()) {
             Map<String, Object> map = new HashMap<>();
@@ -92,8 +91,13 @@ public class EquipmentGroupController extends BaseController {
             map.put("processUnits", puNames != null && !puNames.isEmpty() ? String.join(", ", puNames) : "-");
             records.add(map);
         }
-        newPage.setRecords(records);
-        return Result.success(newPage);
+
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("records", records);
+        resultMap.put("total", result.getTotal());
+        resultMap.put("size", result.getSize());
+        resultMap.put("current", result.getCurrent());
+        return Result.success(resultMap);
     }
 
     @GetMapping("/add-or-update-ui")

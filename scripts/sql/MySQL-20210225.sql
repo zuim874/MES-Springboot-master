@@ -96,6 +96,11 @@ CREATE TABLE `sp_materile`  (
 -- Records of sp_materile
 -- ----------------------------
 INSERT INTO `sp_materile` VALUES ('1284051625900748801', '000001', '成品测试', '件', '产品1组', 'FG', '大', '8*8', '1279942838902304770', '0005', '2020-07-17 17:05:39', 'admin', '2020-07-21 08:32:19', 'admin', '0');
+INSERT INTO `sp_materile` VALUES ('mat_1001', 'RM-001', '铝合金板材', 'KG', '原材料组', 'RM', 'AL-6061', '1220*2440*3', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
+INSERT INTO `sp_materile` VALUES ('mat_1002', 'RM-002', '不锈钢棒材', 'KG', '原材料组', 'RM', 'SUS-304', '直径20*L6000', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
+INSERT INTO `sp_materile` VALUES ('mat_1003', 'SFG-001', '机加工半成品', '件', '半成品组', 'SFG', 'M-001', '150*80*40', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
+INSERT INTO `sp_materile` VALUES ('mat_1004', 'FG-002', '电脑主机外壳', '件', '产品1组', 'FG', 'C-001', '450*200*400', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
+INSERT INTO `sp_materile` VALUES ('mat_1005', 'RM-003', '铜线材', 'KG', '原材料组', 'RM', 'CU-T2', '直径2*卷', NULL, NULL, NOW(), 'admin', NOW(), 'admin', '0');
 
 -- ----------------------------
 -- Table structure for sp_oper
