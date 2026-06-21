@@ -896,9 +896,10 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS AddColumnIfNotExists$$
 CREATE PROCEDURE AddColumnIfNotExists(IN p_table VARCHAR(64), IN p_column VARCHAR(64), IN p_definition TEXT)
 BEGIN
+  SET @col_name = TRIM(BOTH '`' FROM p_column);
   IF NOT EXISTS (
     SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = p_table AND COLUMN_NAME = p_column
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = p_table AND COLUMN_NAME = @col_name
   ) THEN
     SET @sql = CONCAT('ALTER TABLE ', p_table, ' ADD COLUMN ', p_column, ' ', p_definition);
     PREPARE stmt FROM @sql;
