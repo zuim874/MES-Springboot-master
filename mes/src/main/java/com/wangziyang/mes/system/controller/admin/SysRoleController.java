@@ -114,10 +114,12 @@ public class SysRoleController extends BaseController {
             return;
         }
         for (TreeVO<SysMenu> node : treeList) {
-            if (roleMenuIds.contains(node.getId())) {
+            boolean isLeaf = node.getChildren() == null || node.getChildren().isEmpty();
+            // 只有叶子节点才标记为checked，父节点由前端tree组件级联向上自动勾选
+            if (isLeaf && roleMenuIds.contains(node.getId())) {
                 node.setChecked(true);
             }
-            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+            if (!isLeaf) {
                 setChecked(node.getChildren(), roleMenuIds);
             }
         }
@@ -129,7 +131,7 @@ public class SysRoleController extends BaseController {
     @PostMapping("/save-auth-menu")
     @ResponseBody
     @RequiresPermissions("sys:role:auth")
-    public Result saveAuthMenu(String roleId, @RequestParam(value = "menuIds[]", required = false) List<String> menuIds) throws Exception {
+    public Result saveAuthMenu(String roleId, @RequestParam(value = "menuIds", required = false) List<String> menuIds) throws Exception {
         sysRoleService.saveAuthMenu(roleId, menuIds);
         return Result.success();
     }

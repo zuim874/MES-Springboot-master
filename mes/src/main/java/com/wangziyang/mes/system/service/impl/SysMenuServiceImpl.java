@@ -49,6 +49,16 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Set<String> permittedMenuIds = new HashSet<>();
         SysUserDTO user = (SysUserDTO) SecurityUtils.getSubject().getPrincipal();
         if (user != null && user.getSysRoleDTOs() != null) {
+            // 超级管理员（sys_role = '1'）拥有所有菜单权限
+            for (SysRoleDTO role : user.getSysRoleDTOs()) {
+                if ("1".equals(role.getSysRole())) {
+                    Set<String> allIds = new HashSet<>();
+                    for (SysMenu m : allMenus) {
+                        allIds.add(m.getId());
+                    }
+                    return allIds;
+                }
+            }
             for (SysRoleDTO role : user.getSysRoleDTOs()) {
                 if (role.getSysMenuDtos() != null) {
                     for (SysMenuDTO menu : role.getSysMenuDtos()) {

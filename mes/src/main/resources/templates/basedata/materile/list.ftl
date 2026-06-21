@@ -99,18 +99,17 @@
                 }, {
                     field: 'model', title: '型号', width: 120
                 }, {
-                    field: 'size', title: '尺寸', width: 100
+                    field: 'size', title: '尺寸(cm)', width: 120, templet: function (d) {
+                        var l = d.length || 0, w = d.width || 0, h = d.height || 0;
+                        if (l > 0 && w > 0 && h > 0) {
+                            return l + '×' + w + '×' + h;
+                        }
+                        return d.size || '-';
+                    }
                 }, {
                     field: 'leadTime', title: '提前期(天)', width: 100
                 }, {
                     field: 'safetyStock', title: '安全库存', width: 100
-                }, {
-                    field: 'imgUrl', title: '图片', width: 80, templet: function (d) {
-                        if (d.imgUrl) {
-                            return '<img src="' + d.imgUrl + '" style="width:40px;height:40px;cursor:pointer;" onclick="window.open(\'' + d.imgUrl + '\')">';
-                        }
-                        return '-';
-                    }
                 }, {
                     field: 'remark', title: '备注', width: 150
                 }, {

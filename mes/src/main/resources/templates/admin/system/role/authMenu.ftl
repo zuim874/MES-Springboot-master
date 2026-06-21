@@ -89,7 +89,7 @@
             }
             collectIds(checkedData);
 
-            // 提交保存
+            // 提交保存（同步请求确保spLayer能获取结果）
             $.ajax({
                 url: '${request.contextPath}/admin/sys/role/save-auth-menu',
                 type: 'POST',
@@ -98,20 +98,17 @@
                     menuIds: menuIds
                 },
                 traditional: true,
+                async: false,
                 success: function (res) {
+                    window.spChildFrameResult = res;
                     if (res.code === 0) {
                         layer.msg('授权成功', {icon: 1, time: 1500});
-                        // 延迟关闭弹窗并刷新父页面
-                        setTimeout(function () {
-                            var index = parent.layer.getFrameIndex(window.name);
-                            parent.layer.close(index);
-                            parent.location.reload();
-                        }, 1500);
                     } else {
                         layer.msg('授权失败：' + (res.msg || '未知错误'));
                     }
                 },
                 error: function () {
+                    window.spChildFrameResult = {code: 1, msg: '网络错误'};
                     layer.msg('授权失败，请检查网络');
                 }
             });

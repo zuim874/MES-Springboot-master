@@ -243,14 +243,10 @@ INSERT INTO `sp_sys_menu` VALUES ('101', 'menu', '菜单管理', '/admin/sys/men
 INSERT INTO `sp_sys_menu` VALUES ('102', 'user', '用户管理', '/admin/sys/user/list-ui', '10', '3', 2, '0', 'user:add', 'fa fa-user', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('103', 'role', '角色管理', '/admin/sys/role/list-ui', '10', '3', 3, '0', 'user:add', 'fa fa-child', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('104', 'department', '部门管理', '/admin/sys/department/list-ui', '10', '3', 4, '0', 'user:add', 'fa fa-sitemap', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
-INSERT INTO `sp_sys_menu` VALUES ('105', 'basedata', '基础数据配置平台', '/basedata/manager/list-ui', '10', '3', 5, '0', 'user:add', 'fa fa-cog', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
-INSERT INTO `sp_sys_menu` VALUES ('106', 'basedatamanager', '基础数据维护', '/basedata/manager/item/list-ui', '10', '3', 6, '0', 'user:add', 'fa fa-database', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('107', 'workteam', '员工班组', '/admin/work/team/list-ui', '10', '3', 7, '0', 'user:add', 'fa fa-users', '', '2026-06-18 12:00:00', 'admin', '2026-06-18 12:00:00', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('108', 'equipment', '设备管理', '/admin/equipment/list-ui', '10', '3', 8, '0', 'user:add', 'fa fa-cogs', '', '2026-06-19 12:00:00', 'admin', '2026-06-19 12:00:00', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('109', 'equipmentGroup', '设备编组', '/admin/equipment/group/list-ui', '10', '3', 9, '0', 'user:add', 'fa fa-object-group', '', '2026-06-19 12:00:00', 'admin', '2026-06-19 12:00:00', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('110', 'processUnit', '加工单元定义', '/admin/process/unit/list-ui', '10', '3', 10, '0', 'user:add', 'fa fa-industry', '', '2026-06-19 12:00:00', 'admin', '2026-06-19 12:00:00', 'admin');
-INSERT INTO `sp_sys_menu` VALUES ('12', 'order', '计划管理', '', '1', '2', 4, '0', 'user:add', 'fa fa-calendar', '', '2019-10-18 11:18:29', 'Wangziyang', '2021-02-21 14:59:56', 'admin');
-INSERT INTO `sp_sys_menu` VALUES ('121', 'orderRelease', '工单下达', '/order/release/list-ui', '12', '3', 1, '0', 'user:add', 'fa fa-flag-o', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('13', 'materiel', '物料管理', '#', '1', '2', 2, '0', 'user:add', 'fa fa-cubes', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('131', 'matdef', '物料维护', '/basedata/materile/list-ui', '13', '3', 1, '0', 'user:add', 'fa fa-microchip', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('14', 'Digitalplatform\n\n', '数字化平台', '#', '1', '2', 6, '0', 'user:add', 'fa fa-pie-chart', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
@@ -258,8 +254,6 @@ INSERT INTO `sp_sys_menu` VALUES ('141', 'plandg', '智慧大屏', '/digitizatio
 INSERT INTO `sp_sys_menu` VALUES ('15', 'ProcessManage', '工艺管理', '', '1', '2', 3, '0', 'user:add', 'fa fa-wrench', '', '2019-10-18 11:18:29', 'Wangziyang', '2021-02-21 15:01:47', 'admin');
 INSERT INTO `sp_sys_menu` VALUES ('151', 'flowProcess', '工艺路线管理', '/basedata/flow/process/list-ui', '15', '3', 1, '0', 'user:add', 'fa fa-retweet', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('152', 'bom', '工艺BOM管理', '/technology/bom/list-ui', '15', '3', 2, '0', 'user:add', 'fa fa-file-text-o', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
-INSERT INTO `sp_sys_menu` VALUES ('16', 'wip', '在制品管理', '#', '1', '2', 5, '0', 'user:add', 'fa fa-industry', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
-INSERT INTO `sp_sys_menu` VALUES ('161', 'generalSnProcess', 'SN通用过程采集', '/rrr', '16', '3', 1, '0', 'user:add', 'fa fa-product-hunt', '', '2019-10-18 11:18:29', 'SongPeng', '2019-10-18 11:18:29', 'SongPeng');
 INSERT INTO `sp_sys_menu` VALUES ('17', 'DigitalSimulation', '黑科数字孪生', '#', '1', '2', 7, '0', 'user:add', 'fa fa-ravelry', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 INSERT INTO `sp_sys_menu` VALUES ('171', 'DigitalSimulationFrom', '数字仿真3D仓库', '/digital/simulation/list-ui', '17', '3', 1, '0', 'user:add', 'fa fa-codepen', '', '2019-10-18 11:18:29', 'Wangziyang', '2019-10-18 11:18:29', 'Wangziyang');
 
@@ -778,9 +772,7 @@ DELETE FROM `sp_sys_role_menu` WHERE `role_id` LIKE 'role_%';
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('rm_dc_01', 'role_data_clerk', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_dc_02', 'role_data_clerk', '10',  NOW(), 'admin', NOW(), 'admin'),
-('rm_dc_03', 'role_data_clerk', '105', NOW(), 'admin', NOW(), 'admin'),
-('rm_dc_04', 'role_data_clerk', '106', NOW(), 'admin', NOW(), 'admin');
+('rm_dc_02', 'role_data_clerk', '10',  NOW(), 'admin', NOW(), 'admin');
 
 -- 2. 工艺员 - 工艺管理权限
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
@@ -793,32 +785,22 @@ VALUES
 -- 3. 生产计划员 - 计划管理权限
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
-('rm_pp_01', 'role_prod_planner', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_pp_02', 'role_prod_planner', '12',  NOW(), 'admin', NOW(), 'admin'),
-('rm_pp_03', 'role_prod_planner', '121', NOW(), 'admin', NOW(), 'admin');
+('rm_pp_01', 'role_prod_planner', '1',   NOW(), 'admin', NOW(), 'admin');
 
 -- 4. 生产主管 - 生产全面管理
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('rm_ps_01',  'role_prod_supervisor', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_ps_02',  'role_prod_supervisor', '12',  NOW(), 'admin', NOW(), 'admin'),
-('rm_ps_03',  'role_prod_supervisor', '121', NOW(), 'admin', NOW(), 'admin'),
 ('rm_ps_04',  'role_prod_supervisor', '13',  NOW(), 'admin', NOW(), 'admin'),
 ('rm_ps_05',  'role_prod_supervisor', '131', NOW(), 'admin', NOW(), 'admin'),
 ('rm_ps_06',  'role_prod_supervisor', '15',  NOW(), 'admin', NOW(), 'admin'),
 ('rm_ps_07',  'role_prod_supervisor', '151', NOW(), 'admin', NOW(), 'admin'),
-('rm_ps_08',  'role_prod_supervisor', '152', NOW(), 'admin', NOW(), 'admin'),
-('rm_ps_09',  'role_prod_supervisor', '16',  NOW(), 'admin', NOW(), 'admin'),
-('rm_ps_10',  'role_prod_supervisor', '161', NOW(), 'admin', NOW(), 'admin');
+('rm_ps_08',  'role_prod_supervisor', '152', NOW(), 'admin', NOW(), 'admin');
 
 -- 5. 生产作业员 - 生产作业执行
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
-('rm_po_01', 'role_prod_operator', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_po_02', 'role_prod_operator', '12',  NOW(), 'admin', NOW(), 'admin'),
-('rm_po_03', 'role_prod_operator', '121', NOW(), 'admin', NOW(), 'admin'),
-('rm_po_04', 'role_prod_operator', '16',  NOW(), 'admin', NOW(), 'admin'),
-('rm_po_05', 'role_prod_operator', '161', NOW(), 'admin', NOW(), 'admin');
+('rm_po_01', 'role_prod_operator', '1',   NOW(), 'admin', NOW(), 'admin');
 
 -- 6. 库房管理员 - 物料/库存管理
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
@@ -831,17 +813,13 @@ VALUES
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('rm_qm_01', 'role_quality_mgr', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_qm_02', 'role_quality_mgr', '10',  NOW(), 'admin', NOW(), 'admin'),
-('rm_qm_03', 'role_quality_mgr', '105', NOW(), 'admin', NOW(), 'admin'),
-('rm_qm_04', 'role_quality_mgr', '106', NOW(), 'admin', NOW(), 'admin');
+('rm_qm_02', 'role_quality_mgr', '10',  NOW(), 'admin', NOW(), 'admin');
 
 -- 8. 设备管理员 - 设备管理
 INSERT INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`)
 VALUES
 ('rm_em_01', 'role_equipment_mgr', '1',   NOW(), 'admin', NOW(), 'admin'),
 ('rm_em_02', 'role_equipment_mgr', '10',  NOW(), 'admin', NOW(), 'admin'),
-('rm_em_03', 'role_equipment_mgr', '105', NOW(), 'admin', NOW(), 'admin'),
-('rm_em_04', 'role_equipment_mgr', '106', NOW(), 'admin', NOW(), 'admin'),
 ('rm_em_05', 'role_equipment_mgr', '108', NOW(), 'admin', NOW(), 'admin'),
 ('rm_em_06', 'role_equipment_mgr', '109', NOW(), 'admin', NOW(), 'admin'),
 ('rm_em_07', 'role_equipment_mgr', '110', NOW(), 'admin', NOW(), 'admin');
@@ -1305,8 +1283,6 @@ UPDATE `sp_sys_menu` SET `permission` = CASE `id`
     WHEN '113' THEN 'basedata:equipment:view,basedata:equipment:edit'
     WHEN '114' THEN 'basedata:equipgroup:view,basedata:equipgroup:edit'
     WHEN '115' THEN 'basedata:unit:view,basedata:unit:edit'
-    WHEN '12'  THEN 'order:manage:view'
-    WHEN '121' THEN 'order:release:view,order:release:edit'
     WHEN '13'  THEN 'materiel:manage:view'
     WHEN '131' THEN 'materiel:view,materiel:edit'
     WHEN '14'  THEN 'digit:manage:view'
@@ -1316,8 +1292,6 @@ UPDATE `sp_sys_menu` SET `permission` = CASE `id`
     WHEN '184' THEN 'process:plan:view,process:plan:edit'
     WHEN '185' THEN 'process:content:view,process:content:edit'
     WHEN '186' THEN 'process:flowdef:view,process:flowdef:edit'
-    WHEN '16'  THEN 'wip:manage:view'
-    WHEN '161' THEN 'wip:sn:view,wip:sn:edit'
     WHEN '17'  THEN 'sim:manage:view'
     WHEN '171' THEN 'sim:warehouse:view'
     WHEN '18'  THEN 'product:manage:view'
@@ -1332,8 +1306,6 @@ END;
 -- ----------------------------
 INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`, `create_username`, `update_time`, `update_username`) VALUES
 ('rm_guest_01', '1232532514523213826', '1',   NOW(), 'admin', NOW(), 'admin'),
-('rm_guest_02', '1232532514523213826', '12',  NOW(), 'admin', NOW(), 'admin'),
-('rm_guest_03', '1232532514523213826', '121', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_04', '1232532514523213826', '13',  NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_05', '1232532514523213826', '131', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_06', '1232532514523213826', '14',  NOW(), 'admin', NOW(), 'admin'),
@@ -1343,10 +1315,14 @@ INSERT IGNORE INTO `sp_sys_role_menu` (`id`, `role_id`, `menu_id`, `create_time`
 ('rm_guest_10', '1232532514523213826', '184', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_11', '1232532514523213826', '185', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_12', '1232532514523213826', '186', NOW(), 'admin', NOW(), 'admin'),
-('rm_guest_13', '1232532514523213826', '16',  NOW(), 'admin', NOW(), 'admin'),
-('rm_guest_14', '1232532514523213826', '161', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_15', '1232532514523213826', '17',  NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_16', '1232532514523213826', '171', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_17', '1232532514523213826', '18',  NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_18', '1232532514523213826', '181', NOW(), 'admin', NOW(), 'admin'),
 ('rm_guest_19', '1232532514523213826', '182', NOW(), 'admin', NOW(), 'admin');
+
+-- ============================================================================
+-- 10. 清理已删除的模块菜单（基础数据配置平台、基础数据维护、计划管理、在制品管理）
+-- ============================================================================
+DELETE FROM `sp_sys_role_menu` WHERE `menu_id` IN ('105', '106', '12', '121', '16', '161');
+DELETE FROM `sp_sys_menu` WHERE `id` IN ('105', '106', '12', '121', '16', '161');

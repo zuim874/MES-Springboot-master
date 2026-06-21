@@ -8,8 +8,7 @@ import com.wangziyang.mes.system.service.IWarehouseLocationMaterielService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 库位物料关联 服务实现类
@@ -20,26 +19,45 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveBindMateriels(String locationId, List<WarehouseLocationMateriel> materiels) {
-        // 逻辑删除旧关系（不再物理删除，由@TableLogic处理）
+        // 查询当前有效的绑定关系
         QueryWrapper<WarehouseLocationMateriel> wrapper = new QueryWrapper<>();
         wrapper.eq("location_id", locationId);
-        List<WarehouseLocationMateriel> oldList = baseMapper.selectList(wrapper);
-        for (WarehouseLocationMateriel old : oldList) {
-            baseMapper.deleteById(old.getId());
+        List<WarehouseLocationMateriel> existingList = baseMapper.selectList(wrapper);
+        Map<String, WarehouseLocationMateriel> existingMap = new HashMap<>();
+        for (WarehouseLocationMateriel e : existingList) {
+            existingMap.put(e.getMaterielId(), e);
         }
 
-        // 保存新关系
-        if (materiels != null && !materiels.isEmpty()) {
+        Set<String> newMaterielIds = new HashSet<>();
+        if (materiels != null) {
             for (WarehouseLocationMateriel item : materiels) {
                 if (item.getMaterielId() == null || item.getMaterielId().trim().isEmpty()) {
                     continue;
                 }
-                item.setId(UUID.randomUUID().toString().replace("-", ""));
-                item.setLocationId(locationId);
-                if (item.getQuantity() == null || item.getQuantity() < 1) {
-                    item.setQuantity(1);
+                String mid = item.getMaterielId().trim();
+                newMaterielIds.add(mid);
+
+                if (existingMap.containsKey(mid)) {
+                    // 已存在，更新数量
+                    WarehouseLocationMateriel existing = existingMap.get(mid);
+                    existing.setQuantity(item.getQuantity() != null && item.getQuantity() >= 1 ? item.getQuantity() : 1);
+                    baseMapper.updateById(existing);
+                } else {
+                    // 不存在，插入新记录
+                    item.setId(UUID.randomUUID().toString().replace("-", ""));
+                    item.setLocationId(locationId);
+                    if (item.getQuantity() == null || item.getQuantity() < 1) {
+                        item.setQuantity(1);
+                    }
+                    baseMapper.insert(item);
                 }
-                baseMapper.insert(item);
+            }
+        }
+
+        // 逻辑删除旧列表中有但新列表中没有的
+        for (WarehouseLocationMateriel existing : existingList) {
+            if (!newMaterielIds.contains(existing.getMaterielId())) {
+                baseMapper.deleteById(existing.getId());
             }
         }
     }

@@ -6,7 +6,9 @@ import com.wangziyang.mes.common.enums.CommonEnum;
 import com.wangziyang.mes.system.dto.SysRoleDTO;
 import com.wangziyang.mes.system.dto.SysUserDTO;
 import com.wangziyang.mes.system.entity.SysRole;
+import com.wangziyang.mes.system.entity.SysMenu;
 import com.wangziyang.mes.system.entity.SysRoleMenu;
+import com.wangziyang.mes.system.mapper.SysMenuMapper;
 import com.wangziyang.mes.system.entity.SysUserRole;
 import com.wangziyang.mes.system.enums.SysRoleEnum;
 import com.wangziyang.mes.system.mapper.SysRoleMapper;
@@ -21,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * <p>
@@ -41,6 +41,9 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Autowired
     private SysRoleMenuMapper sysRoleMenuMapper;
+
+    @Autowired
+    private SysMenuMapper sysMenuMapper;
 
     @Autowired
     private ISysUserRoleService sysUserRoleService;
@@ -116,9 +119,29 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         sysRoleMenuMapper.deleteByRoleId(roleId);
         // 再批量插入新的菜单关联
         if (menuIds != null && !menuIds.isEmpty()) {
+            // 补全父节点ID：确保每个子节点的所有父节点也被授权
+            List<SysMenu> allMenus = sysMenuMapper.selectList(null);
+            Map<String, SysMenu> menuMap = new HashMap<>();
+            for (SysMenu m : allMenus) {
+                menuMap.put(m.getId(), m);
+            }
+            Set<String> allMenuIds = new HashSet<>();
+            for (String menuId : menuIds) {
+                if (StringUtils.isEmpty(menuId)) {
+                    continue;
+                }
+                allMenuIds.add(menuId);
+                // 递归添加父节点
+                SysMenu current = menuMap.get(menuId);
+                while (current != null && !"0".equals(current.getParentId())) {
+                    allMenuIds.add(current.getParentId());
+                    current = menuMap.get(current.getParentId());
+                }
+            }
+
             List<SysRoleMenu> list = new ArrayList<>();
             LocalDateTime now = LocalDateTime.now();
-            for (String menuId : menuIds) {
+            for (String menuId : allMenuIds) {
                 if (StringUtils.isEmpty(menuId)) {
                     continue;
                 }

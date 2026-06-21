@@ -35,6 +35,7 @@
             <result column="role_name" property="name"/>
             <result column="code" property="code"/>
             <result column="role_descr" property="descr"/>
+            <result column="sys_role" property="sysRole"/>
             <result column="role_is_deleted" property="deleted"/>
         </collection>
     </resultMap>
@@ -67,6 +68,7 @@
             ssr.id role_id,
             ssr.name role_name,
             ssr.code,
+            ssr.sys_role,
             ssr.descr role_descr,
             ssr.is_deleted role_is_deleted
         FROM sp_sys_user t

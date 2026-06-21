@@ -17,21 +17,7 @@
             justify-content: flex-start;
             flex-direction: row;
         }
-        .img-preview {
-            width: 120px;
-            height: 120px;
-            border: 1px solid #e6e6e6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .img-preview img {
-            max-width: 100%;
-            max-height: 100%;
-        }
     </style>
-
 </head>
 <body>
 <div class="splayui-container">
@@ -101,53 +87,6 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label for="js-size" class="layui-form-label ">尺寸
-                        </label>
-                        <div class="layui-input-inline">
-                            <input type="text" id="js-size" name="size" autocomplete="off"
-                                   class="layui-input" value="${(result.size)!}">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label for="js-leadTime" class="layui-form-label sp-required">需求提前期(天)
-                        </label>
-                        <div class="layui-input-inline">
-                            <input type="number" id="js-leadTime" name="leadTime" lay-verify="required|number"
-                                   autocomplete="off" class="layui-input" value="${(result.leadTime)!1}">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label for="js-safetyStock" class="layui-form-label">安全库存
-                        </label>
-                        <div class="layui-input-inline">
-                            <input type="number" id="js-safetyStock" name="safetyStock" lay-verify="number"
-                                   autocomplete="off" class="layui-input" value="${(result.safetyStock)!0}">
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">物料图片</label>
-                        <div class="layui-input-inline">
-                            <button type="button" class="layui-btn" id="js-upload-btn">
-                                <i class="layui-icon">&#xe67c;</i>上传图片
-                            </button>
-                            <input type="hidden" id="js-img-url" name="imgUrl" value="${(result.imgUrl)!}">
-                            <div class="img-preview" id="js-img-preview">
-                                <#if result.imgUrl??>
-                                    <img src="${result.imgUrl}" id="js-preview-img">
-                                <#else>
-                                    <span>暂无图片</span>
-                                </#if>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label for="js-remark" class="layui-form-label">备注
-                        </label>
-                        <div class="layui-input-inline">
-                            <textarea id="js-remark" name="remark" class="layui-textarea" style="width: 310px;">${(result.remark)!}</textarea>
-                        </div>
-                    </div>
-                    <div class="layui-form-item">
                         <div class="layui-inline">
                             <label class="layui-form-label">长(cm)</label>
                             <div class="layui-input-inline" style="width:80px;">
@@ -168,29 +107,36 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">存放库房</label>
+                        <label for="js-leadTime" class="layui-form-label sp-required">需求提前期(天)
+                        </label>
                         <div class="layui-input-inline">
-                            <select id="js-warehouse" name="warehouseId" lay-filter="warehouse-filter">
-                                <option value="">请选择库房</option>
-                            </select>
+                            <input type="number" id="js-leadTime" name="leadTime" lay-verify="required|number"
+                                   autocomplete="off" class="layui-input" value="${(result.leadTime)!1}">
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">存放库位</label>
+                        <label for="js-safetyStock" class="layui-form-label">安全库存
+                        </label>
                         <div class="layui-input-inline">
-                            <select id="js-location" name="locationId">
-                                <option value="">请选择库位</option>
-                            </select>
+                            <input type="number" id="js-safetyStock" name="safetyStock" lay-verify="number"
+                                   autocomplete="off" class="layui-input" value="${(result.safetyStock)!0}">
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label for="js-flowId" class="layui-form-label ">工艺流程
+                        <label for="js-remark" class="layui-form-label">备注
+                        </label>
+                        <div class="layui-input-inline">
+                            <textarea id="js-remark" name="remark" class="layui-textarea" style="width: 310px;">${(result.remark)!}</textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label for="js-flowId" class="layui-form-label">工艺流程
                         </label>
                         <div class="layui-input-inline">
                             <select id="js-flowId" name="flowId" lay-filter="flow-filter">
                             </select>
                         </div>
-                        <div class=" text-effect flowProcss  " id="js-flowProcess" name="flowProcss">
+                        <div class="text-effect flowProcss" id="js-flowProcess" name="flowProcss">
                         </div>
                     </div>
 
@@ -219,10 +165,9 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'util', 'upload'], function () {
+    layui.use(['form', 'util'], function () {
         var form = layui.form,
-            util = layui.util,
-            upload = layui.upload;
+            util = layui.util;
         var flowRows = [];
         //流程添加下拉框
         getFlowData();
@@ -230,29 +175,6 @@
         getMatTypeData();
         //物料来源
         getSourceData();
-        //库房库位
-        loadWarehouseData();
-        form.on('select(warehouse-filter)', function (data) {
-            loadLocationData(data.value);
-        });
-
-        // 图片上传
-        upload.render({
-            elem: '#js-upload-btn',
-            url: '${request.contextPath}/upload/material-img',
-            done: function (res) {
-                if (res.code === 0) {
-                    $('#js-img-url').val(res.data);
-                    $('#js-img-preview').html('<img src="' + res.data + '" id="js-preview-img" style="max-width:100%;max-height:100%;">');
-                    layer.msg('上传成功', {icon: 1});
-                } else {
-                    layer.msg('上传失败：' + (res.msg || '未知错误'));
-                }
-            },
-            error: function () {
-                layer.msg('上传失败，请检查网络');
-            }
-        });
 
         /**
          * 初始化物料类型数据
@@ -330,7 +252,6 @@
                 procssArr = newArr[0].processChain.split("->")
                 $("#js-flowProcess").empty();
                 $.each(procssArr, function (i, val) {
-
                     if (i == procssArr.length - 1) {
                         $("#js-flowProcess").append("<span style='display: inline-flex;' >" + val + "</span>");
                     } else {
@@ -344,78 +265,8 @@
         form.val("formTest", {
             "flowId": "${(result.flowId)!}",
             "matType": "${(result.matType)!}",
-            "source": "${(result.source)!}",
-            "warehouseId": "${(result.warehouseId)!}",
-            "locationId": "${(result.locationId)!}"
+            "source": "${(result.source)!}"
         });
-
-        // 编辑时若已有库房，联动加载库位
-        var editWarehouseId = "${(result.warehouseId)!}";
-        if (editWarehouseId) {
-            loadLocationData(editWarehouseId, "${(result.locationId)!}");
-        }
-
-        /**
-         * 加载库房列表
-         */
-        function loadWarehouseData() {
-            spUtil.ajax({
-                url: '${request.contextPath}/admin/warehouse/page',
-                async: false,
-                type: 'POST',
-                showLoading: false,
-                data: {current: 1, size: 999},
-                success: function (res) {
-                    if (res.code === 0 && res.data && res.data.records) {
-                        var whSelect = $('#js-warehouse');
-                        whSelect.empty();
-                        whSelect.append('<option value="">请选择库房</option>');
-                        $.each(res.data.records, function (index, item) {
-                            whSelect.append(new Option(item.name + ' (' + item.code + ')', item.id));
-                        });
-                        form.render('select');
-                    }
-                },
-                error: function () {
-                    // 静默处理，避免弹窗影响用户体验
-                }
-            });
-        }
-
-        /**
-         * 根据库房加载库位列表
-         */
-        function loadLocationData(warehouseId, selectedLocationId) {
-            var locSelect = $('#js-location');
-            locSelect.empty();
-            locSelect.append('<option value="">请选择库位</option>');
-            if (!warehouseId) {
-                form.render('select');
-                return;
-            }
-            spUtil.ajax({
-                url: '${request.contextPath}/admin/warehouse/location-list',
-                async: false,
-                type: 'GET',
-                showLoading: false,
-                data: {warehouseId: warehouseId},
-                success: function (res) {
-                    if (res.code === 0 && res.data) {
-                        $.each(res.data, function (index, item) {
-                            var opt = new Option(item.code + ' (排' + item.rowNum + '-层' + item.layerNum + '-列' + item.columnNum + ')', item.id);
-                            if (selectedLocationId && item.id === selectedLocationId) {
-                                opt.selected = true;
-                            }
-                            locSelect.append(opt);
-                        });
-                    }
-                    form.render('select');
-                },
-                error: function () {
-                    form.render('select');
-                }
-            });
-        }
 
         //监听提交
         form.on('submit(js-submit-filter)', function (data) {

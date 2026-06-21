@@ -41,8 +41,13 @@ public class ShiroRealm extends AuthorizingRealm {
         SysUserDTO user = (SysUserDTO) principalCollection.getPrimaryPrincipal();
         Set<String> perms = new HashSet<>();
         boolean isGuest = false;
+        boolean isSuperAdmin = false;
         if (CollectionUtils.isNotEmpty(user.getSysRoleDTOs())) {
             for (SysRoleDTO sr : user.getSysRoleDTOs()) {
+                // 超级管理员拥有所有权限
+                if ("1".equals(sr.getSysRole())) {
+                    isSuperAdmin = true;
+                }
                 // 标记游客角色
                 if ("1232532514523213826".equals(sr.getId()) || "guest".equals(sr.getCode())) {
                     isGuest = true;
@@ -56,6 +61,14 @@ public class ShiroRealm extends AuthorizingRealm {
                     }
                 }
             }
+        }
+
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+
+        // 超级管理员拥有所有权限
+        if (isSuperAdmin) {
+            info.addStringPermission("*");
+            return info;
         }
 
         // 游客角色仅保留 view 权限，屏蔽所有增删改操作
@@ -72,7 +85,6 @@ public class ShiroRealm extends AuthorizingRealm {
             perms.add("user:add");
         }
 
-        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setStringPermissions(perms);
         return info;
     }
