@@ -53,7 +53,7 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">上级工艺</label>
+            <label class="layui-form-label">上级工序流程</label>
             <div class="layui-input-block">
                 <input type="text" id="plan-parent-process" class="layui-input" disabled value="无（顶级节点）">
             </div>
@@ -135,8 +135,8 @@
                     }
                 },
                 {
-                    field: 'parentProcessName', title: '上级工艺', width: 180, templet: function (d) {
-                        return d.parentProcessName || '<span style="color:#999;">-</span>';
+                    field: 'parentFlowName', title: '上级工序流程', width: 200, templet: function (d) {
+                        return d.parentFlowName || '<span style="color:#999;">-</span>';
                     }
                 },
                 {
@@ -185,12 +185,12 @@
             return null;
         }
 
-        // 获取上级工艺名称
-        function getParentProcessName(parentId) {
+        // 获取上级工序流程名称
+        function getParentFlowName(parentId) {
             if (!parentId) return '无（顶级节点）';
             for (var i = 0; i < g_nodes.length; i++) {
                 if (g_nodes[i].id === parentId) {
-                    return g_nodes[i].processName || '未设置';
+                    return g_nodes[i].flowName || '未设置';
                 }
             }
             return '未设置';
@@ -217,14 +217,14 @@
             var parentId = $(this).data('parentid');
 
             var nodePlan = getNodePlan({id: nodeId});
-            var parentProcessName = getParentProcessName(parentId);
+            var parentFlowName = getParentFlowName(parentId);
 
             // 填充表单
             $('#plan-id').val(nodePlan ? (nodePlan.planId || '') : '');
             $('#plan-bom-node-id').val(nodeId);
             $('#plan-parent-id').val('');
             $('#plan-node-name').val(nodeName);
-            $('#plan-parent-process').val(parentProcessName);
+            $('#plan-parent-process').val(parentFlowName);
 
             var selectedFlowId = nodePlan ? nodePlan.flowId : '';
 

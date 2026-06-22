@@ -136,10 +136,6 @@ public class ProcessPlanController extends BaseController {
                 .filter(p -> StringUtils.isNotEmpty(p.getBomNodeId()))
                 .collect(Collectors.toMap(ProcessPlan::getBomNodeId, p -> p, (a, b) -> a));
 
-        // planId -> ProcessPlan（用于查找上级工艺）
-        Map<String, ProcessPlan> planIdMap = plans.stream()
-                .collect(Collectors.toMap(ProcessPlan::getId, p -> p, (a, b) -> a));
-
         // 组装返回数据
         List<Map<String, Object>> result = new ArrayList<>();
         for (ProductBomNode node : nodes) {
@@ -167,12 +163,15 @@ public class ProcessPlanController extends BaseController {
                 item.put("processId", plan.getProcessId());
                 item.put("processName", plan.getProcessName());
                 item.put("processCode", plan.getProcessCode());
+            }
 
-                // 上级工艺
-                if (StringUtils.isNotEmpty(plan.getParentId())) {
-                    ProcessPlan parentPlan = planIdMap.get(plan.getParentId());
-                    if (parentPlan != null) {
-                        item.put("parentProcessName", parentPlan.getProcessName());
+            // 上级工序流程（通过BOM节点的父子关系确定）
+            if (StringUtils.isNotEmpty(node.getParentId())) {
+                ProcessPlan parentPlan = planMap.get(node.getParentId());
+                if (parentPlan != null && StringUtils.isNotEmpty(parentPlan.getFlowId())) {
+                    ProcessFlow parentFlow = processFlowService.getById(parentPlan.getFlowId());
+                    if (parentFlow != null) {
+                        item.put("parentFlowName", parentFlow.getName());
                     }
                 }
             }
@@ -222,7 +221,21 @@ public class ProcessPlanController extends BaseController {
         wrapper.eq("is_deleted", "0");
         wrapper.last("LIMIT 1");
         ProcessPlan plan = processPlanService.getOne(wrapper);
-        return Result.success(plan);
+        if (plan == null) {
+            return Result.success(null);
+        }
+
+        // 补充上级工序流程名称
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", plan.getId());
+        result.put("flowId", plan.getFlowId());
+        if (StringUtils.isNotEmpty(plan.getFlowId())) {
+            ProcessFlow flow = processFlowService.getById(plan.getFlowId());
+            if (flow != null) {
+                result.put("flowName", flow.getName());
+            }
+        }
+        return Result.success(result);
     }
 
     @ApiOperation("保存工艺规划")
