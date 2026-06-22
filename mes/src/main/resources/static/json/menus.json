@@ -1,7 +1,7 @@
 {
   "code": 0,
   "msg": "",
-  "count": 19,
+  "count": 32,
   "data": [
     {
       "authorityId": 1,
@@ -249,6 +249,123 @@
       "updateTime": "2018/07/21 13:56:43",
       "isMenu": 1,
       "parentId": 18
+    },
+    {
+      "authorityId": 20,
+      "authorityName": "字典管理",
+      "orderNumber": 20,
+      "menuUrl": "system/dict",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 0,
+      "parentId": 1
+    },
+    {
+      "authorityId": 21,
+      "authorityName": "编辑字典",
+      "orderNumber": 21,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "dict:edit",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 20
+    },
+    {
+      "authorityId": 22,
+      "authorityName": "删除字典",
+      "orderNumber": 22,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "dict:delete",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 20
+    },
+    {
+      "authorityId": 23,
+      "authorityName": "部门管理",
+      "orderNumber": 23,
+      "menuUrl": "system/department",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 0,
+      "parentId": 1
+    },
+    {
+      "authorityId": 24,
+      "authorityName": "编辑部门",
+      "orderNumber": 24,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "dept:edit",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 23
+    },
+    {
+      "authorityId": 25,
+      "authorityName": "删除部门",
+      "orderNumber": 25,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "dept:delete",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 23
+    },
+    {
+      "authorityId": 26,
+      "authorityName": "菜单管理",
+      "orderNumber": 26,
+      "menuUrl": "system/menu",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 0,
+      "parentId": 1
+    },
+    {
+      "authorityId": 27,
+      "authorityName": "编辑菜单",
+      "orderNumber": 27,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "menu:edit",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 26
+    },
+    {
+      "authorityId": 28,
+      "authorityName": "删除菜单",
+      "orderNumber": 28,
+      "menuUrl": "",
+      "menuIcon": "",
+      "createTime": "2018/06/29 11:05:41",
+      "authority": "menu:delete",
+      "checked": 0,
+      "updateTime": "2018/07/13 09:13:42",
+      "isMenu": 1,
+      "parentId": 26
     }
   ]
 }

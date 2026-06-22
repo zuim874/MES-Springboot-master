@@ -39,7 +39,7 @@
 <!--表格头操作模板-->
 <script type="text/html" id="js-record-table-toolbar-top">
     <div class="layui-btn-container">
-        <@shiro.hasPermission name="sys:dict:edit">
+        <@shiro.hasPermission name="dict:edit">
             <button class="layui-btn layui-btn-sm" lay-event="add"><i class="layui-icon">&#xe61f;</i>添加</button>
         </@shiro.hasPermission>
     </div>
@@ -47,10 +47,10 @@
 
 <!--行操作模板-->
 <script type="text/html" id="js-record-table-toolbar-right">
-    <@shiro.hasPermission name="sys:dict:edit">
+    <@shiro.hasPermission name="dict:edit">
     <a class="layui-btn layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
     </@shiro.hasPermission>
-    <@shiro.hasPermission name="sys:dict:delete">
+    <@shiro.hasPermission name="dict:delete">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete"><i class="layui-icon layui-icon-delete"></i>删除</a>
     </@shiro.hasPermission>
 </script>

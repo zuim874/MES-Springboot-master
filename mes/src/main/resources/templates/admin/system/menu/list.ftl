@@ -22,13 +22,13 @@
 </div>
 <!-- 表格操作列 -->
 <script type="text/html" id="js-record-table-bar">
-    <@shiro.hasPermission name="sys:menu:edit">
+    <@shiro.hasPermission name="menu:edit">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
     </@shiro.hasPermission>
-    <@shiro.hasPermission name="sys:menu:delete">
+    <@shiro.hasPermission name="menu:delete">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
     </@shiro.hasPermission>
-    <@shiro.hasPermission name="sys:menu:edit">
+    <@shiro.hasPermission name="menu:edit">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="add">添加</a>
     </@shiro.hasPermission>
 </script>

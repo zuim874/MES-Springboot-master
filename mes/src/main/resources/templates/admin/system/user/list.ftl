@@ -62,10 +62,10 @@
 
 <!--行操作模板-->
 <script type="text/html" id="js-record-table-toolbar-right">
-    <@shiro.hasPermission name="sys:user:edit">
+    <@shiro.hasPermission name="user:edit">
     <a class="layui-btn layui-btn-xs" lay-event="edit" style="padding: 0 6px;"><i class="layui-icon layui-icon-edit"></i>编辑</a>
     </@shiro.hasPermission>
-    <@shiro.hasPermission name="sys:user:delete">
+    <@shiro.hasPermission name="user:delete">
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete" style="padding: 0 6px;"><i class="layui-icon layui-icon-delete"></i>删除</a>
     </@shiro.hasPermission>
 </script>
