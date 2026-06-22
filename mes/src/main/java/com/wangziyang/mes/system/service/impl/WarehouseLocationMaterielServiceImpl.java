@@ -3,8 +3,6 @@ package com.wangziyang.mes.system.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wangziyang.mes.basedata.entity.SpMaterile;
-import com.wangziyang.mes.basedata.service.ISpMaterileService;
 import com.wangziyang.mes.system.entity.WarehouseLocation;
 import com.wangziyang.mes.system.entity.WarehouseLocationMateriel;
 import com.wangziyang.mes.system.mapper.WarehouseLocationMaterielMapper;
@@ -24,9 +22,6 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
 
     @Autowired
     private IWarehouseLocationService warehouseLocationService;
-
-    @Autowired
-    private ISpMaterileService spMaterileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -83,31 +78,6 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
 
         // 同步更新 sp_warehouse_location 的 materiel_id
         syncLocationMaterielId(locationId);
-
-        // 反向同步：如果当前库位是物料的默认库位，同步更新 sp_materile.stock
-        List<WarehouseLocationMateriel> currentList = baseMapper.selectList(
-                new QueryWrapper<WarehouseLocationMateriel>().eq("location_id", locationId)
-        );
-        for (WarehouseLocationMateriel item : currentList) {
-            if (item.getMaterielId() == null || item.getQuantity() == null) {
-                continue;
-            }
-            SpMaterile materiel = spMaterileService.getById(item.getMaterielId());
-            if (materiel != null && locationId.equals(materiel.getLocationId())) {
-                materiel.setStock(item.getQuantity());
-                spMaterileService.updateById(materiel);
-            }
-        }
-        // 处理被删除的物料：如果默认库位是当前库位且已删除，则 stock 设为0
-        for (WarehouseLocationMateriel old : existingList) {
-            if (!newMaterielIds.contains(old.getMaterielId())) {
-                SpMaterile materiel = spMaterileService.getById(old.getMaterielId());
-                if (materiel != null && locationId.equals(materiel.getLocationId())) {
-                    materiel.setStock(0);
-                    spMaterileService.updateById(materiel);
-                }
-            }
-        }
     }
 
     /**

@@ -211,6 +211,8 @@ public class WarehouseController extends BaseController {
                     * (loc.getHeight() != null ? loc.getHeight() : 50);
 
             List<WarehouseLocationMateriel> bindList = locationMaterielService.listByLocationId(loc.getId());
+            syncLocationStockToMaterielStock(bindList);
+            bindList = locationMaterielService.listByLocationId(loc.getId());
             List<Map<String, Object>> materiels = new ArrayList<>();
             int totalQuantity = 0;
             long usedVolume = 0;
@@ -539,6 +541,25 @@ public class WarehouseController extends BaseController {
             total += item.getQuantity() != null ? item.getQuantity() : 0;
         }
         return total;
+    }
+
+    /**
+     * 同步库位存储量到物料实际库存：检测库位上的物料存储量，如果物料的实际库存比库位存储量低，则同步库位存储量
+     */
+    private void syncLocationStockToMaterielStock(List<WarehouseLocationMateriel> bindList) {
+        for (WarehouseLocationMateriel bind : bindList) {
+            if (bind.getMaterielId() == null || bind.getQuantity() == null || bind.getQuantity() <= 0) {
+                continue;
+            }
+            SpMaterile materiel = materileService.getById(bind.getMaterielId());
+            if (materiel != null) {
+                Integer materielStock = materiel.getStock() != null ? materiel.getStock() : 0;
+                if (materielStock < bind.getQuantity()) {
+                    bind.setQuantity(materielStock);
+                    locationMaterielService.updateById(bind);
+                }
+            }
+        }
     }
 
     /**

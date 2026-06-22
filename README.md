@@ -1,233 +1,193 @@
-#  章鱼师兄。真的智造！ 
+# MES-Springboot
 
-## 黑科更名为章鱼师兄
-## 个人参与开发的MES项目
-* **杭州东方通信股份**  (三星SDS麦康平台)
-* **浙江大华技术股份**  (三星SDS麦康平台)
-* **天能集团**  (自研平台0到1)
+基于 Spring Boot 构建的智能制造执行系统（MES），提供完整的生产流程管理解决方案。
 
-## 界面展示
-* 演示地址（新）
-* http://www.meswozuiniu.icu:8887
-用户名admin  密码123
+## 技术栈
 
+| 分类 | 技术 | 版本 |
+| :--- | :--- | :--- |
+| 后端框架 | Spring Boot | 2.1.7.RELEASE |
+| ORM框架 | MyBatis-Plus | 3.1.2 |
+| 数据库 | MySQL | 8.x |
+| 缓存 | Redis | - |
+| 安全框架 | Apache Shiro | - |
+| 连接池 | Druid | 1.1.9 |
+| 前端框架 | Layui | - |
+| 模板引擎 | FreeMarker | - |
+| API文档 | Swagger | - |
+| 图表库 | ECharts | - |
 
-## 章鱼师兄规划
-![1.1](https://s3.ax1x.com/2020/12/12/rV9p0s.png)
-<table style="text-align:center">
-    <tr>
-        <th bgcolor=#218868 ><font color=#0F0F0F >系统管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >工艺管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >计划管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >物料管理</font></th> 
-   </tr>
-    <tr >
-        <td bgcolor=#C6E2FF ><font color=#EE0000 >*用户管理*</font></td>
-        <td bgcolor=#C6E2FF><font color=#EE0000 >*工艺路线管理*</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >工单下达</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >物料出入库</font></td>
-   </tr>
- <tr>
-        <td bgcolor=#D1D1D1><font color=#EE0000 >*组织管理*</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >MOM管理</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >工序工单分解</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >智能货架</font></td>
-   </tr>
-   <tr>
-        <td bgcolor=#C6E2FF><font color=#EE0000 >*菜单管理*</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >BOM管理</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >工单流程变更</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >物料标签管理</font></td>
-       
-   </tr>
-    <tr>
-        <td bgcolor=#D1D1D1><font color=#EE0000 >*基础数据维护*</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >SOP管理</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >工单锁定</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >AGV+WCS</font></td>
-   </tr>
-    <tr>
-        <td bgcolor=#C6E2FF><font color=#EE0000 >*基础数据配置*</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >其他工艺文件</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >工单特殊设置</font></td>
-        <td bgcolor=#C6E2FF><font color=#EE0000 >*物料基础数据*</font></td>
-       
-   </tr>
-    
-  
-</table>
+## 快速开始
 
+### 环境要求
 
---------------------------
+- JDK 1.8+
+- Maven 3.6+
+- MySQL 8.0+
+- Redis（可选）
 
+### 数据库配置
 
-<table style="text-align:center">
-    <tr>
-        <th bgcolor=#218868 ><font color=#0F0F0F >设备管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >SN码管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >在制品管理</font></th> 
-        <th bgcolor=#218868 ><font color=#0F0F0F >质量管理</font></th> 
-   </tr>
-    <tr>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >设备档案</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >SN码规则管理</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >工序过站</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >IOC</font></td>
-       
-   </tr>
- <tr>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >设备维修保养</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >分配SN管理</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >在线维修管理</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >OQC</font></td>
-   </tr>
-    <tr>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >设备出入库</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >SN标签+打印</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >自动化对接</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >FQC</font></td>
-       
-   </tr>
- <tr>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >设备稼动率</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F ></font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >SN返工管理</font></td>
-        <td bgcolor=#D1D1D1><font color=#0F0F0F >质检项维护</font></td>
-   </tr>
-    <tr>
-        <td bgcolor=#C6E2FF style="text-align:left"><font color=#0F0F0F >说明：</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F ></font></td>
-        <td bgcolor=#C6E2FF><font color=#EE0000 >*完成</font></td>
-        <td bgcolor=#C6E2FF><font color=#0F0F0F >未开发</font></td>
-       
-   </tr>
-</table>
+1. 创建数据库：
 
-## 专属知识星球。智友们上车了
-![1.0](https://z3.ax1x.com/2021/04/15/cgKBK1.png)   
+```sql
+CREATE DATABASE dus CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+```
 
- ## MOM平台规划
-![1.](https://s1.ax1x.com/2020/04/11/GHGLcV.jpg)
+2. 初始化数据库：
 
-## ISA-95 层级
-![1.0](https://s1.ax1x.com/2020/04/03/GN9vid.png)
+执行 `scripts/sql/MySQL-20210225.sql` 脚本
 
- 四大类: 资源、能力、产品定义和生产计划
- 
- 九大模型
- * 人力资源模型
- * 设备资源模型
- * 材料资源模型
- * 过程段模型(过程端模型，过程能力模型)
- * 生产能力模型
- * 产品定义模型
- * 生产计划模型
- * 生产性能模型
- 
-![1.0](https://s1.ax1x.com/2020/04/03/GN9aVg.png)
+3. 修改数据库连接配置：
 
-登录界面[MES]
-![1.1](https://s2.ax1x.com/2020/03/06/3bQLqI.png)
+编辑 `mes/src/main/resources/application-dev.yml`：
 
-数字孪生仓库
-![1.1.2](https://s1.ax1x.com/2020/07/21/U56OlF.png)
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/dus?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong&allowPublicKeyRetrieval=true
+    username: your_username
+    password: your_password
+```
 
-数字化平台 echarts
-![1.1.3](https://s1.ax1x.com/2020/03/23/8o7wbq.png)
-### 功能界面
-* 主数据展示
-![1.1.3](https://s2.ax1x.com/2020/03/11/8AMcA1.png)
+### 启动项目
 
-* 计划甘特图
-![1.1.4](https://s1.ax1x.com/2020/07/02/NH4Su4.png)
+```bash
+cd mes
+mvn spring-boot:run
+```
 
-* 工艺路线界面
-![1.1.4](https://s1.ax1x.com/2020/03/16/8GOl28.png)
+启动成功后访问：`http://localhost:9090`
 
-* 物料维护界面
-![1.1.5](https://s1.ax1x.com/2020/03/23/8HrLin.png)
+### 登录信息
 
-* BOM维护界面
-![1.1.6](https://s1.ax1x.com/2020/04/09/G4yQMt.png)
+- 用户名：admin
+- 密码：123
 
-### swaggerAPI管理界面
-![2](https://s2.ax1x.com/2020/03/06/3qC4Yt.png)
-## 技术架构
+## 项目结构
 
-### springBoot+mybatis-plus+redis+shiro+hutool+layui+swagger+freemarker+mysql8+echarts
-### jenkins+docker+nginx
+```
+mes/
+├── src/main/java/com/wangziyang/mes/
+│   ├── basedata/          # 基础数据模块
+│   │   ├── controller/    # 控制器
+│   │   ├── entity/        # 实体类
+│   │   ├── mapper/        # 数据访问层
+│   │   ├── service/       # 业务逻辑层
+│   │   └── request/       # 请求参数
+│   ├── system/            # 系统管理模块
+│   │   ├── controller/    # 控制器
+│   │   ├── entity/        # 实体类
+│   │   ├── mapper/        # 数据访问层
+│   │   ├── service/       # 业务逻辑层
+│   │   └── request/       # 请求参数
+│   ├── order/             # 工单管理模块
+│   ├── technology/        # 工艺管理模块
+│   ├── digitization/      # 数字化平台模块
+│   ├── common/            # 公共模块
+│   │   ├── config/        # 配置类
+│   │   ├── util/          # 工具类
+│   │   └── advice/        # 全局异常处理
+│   └── SparchetypeApplication.java  # 启动类
+├── src/main/resources/
+│   ├── templates/         # FreeMarker模板
+│   ├── static/            # 静态资源
+│   ├── mapper/            # MyBatis映射文件
+│   ├── application.yml    # 主配置文件
+│   └── application-dev.yml # 开发环境配置
+└── pom.xml                # Maven配置
+```
 
-## MES个人笔记
+## 功能模块
 
-[MESA战略计划](http://note.youdao.com/noteshare?id=3d843775354cc7a503ad247a29997848)
+### 系统管理
 
-[10点技巧，教你成MES实施王者](http://note.youdao.com/noteshare?id=2d4cf9c9827c2f906d36ec4c146e7557)
+- 用户管理：系统用户配置、密码管理
+- 组织管理：部门架构管理
+- 菜单管理：系统菜单配置、权限标识
+- 角色管理：角色权限分配、数据范围控制
+- 字典管理：固定数据维护
 
-[MES需求收益评估，如何计算ROI，真香又学知识了](http://note.youdao.com/noteshare?id=5add9a164e26b5e039e7b0016daa19a4)
+### 工艺管理
 
-[做MES重点不是学习别人的成功，而是明白他犯的错误](http://note.youdao.com/noteshare?id=ba5f58ec23376ebee9a9c09d95c3dcfa)
+- 工艺路线管理：生产流程定义
+- BOM管理：产品物料清单
+- 工艺文件管理：SOP文档管理
 
-[MES相关术语，字母缩写含义！看一遍就懂。不懂请再看一遍](http://note.youdao.com/noteshare?id=222fcb0a12288b8e5cc76ba94e1bb32d)
-## 部署云平台 使用阿里云 （https://www.aliyun.com）
-实现功能：
-1. 用户管理：用户是系统操作者，该功能主要完成系统用户配置。
-2. 主数据管理：动态配置表以及所需要显示的字段，只需要简单维护既可以完成增删改成操作。
-3. 赋码管理：动态配置码规则项。例如6位年月日 3位，流水号，随机号。根据用户配置自动创建SN。
-4. 菜单管理：配置系统菜单，操作权限，按钮权限标识等。
-5. 角色管理：角色菜单权限分配、设置角色按机构进行数据范围权限划分。
-6. 字典管理：对系统中经常使用的一些较为固定的数据进行维护，如：是否、男女、类别、级别等。
-7. 物料进出管理：包含物料叫料，配料，发料，确认收料，上料
-8. 工单管理：工单下达，工单分解，工单状态调整，工单特殊设置
-9. 在制品管理：过站工序记录，数据绑定成箱成剁
-10. 质量管理： 质检项维护，根据物料或者型号管理质检项目。检验页面，抽检确认
-11. 工艺文件管理 ：工艺参数，BOM文件，导入导出
-12. 报表：图形化展示
-13. 设备管理： 设备信息录入，使用记录，设备台账，设备维保
-14. 操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
-15. 连接池监视：监视当期系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
-16. 工作流引擎：实现业务工单流转、在线流程设计器。
-17. 数字化平台：支撑数据展示，定时动态刷新数据。热部署（SQL视图）
+### 计划管理
 
-#### 使用注意事项
-* 前端
-    * 日期工具库：static/lib/dayjs.min.js
-    * Javascript 工具库：static/lib/lodash.min.js
-    * Layui 树形表格插件
-        * https://gitee.com/whvse/treetable-lay
-    * 图标库使用
-        * http://www.fontawesome.com.cn/faicons
-    * echart
-        * https://www.echartsjs.com/zh/api.html#echarts    
-    * 发送 Ajax 示例：[详情](./docs/ajax.md)
-    * FreeMarker 文档：[详情](./docs/FreeMarker.md)
-    * Layui 自定义组件 spLayer：[详情](./docs/spLayer.md)
-    * Layui 自定义组件 spTable：[详情](./docs/spTable.md)
-    * 下拉框 初始化数据： [详情](./docs/layuiSelect.md)
-* 后端 
-    * Hutool 是一个小而全的Java工具类库，通过静态方法封装，降低相关API的学习成本，提高工作效率，使Java拥有函数式语言般的优雅，让Java语言也可以“甜甜的”。
-    * 枚举
-        * 公共枚举类：CommonEnum
-        * 不同模块下的枚举：如 com.songpeng.sparchetype.system.enums
-    * 请求参数
-        * 每张表的分页查询参数，严格按照一张表对应一个请求参数对象进行开发，如系统用户分页查询参数：SysUserPageReq
-# 总结
-欢迎想一起开发的小伙伴。。此项目也支持大学生毕业设计。
-# MES国际
-[![MES](https://s1.ax1x.com/2020/04/10/GIRPEt.png "MESA认证")](http://www.mesa.org/)
+- 工单下达：生产任务创建
+- 工单分解：工序级任务拆分
 
-[![synfactory](https://s1.ax1x.com/2020/04/11/GHrk01.png "synf官服资料")](https://www.syntropicfactory.com/)
+### 物料管理
 
-[![ISA](https://s1.ax1x.com/2020/05/14/YBPeVH.png "ISA自动化学会")](https://www.isa.org/)
+- 物料基础数据：物料信息维护
+- 库存库位管理：库房库位定义与物料存放
+- 库存同步：物料库存与库位存储量自动同步
 
-## QQ Group808898316(此群已满)
-[![QQ](https://img.shields.io/badge/QQ-808898316-green.svg?logo=tencent%20qq&logoColor=red)](http://qm.qq.com/cgi-bin/qm/qr?k=vjfiAHPYgOgO5XxeUFxNfxTlQom2wZFZ)
+### 设备管理
 
-## QQ Group87652870(此群已满)
-[![QQ](https://img.shields.io/badge/QQ-87652870-green.svg?logo=tencent%20qq&logoColor=red)](https://jq.qq.com/?_wv=1027&k=55NGCxl)
+- 设备档案：设备信息录入
+- 设备维保：维修保养记录
 
-## QQ Group595803231(请加此群)
-[![QQ](https://img.shields.io/badge/QQ-595803231-green.svg?logo=tencent%20qq&logoColor=red)]
+### 在制品管理
 
-## 特别鸣谢
+- 工序过站：生产过程记录
 
-[![MES-智能制造/MES-Springboot](https://gitee.com/wangziyangyang/MES-Springboot/widgets/widget_card.svg?colors=393222,ebdfc1,fffae5,d8ca9f,393222,a28b40)](https://gitee.com/wangziyangyang/MES-Springboot)
+### 数字化平台
+
+- 数据可视化：ECharts图表展示
+- 数字孪生：3D仓库展示（Three.js）
+
+## API文档
+
+启动项目后访问：`http://localhost:9090/swagger-ui.html`
+
+## 核心业务说明
+
+### 库存同步机制
+
+物料库存（`sp_materile.stock`）与库位存储量（`warehouse_location_materiel.quantity`）通过以下方式保持同步：
+
+1. 进入库存库位界面时，系统自动检测并同步：
+   - 如果物料实际库存 < 库位存储量，将库位存储量同步为物料实际库存
+   - 如果物料实际库存 >= 库位存储量，保持不变（可能还未存入）
+
+2. 删除物料时，自动清空关联库位上的物料绑定关系
+
+### 逻辑删除
+
+系统采用逻辑删除机制，删除操作不会物理删除数据，而是将 `is_deleted` 字段标记为 `1`。
+
+## 开发规范
+
+### 后端
+
+- 使用 MyBatis-Plus 提供的通用 CRUD 方法
+- 分页查询参数使用 `BasePageReq` 子类
+- 枚举类统一管理在各模块的 `enums` 包下
+- 使用 Hutool 工具类库简化开发
+
+### 前端
+
+- 使用 Layui 组件库构建界面
+- 使用 FreeMarker 模板引擎渲染页面
+- Ajax 请求统一使用 `spUtil.submitForm`
+- 图表使用 ECharts
+
+## 目录说明
+
+| 目录 | 说明 |
+| :--- | :--- |
+| docs/ | 开发文档 |
+| mes/src/main/java/ | Java源代码 |
+| mes/src/main/resources/ | 配置文件和静态资源 |
+| scripts/sql/ | 数据库初始化脚本 |
+
+## 许可证
+
+MIT License
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request。
