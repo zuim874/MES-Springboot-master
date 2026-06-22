@@ -27,7 +27,7 @@ public class ProcessContent extends BaseEntity {
     private String processPlanId;
 
     /**
-     * 工序ID
+     * 工序流程定义ID（原工序ID字段，现改为存储flowId）
      */
     private String processId;
 

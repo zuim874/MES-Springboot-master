@@ -56,7 +56,6 @@
         <input type="hidden" name="id" id="content-id">
         <input type="hidden" name="bomId" value="${bomId}">
         <input type="hidden" name="bomNodeId" id="content-bom-node-id">
-        <input type="hidden" name="processId" id="content-process-id">
         <input type="hidden" name="processImages" id="content-process-images">
         <input type="hidden" name="techDocs" id="content-tech-docs">
 
@@ -68,9 +67,9 @@
         </div>
 
         <div class="layui-form-item">
-            <label class="layui-form-label">当前工序</label>
+            <label class="layui-form-label">工序流程</label>
             <div class="layui-input-block">
-                <input type="text" id="content-process-name" class="layui-input" disabled>
+                <input type="text" id="content-flow-name" class="layui-input" disabled>
             </div>
         </div>
 
@@ -193,8 +192,8 @@
                     }
                 },
                 {
-                    field: 'processName', title: '绑定工序', width: 180, templet: function (d) {
-                        return d.processName || '<span style="color:#999;">未绑定</span>';
+                    field: 'flowName', title: '工序流程', width: 200, templet: function (d) {
+                        return d.flowName || '<span style="color:#999;">未绑定</span>';
                     }
                 },
                 {
@@ -213,8 +212,8 @@
                         if (!isLocked) {
                             return '<span class="layui-btn layui-btn-xs layui-btn-disabled">未锁定</span>';
                         }
-                        if (!d.processId) {
-                            return '<span class="layui-btn layui-btn-xs layui-btn-disabled">未绑定工序</span>';
+                        if (!d.flowId) {
+                            return '<span class="layui-btn layui-btn-xs layui-btn-disabled">未绑定工序流程</span>';
                         }
                         if (d.hasContent) {
                             return '<a class="layui-btn layui-btn-xs layui-btn-warm" data-action="editContent" data-id="' + d.id + '">编辑内容</a>';
@@ -360,9 +359,8 @@
         function openContentForm(node) {
             $('#content-id').val('');
             $('#content-bom-node-id').val(node.id);
-            $('#content-process-id').val(node.processId || '');
             $('#content-node-name').val(node.nodeName || '');
-            $('#content-process-name').val(node.processName || '');
+            $('#content-flow-name').val(node.flowName || '');
             $('#content-operation-steps').val('');
             $('#content-equipment-tools').val('');
             $('#content-material-list').val('');
@@ -430,7 +428,6 @@
                 id: $('#content-id').val(),
                 bomId: bomId,
                 bomNodeId: $('#content-bom-node-id').val(),
-                processId: $('#content-process-id').val(),
                 operationSteps: $('#content-operation-steps').val(),
                 equipmentTools: $('#content-equipment-tools').val(),
                 materialList: $('#content-material-list').val(),
@@ -441,11 +438,6 @@
                 techDocs: $('#content-tech-docs').val(),
                 remark: $('#content-remark').val()
             };
-
-            if (!formData.processId) {
-                layer.msg('该节点未绑定工序，无法保存', {icon: 2});
-                return;
-            }
 
             $.ajax({
                 url: '${request.contextPath}/admin/processContent/save',

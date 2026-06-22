@@ -6,10 +6,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
 import com.wangziyang.mes.system.entity.ProcessContent;
+import com.wangziyang.mes.system.entity.ProcessFlow;
 import com.wangziyang.mes.system.entity.ProcessPlan;
 import com.wangziyang.mes.system.entity.ProductBom;
 import com.wangziyang.mes.system.entity.ProductBomNode;
 import com.wangziyang.mes.system.service.IProcessContentService;
+import com.wangziyang.mes.system.service.IProcessFlowService;
 import com.wangziyang.mes.system.service.IProcessPlanService;
 import com.wangziyang.mes.system.service.IProductBomNodeService;
 import com.wangziyang.mes.system.service.IProductBomService;
@@ -49,6 +51,9 @@ public class ProcessContentController extends BaseController {
 
     @Autowired
     private IProcessContentService processContentService;
+
+    @Autowired
+    private IProcessFlowService processFlowService;
 
     // ==================== 页面 ====================
 
@@ -139,6 +144,15 @@ public class ProcessContentController extends BaseController {
             ProcessPlan plan = planMap.get(node.getId());
             if (plan != null) {
                 item.put("planId", plan.getId());
+                item.put("flowId", plan.getFlowId());
+                // 工序流程定义内已包含所有零散工序，此处展示流程名称即可
+                if (StringUtils.isNotEmpty(plan.getFlowId())) {
+                    ProcessFlow flow = processFlowService.getById(plan.getFlowId());
+                    if (flow != null) {
+                        item.put("flowName", flow.getName());
+                    }
+                }
+                // 保留 processId/processName/processCode 以兼容历史数据
                 item.put("processId", plan.getProcessId());
                 item.put("processName", plan.getProcessName());
                 item.put("processCode", plan.getProcessCode());
@@ -180,9 +194,6 @@ public class ProcessContentController extends BaseController {
         if (StringUtils.isEmpty(record.getBomNodeId())) {
             return Result.failure("BOM节点ID不能为空");
         }
-        if (StringUtils.isEmpty(record.getProcessId())) {
-            return Result.failure("工序ID不能为空");
-        }
 
         // 检查工艺流程是否已锁定（必须先锁定工艺才能编制内容）
         ProductBom bom = bomService.getById(record.getBomId());
@@ -193,16 +204,22 @@ public class ProcessContentController extends BaseController {
             return Result.failure("该产品工艺尚未锁定，无法编制工艺内容，请先完成工艺流程管理并锁定工艺");
         }
 
-        // 检查该节点是否有工艺规划（必须先绑定工序）
+        // 检查该节点是否有工艺规划（必须先绑定工序流程定义）
         QueryWrapper<ProcessPlan> planWrapper = new QueryWrapper<>();
         planWrapper.eq("bom_id", record.getBomId());
         planWrapper.eq("bom_node_id", record.getBomNodeId());
         planWrapper.eq("is_deleted", "0");
         ProcessPlan plan = processPlanService.getOne(planWrapper);
         if (plan == null) {
-            return Result.failure("该BOM节点尚未绑定工序，请先完成工艺流程管理");
+            return Result.failure("该BOM节点尚未绑定工序流程定义，请先完成工艺流程管理");
         }
+        if (StringUtils.isEmpty(plan.getFlowId())) {
+            return Result.failure("该BOM节点尚未绑定工序流程定义，请先完成工艺流程管理");
+        }
+
         record.setProcessPlanId(plan.getId());
+        // processId 字段改为保存 flowId（工序流程定义ID）
+        record.setProcessId(plan.getFlowId());
 
         if (StringUtils.isEmpty(record.getIsDeleted())) {
             record.setIsDeleted("0");
@@ -212,7 +229,6 @@ public class ProcessContentController extends BaseController {
         QueryWrapper<ProcessContent> wrapper = new QueryWrapper<>();
         wrapper.eq("bom_id", record.getBomId());
         wrapper.eq("bom_node_id", record.getBomNodeId());
-        wrapper.eq("process_id", record.getProcessId());
         wrapper.eq("is_deleted", "0");
         ProcessContent existing = processContentService.getOne(wrapper);
 
