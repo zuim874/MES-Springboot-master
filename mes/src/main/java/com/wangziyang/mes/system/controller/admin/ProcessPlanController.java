@@ -5,16 +5,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wangziyang.mes.common.BaseController;
 import com.wangziyang.mes.common.Result;
-import com.wangziyang.mes.system.entity.MesProcess;
 import com.wangziyang.mes.system.entity.ProcessFlow;
-import com.wangziyang.mes.system.entity.ProcessFlowDetail;
 import com.wangziyang.mes.system.entity.ProcessPlan;
 import com.wangziyang.mes.system.entity.ProductBom;
 import com.wangziyang.mes.system.entity.ProductBomNode;
-import com.wangziyang.mes.system.service.IProcessFlowDetailService;
 import com.wangziyang.mes.system.service.IProcessFlowService;
 import com.wangziyang.mes.system.service.IProcessPlanService;
-import com.wangziyang.mes.system.service.IProcessService;
 import com.wangziyang.mes.system.service.IProductBomNodeService;
 import com.wangziyang.mes.system.service.IProductBomService;
 import io.swagger.annotations.ApiOperation;
@@ -52,13 +48,7 @@ public class ProcessPlanController extends BaseController {
     private IProcessPlanService processPlanService;
 
     @Autowired
-    private IProcessService mesProcessService;
-
-    @Autowired
     private IProcessFlowService processFlowService;
-
-    @Autowired
-    private IProcessFlowDetailService processFlowDetailService;
 
     // ==================== 页面 ====================
 
@@ -167,6 +157,13 @@ public class ProcessPlanController extends BaseController {
             if (plan != null) {
                 item.put("planId", plan.getId());
                 item.put("flowId", plan.getFlowId());
+                // 工序流程定义内已包含所有零散工序，此处展示流程名称即可
+                if (StringUtils.isNotEmpty(plan.getFlowId())) {
+                    ProcessFlow flow = processFlowService.getById(plan.getFlowId());
+                    if (flow != null) {
+                        item.put("flowName", flow.getName());
+                    }
+                }
                 item.put("processId", plan.getProcessId());
                 item.put("processName", plan.getProcessName());
                 item.put("processCode", plan.getProcessCode());
@@ -193,21 +190,6 @@ public class ProcessPlanController extends BaseController {
         wrapper.eq("is_deleted", "0");
         wrapper.orderByDesc("create_time");
         List<ProcessFlow> list = processFlowService.list(wrapper);
-        return Result.success(list);
-    }
-
-    @ApiOperation("获取工序流程定义中的工序明细")
-    @GetMapping("/flow-process-list")
-    @ResponseBody
-    public Result flowProcessList(@RequestParam String flowId) {
-        if (StringUtils.isEmpty(flowId)) {
-            return Result.success(new ArrayList<>());
-        }
-        QueryWrapper<ProcessFlowDetail> wrapper = new QueryWrapper<>();
-        wrapper.eq("flow_id", flowId);
-        wrapper.eq("is_deleted", "0");
-        wrapper.orderByAsc("sort_num");
-        List<ProcessFlowDetail> list = processFlowDetailService.list(wrapper);
         return Result.success(list);
     }
 
@@ -254,6 +236,9 @@ public class ProcessPlanController extends BaseController {
         if (StringUtils.isEmpty(record.getBomNodeId())) {
             return Result.failure("BOM节点ID不能为空");
         }
+        if (StringUtils.isEmpty(record.getFlowId())) {
+            return Result.failure("请选择工序流程定义");
+        }
 
         // 物料类型节点无需绑定工艺
         ProductBomNode bomNode = nodeService.getById(record.getBomNodeId());
@@ -267,17 +252,10 @@ public class ProcessPlanController extends BaseController {
             return Result.failure("该产品工艺规划已锁定，无法编辑");
         }
 
-        // 回填工序名称和编号
-        if (StringUtils.isNotEmpty(record.getProcessId())) {
-            MesProcess process = mesProcessService.getById(record.getProcessId());
-            if (process != null) {
-                record.setProcessName(process.getName());
-                record.setProcessCode(process.getCode());
-            }
-        } else {
-            record.setProcessName(null);
-            record.setProcessCode(null);
-        }
+        // 工序流程定义内已包含零散工序，此处不再单独回填 processId/processName/processCode
+        record.setProcessId(null);
+        record.setProcessName(null);
+        record.setProcessCode(null);
 
         if (StringUtils.isEmpty(record.getIsDeleted())) {
             record.setIsDeleted("0");

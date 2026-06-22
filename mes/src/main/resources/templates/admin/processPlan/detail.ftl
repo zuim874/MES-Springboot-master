@@ -62,17 +62,8 @@
         <div class="layui-form-item">
             <label class="layui-form-label sp-required">工序流程定义</label>
             <div class="layui-input-block">
-                <select name="flowId" id="plan-flow-select" lay-verify="required" lay-filter="plan-flow-select" lay-search="">
+                <select name="flowId" id="plan-flow-select" lay-verify="required" lay-search="">
                     <option value="">请选择工序流程定义</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <label class="layui-form-label sp-required">选择工序</label>
-            <div class="layui-input-block">
-                <select name="processId" id="plan-process-select" lay-verify="required" lay-search="">
-                    <option value="">请选择工序</option>
                 </select>
             </div>
         </div>
@@ -94,7 +85,6 @@
         var isLocked = '${processPlanLocked}' === '1';
         var g_nodes = []; // 存储所有节点数据
         var g_flowList = []; // 存储所有工序流程定义列表
-        var g_flowProcessMap = {}; // 缓存 flowId -> 工序明细列表
 
         // 加载工序流程定义列表
         function loadFlowList(callback) {
@@ -106,31 +96,6 @@
                         g_flowList = res.data;
                     }
                     callback && callback();
-                }
-            });
-        }
-
-        // 加载指定流程定义中的工序明细
-        function loadFlowProcessList(flowId, callback) {
-            if (!flowId) {
-                callback && callback([]);
-                return;
-            }
-            if (g_flowProcessMap[flowId]) {
-                callback && callback(g_flowProcessMap[flowId]);
-                return;
-            }
-            spUtil.ajax({
-                url: '${request.contextPath}/admin/processPlan/flow-process-list',
-                type: 'GET',
-                data: {flowId: flowId},
-                success: function (res) {
-                    if (res.code === 0 && res.data) {
-                        g_flowProcessMap[flowId] = res.data;
-                        callback && callback(res.data);
-                    } else {
-                        callback && callback([]);
-                    }
                 }
             });
         }
@@ -165,8 +130,8 @@
                     }
                 },
                 {
-                    field: 'processName', title: '当前工序', width: 180, templet: function (d) {
-                        return d.processName || '<span style="color:#999;">未设置</span>';
+                    field: 'flowName', title: '当前工序流程', width: 200, templet: function (d) {
+                        return d.flowName || '<span style="color:#999;">未设置</span>';
                     }
                 },
                 {
@@ -242,35 +207,8 @@
                 select.append('<option value="' + f.id + '" ' + selected + '>' + f.code + ' - ' + f.name + '</option>');
             }
             form.render('select');
-            if (selectedFlowId) {
-                loadFlowProcessList(selectedFlowId, function (processList) {
-                    callback && callback(processList);
-                });
-            } else {
-                callback && callback([]);
-            }
+            callback && callback();
         }
-
-        // 填充工序下拉框
-        function fillProcessSelect(processList, selectedProcessId) {
-            var select = $('#plan-process-select');
-            select.empty();
-            select.append('<option value="">请选择工序</option>');
-            for (var i = 0; i < processList.length; i++) {
-                var p = processList[i];
-                var selected = (p.processId === selectedProcessId) ? 'selected' : '';
-                select.append('<option value="' + p.processId + '" ' + selected + '>' + p.processCode + ' - ' + p.processName + '</option>');
-            }
-            form.render('select');
-        }
-
-        // 监听工序流程定义下拉框变化
-        form.on('select(plan-flow-select)', function (data) {
-            var flowId = data.value;
-            loadFlowProcessList(flowId, function (processList) {
-                fillProcessSelect(processList, '');
-            });
-        });
 
         // 监听工艺规划编辑按钮
         $(document).on('click', '[data-action="editPlan"]', function () {
@@ -289,16 +227,13 @@
             $('#plan-parent-process').val(parentProcessName);
 
             var selectedFlowId = nodePlan ? nodePlan.flowId : '';
-            var selectedProcessId = nodePlan ? nodePlan.processId : '';
 
-            fillFlowSelect(selectedFlowId, function (processList) {
-                fillProcessSelect(processList, selectedProcessId);
-            });
+            fillFlowSelect(selectedFlowId);
 
             layer.open({
                 type: 1,
                 title: '编辑工艺规划',
-                area: ['520px', '420px'],
+                area: ['520px', '360px'],
                 content: $('#js-plan-form-popup'),
                 success: function (layero, index) {
                     form.render();
@@ -313,16 +248,11 @@
                 bomId: bomId,
                 bomNodeId: $('#plan-bom-node-id').val(),
                 parentId: $('#plan-parent-id').val(),
-                flowId: $('#plan-flow-select').val(),
-                processId: $('#plan-process-select').val()
+                flowId: $('#plan-flow-select').val()
             };
 
             if (!formData.flowId) {
                 layer.msg('请选择工序流程定义', {icon: 2});
-                return;
-            }
-            if (!formData.processId) {
-                layer.msg('请选择工序', {icon: 2});
                 return;
             }
 
