@@ -336,7 +336,7 @@ public Result addOrUpdate(Warehouse record) {
 
 #### 4.2 库位物料绑定
 
-**设计思路**：一个库位可以存放多种物料，通过关联表管理。
+**设计思路**：一个库位可以存放多种物料，通过关联表管理。使用物理删除而非逻辑删除来避免 `(location_id, materiel_id)` 唯一索引冲突——当用户删除某物料后重新添加同名物料时，逻辑删除会导致旧记录残留，新记录插入失败。
 
 **核心代码**：
 
@@ -348,39 +348,165 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
     @Transactional(rollbackFor = Exception.class)
     public void saveBindMateriels(String locationId, List<WarehouseLocationMateriel> materiels) {
         // 查询当前有效的绑定关系
-        List<WarehouseLocationMateriel> existingList = baseMapper.selectList(
-                new QueryWrapper<WarehouseLocationMateriel>().eq("location_id", locationId)
-        );
-        
-        // 处理新增/更新/删除
+        Map<String, WarehouseLocationMateriel> existingMap = new HashMap<>();
+        for (WarehouseLocationMateriel e : baseMapper.selectList(
+                new QueryWrapper<WarehouseLocationMateriel>().eq("location_id", locationId))) {
+            existingMap.put(e.getMaterielId(), e);
+        }
+
+        Set<String> newMaterielIds = new HashSet<>();
         for (WarehouseLocationMateriel item : materiels) {
+            String mid = item.getMaterielId().trim();
             Integer qty = item.getQuantity() != null ? item.getQuantity() : 1;
+
             if (qty <= 0) {
-                baseMapper.deleteById(existingMap.get(mid).getId());  // 删除
+                // 物理删除，避免唯一索引残留
+                baseMapper.physicalDeleteById(existingMap.get(mid).getId());
                 continue;
             }
+
+            newMaterielIds.add(mid);
             if (existingMap.containsKey(mid)) {
-                existing.setQuantity(qty);
-                baseMapper.updateById(existing);  // 更新
+                existingMap.get(mid).setQuantity(qty);
+                baseMapper.updateById(existingMap.get(mid));  // 更新
             } else {
+                baseMapper.physicalDeleteByLocationIdAndMaterielId(locationId, mid);  // 清理旧记录
                 baseMapper.insert(item);  // 新增
             }
         }
-        
-        // 同步更新库位的 materiel_id
-        syncLocationMaterielId(locationId);
+
+        // 物理删除旧列表中有但新列表中没有的物料
+        for (WarehouseLocationMateriel existing : existingList) {
+            if (!newMaterielIds.contains(existing.getMaterielId())) {
+                baseMapper.physicalDeleteById(existing.getId());
+            }
+        }
+
+        syncLocationMaterielId(locationId);  // 同步库位主物料ID
     }
 }
 ```
 
+**Mapper 新增物理删除方法**：
+
+```java
+public interface WarehouseLocationMaterielMapper extends BaseMapper<WarehouseLocationMateriel> {
+    @Delete("DELETE FROM sp_warehouse_location_materiel WHERE id = #{id}")
+    int physicalDeleteById(@Param("id") String id);
+
+    @Delete("DELETE FROM sp_warehouse_location_materiel WHERE location_id = #{locationId} AND materiel_id = #{materielId}")
+    int physicalDeleteByLocationIdAndMaterielId(@Param("locationId") String locationId, @Param("materielId") String materielId);
+}
+```
+
+**关键设计决策**：关联表不使用 `@TableLogic` 逻辑删除，因为 `(location_id, materiel_id)` 有唯一索引。逻辑删除会将 `is_deleted` 设为 `1`，但记录仍然存在，导致后续重新添加相同物料时报唯一键冲突。因此对该表的所有删除操作均使用自定义物理删除 SQL。
+
 **数据模型**：
 - `sp_warehouse`：库房表
 - `sp_warehouse_location`：库位表（含 group_num, row_num, layer_num, column_num）
-- `sp_warehouse_location_materiel`：库位-物料关联表（含 quantity 存储量）
+- `sp_warehouse_location_materiel`：库位-物料关联表（含 quantity 存储量，唯一索引 `(location_id, materiel_id)`）
 
 ### 5. 工艺管理模块
 
-#### 5.1 工艺路线管理
+#### 5.1 工艺流程管理（ProcessPlanController）
+
+**设计思路**：基于产品 BOM 树结构，为每个 BOM 节点绑定一个工序流程定义（ProcessFlow），形成完整的工艺路线。工序流程定义内已包含所有零散工序，因此工艺规划中不再需要单独选择工序，直接选择工序流程定义即可。
+
+**核心数据模型**：
+- `ProductBom`（产品BOM）：定义产品结构树
+- `ProductBomNode`（BOM节点）：BOM 树的每个节点，通过 `parentId` 形成父子关系
+- `ProcessPlan`（工艺规划）：BOM 节点与工序流程定义的绑定关系
+- `ProcessFlow`（工序流程定义）：包含多个工序的有序流程
+
+**上级工序流程绑定**：通过 BOM 节点的父子关系自动确定——当前节点的父节点所绑定的工艺规划中的工序流程定义，即为当前节点的"上级工序流程"。
+
+**核心代码**：
+
+```java
+@Controller
+@RequestMapping("/admin/processPlan")
+public class ProcessPlanController extends BaseController {
+
+    @PostMapping("/node-list")
+    @ResponseBody
+    public Result nodeList(@RequestParam String bomId) {
+        // 1. 查询BOM节点树
+        List<ProductBomNode> nodes = nodeService.list(wrapper);
+
+        // 2. 查询所有工艺规划，按 bomNodeId 建立索引
+        Map<String, ProcessPlan> planMap = plans.stream()
+                .collect(Collectors.toMap(ProcessPlan::getBomNodeId, p -> p));
+
+        // 3. 组装数据
+        for (ProductBomNode node : nodes) {
+            ProcessPlan plan = planMap.get(node.getId());
+            if (plan != null) {
+                item.put("flowId", plan.getFlowId());
+                // 工序流程定义内已包含所有零散工序，展示流程名称即可
+                if (StringUtils.isNotEmpty(plan.getFlowId())) {
+                    ProcessFlow flow = processFlowService.getById(plan.getFlowId());
+                    item.put("flowName", flow.getName());
+                }
+            }
+
+            // 4. 上级工序流程：通过父节点BOM关系确定
+            if (StringUtils.isNotEmpty(node.getParentId())) {
+                ProcessPlan parentPlan = planMap.get(node.getParentId());
+                if (parentPlan != null && StringUtils.isNotEmpty(parentPlan.getFlowId())) {
+                    ProcessFlow parentFlow = processFlowService.getById(parentPlan.getFlowId());
+                    item.put("parentFlowName", parentFlow.getName());
+                }
+            }
+        }
+        return Result.success(result);
+    }
+}
+```
+
+**关键设计决策**：
+- 工艺规划不再保存单独的 `processId`，而是通过 `flowId` 关联工序流程定义
+- 工序流程定义（`sp_process_flow` + `sp_process_flow_detail`）已经包含完整的工序列表，无需在工艺规划中重复选择
+- 上级工序流程通过 BOM 节点的 `parentId` 关系自动推导，而非手动指定单个工序
+
+#### 5.2 工艺内容编制（ProcessContentController）
+
+**设计思路**：为已绑定了工艺规划的 BOM 节点编制详细的工艺内容（如加工参数、检验标准等）。使用 `flowId` 而非 `processId` 来关联工序流程，确保数据一致性——当工序被删除后，编制内容仍能正确关联到工序流程。
+
+**核心代码**：
+
+```java
+@Controller
+@RequestMapping("/admin/processContent")
+public class ProcessContentController extends BaseController {
+
+    @PostMapping("/node-list")
+    @ResponseBody
+    public Result nodeList(@RequestParam String bomId) {
+        // 查询工艺规划，通过 flowId 获取流程名称
+        ProcessPlan plan = planMap.get(node.getId());
+        if (plan != null && StringUtils.isNotEmpty(plan.getFlowId())) {
+            ProcessFlow flow = processFlowService.getById(plan.getFlowId());
+            if (flow != null) {
+                item.put("flowName", flow.getName());  // 展示流程名称
+            }
+        }
+
+        // 查询工艺内容编制状态
+        ProcessContent content = contentMap.get(node.getId());
+        if (content != null) {
+            item.put("contentId", content.getId());
+            item.put("contentStatus", content.getStatus());  // 编制状态
+        }
+        return Result.success(result);
+    }
+}
+```
+
+**关键设计决策**：
+- 使用 `flowId` 代替 `processId` 关联工序流程，避免工序被删除后编制内容无法编辑
+- 工艺内容编制依赖工艺规划中已绑定的工序流程定义，确保数据一致性
+
+#### 5.3 工艺路线管理
 
 **设计思路**：定义产品的加工流程，支持工序排序和参数配置。
 
@@ -389,6 +515,7 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
 - `sp_process_flow_detail`：工艺路线详情（工序列表）
 - `sp_process`：工序定义表
 - `sp_process_content`：工序内容表
+- `sp_process_plan`：工艺规划表
 
 ### 6. 工单管理模块
 
@@ -469,6 +596,127 @@ layui.use(['echarts'], function() {
 - `sp_equipment_group`：设备组表
 - `sp_equipment_group_item`：设备组-设备关联表
 
+### 9. 绑定唯一性约束
+
+#### 9.1 用户-班组一对一绑定
+
+**设计思路**：一个用户只能绑定到一个员工班组。当用户被添加到新班组时，自动从旧班组中移除。
+
+**核心代码**：
+
+```java
+@Service
+public class WorkTeamUserServiceImpl extends ServiceImpl<WorkTeamUserMapper, WorkTeamUser> implements IWorkTeamUserService {
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveBindUsers(String teamId, List<String> userIds) {
+        // 1. 先删除该班组已有的绑定关系
+        QueryWrapper<WorkTeamUser> wrapper = new QueryWrapper<>();
+        wrapper.eq("team_id", teamId);
+        baseMapper.delete(wrapper);
+
+        // 2. 插入新的绑定关系
+        if (userIds != null && !userIds.isEmpty()) {
+            // 约束：一个用户只能绑定到一个班组，先清除这些用户在所有其他班组的绑定
+            for (String userId : userIds) {
+                QueryWrapper<WorkTeamUser> userWrapper = new QueryWrapper<>();
+                userWrapper.eq("user_id", userId);
+                baseMapper.delete(userWrapper);
+            }
+            // 插入当前班组的新绑定
+            for (String userId : userIds) {
+                WorkTeamUser tu = new WorkTeamUser();
+                tu.setId(UUID.randomUUID().toString().replace("-", ""));
+                tu.setTeamId(teamId);
+                tu.setUserId(userId);
+                tu.setIsDeleted("0");
+                baseMapper.insert(tu);
+            }
+        }
+    }
+}
+```
+
+#### 9.2 设备-编组一对一绑定
+
+**设计思路**：一台设备只能绑定到一个设备编组。当设备被分配到新编组时，自动从旧编组中移除。
+
+**核心代码**：
+
+```java
+@Service
+public class EquipmentGroupItemServiceImpl extends ServiceImpl<EquipmentGroupItemMapper, EquipmentGroupItem> implements IEquipmentGroupItemService {
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveBindEquipments(String groupId, List<String> equipmentIds) {
+        // 1. 先删除该编组已有的绑定关系
+        QueryWrapper<EquipmentGroupItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("group_id", groupId);
+        baseMapper.delete(wrapper);
+
+        // 2. 插入新的绑定关系
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            // 约束：一台设备只能绑定到一个编组，先清除这些设备在所有其他编组的绑定
+            for (String equipmentId : equipmentIds) {
+                QueryWrapper<EquipmentGroupItem> eqWrapper = new QueryWrapper<>();
+                eqWrapper.eq("equipment_id", equipmentId);
+                baseMapper.delete(eqWrapper);
+            }
+            // 插入当前编组的新绑定
+            for (String equipmentId : equipmentIds) {
+                EquipmentGroupItem item = new EquipmentGroupItem();
+                item.setId(UUID.randomUUID().toString().replace("-", ""));
+                item.setGroupId(groupId);
+                item.setEquipmentId(equipmentId);
+                item.setIsDeleted("0");
+                baseMapper.insert(item);
+            }
+        }
+    }
+}
+```
+
+**关键设计决策**：在每次保存绑定关系时，先清除选中用户/设备在所有班组/编组中的历史绑定，再插入新绑定。整个过程在 `@Transactional` 事务中执行，保证数据一致性。
+
+## 数据库初始化
+
+### 存储过程：安全添加列
+
+**设计思路**：SQL 初始化脚本中的 `AddColumnIfNotExists` 存储过程，在添加列前先检查列是否存在，避免重复执行脚本时报 `Duplicate column` 错误。
+
+**核心代码**：
+
+```sql
+DELIMITER $$
+DROP PROCEDURE IF EXISTS AddColumnIfNotExists$$
+CREATE PROCEDURE AddColumnIfNotExists(
+    IN tableName VARCHAR(128),
+    IN columnName VARCHAR(128),
+    IN columnDefinition VARCHAR(1024)
+)
+BEGIN
+    DECLARE colCount INT;
+    -- 去除字段名中的反引号后再查询
+    SET columnName = REPLACE(columnName, '`', '');
+    SELECT COUNT(*) INTO colCount
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = tableName
+      AND COLUMN_NAME = columnName;
+    IF colCount = 0 THEN
+        SET @sql = CONCAT('ALTER TABLE `', tableName, '` ADD COLUMN `', columnName, '` ', columnDefinition);
+        PREPARE stmt FROM @sql;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END$$
+DELIMITER ;
+```
+
+**关键修复**：调用该方法时字段名可能带有反引号（如 `` `source` ``），导致 `INFORMATION_SCHEMA.COLUMNS` 匹配失败。通过 `REPLACE(columnName, '`', '')` 去除反引号后再查询，确保列存在性检查正确。
+
 ## API文档
 
 启动项目后访问：`http://localhost:9090/swagger-ui.html`
@@ -543,17 +791,18 @@ public Result delete(String id) {
 ### ER图关系
 
 ```
-用户(SysUser) <-- 角色(SysRole) <-- 菜单(SysMenu)
-                    |
-                    +-- 部门(SysDepartment)
+用户(SysUser) --绑定--> 班组(WorkTeam)
+    |
+    +-- 角色(SysRole) <-- 菜单(SysMenu)
+    +-- 部门(SysDepartment)
 
 物料(SpMaterile) <-- 库位物料(WarehouseLocationMateriel) --> 库位(WarehouseLocation) --> 库房(Warehouse)
 
 工单(SpOrder) <-- 工艺路线(ProcessFlow) <-- 工序(Process)
 
-设备(Equipment) <-- 设备组(EquipmentGroup)
+设备(Equipment) --绑定--> 设备编组(EquipmentGroup)
 
-产品BOM(ProductBom) <-- BOM节点(ProductBomNode)
+产品BOM(ProductBom) <-- BOM节点(ProductBomNode) --工艺规划--> 工艺规划(ProcessPlan) --关联--> 工序流程定义(ProcessFlow)
 ```
 
 ### 核心表清单
@@ -563,12 +812,23 @@ public Result delete(String id) {
 | `sp_sys_user` | 用户表 | id, username, password, dept_id |
 | `sp_sys_role` | 角色表 | id, name, authority |
 | `sp_sys_menu` | 菜单表 | id, parent_id, menu_url, authority |
-| `sp_materile` | 物料表 | id, materiel, stock, location_id |
+| `sp_work_team` | 员工班组表 | id, code, name |
+| `sp_work_team_user` | 班组-用户关联表 | id, team_id, user_id |
+| `sp_materile` | 物料表 | id, materiel, stock |
 | `sp_warehouse` | 库房表 | id, name, group_count, row_count |
 | `sp_warehouse_location` | 库位表 | id, warehouse_id, materiel_id |
 | `sp_warehouse_location_materiel` | 库位物料关联表 | id, location_id, materiel_id, quantity |
-| `sp_order` | 工表单 | id, order_no, status |
-| `sp_process_flow` | 工艺路线表 | id, name, product_id |
+| `sp_order` | 工单表 | id, order_no, status |
+| `sp_process_flow` | 工序流程定义表 | id, name, product_id |
+| `sp_process_flow_detail` | 工序流程详情表 | id, flow_id, process_id, sort_num |
+| `sp_process` | 工序定义表 | id, code, name |
+| `sp_process_plan` | 工艺规划表 | id, bom_id, bom_node_id, flow_id |
+| `sp_process_content` | 工艺内容编制表 | id, bom_id, bom_node_id, flow_id, status |
+| `sp_equipment` | 设备表 | id, code, name |
+| `sp_equipment_group` | 设备编组表 | id, code, name |
+| `sp_equipment_group_item` | 设备编组-设备关联表 | id, group_id, equipment_id |
+| `sp_product_bom` | 产品BOM表 | id, name |
+| `sp_product_bom_node` | BOM节点表 | id, bom_id, parent_id, node_code |
 
 ## 开发规范
 

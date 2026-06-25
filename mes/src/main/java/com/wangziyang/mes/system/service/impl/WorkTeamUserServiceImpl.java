@@ -33,6 +33,13 @@ public class WorkTeamUserServiceImpl extends ServiceImpl<WorkTeamUserMapper, Wor
 
         // 插入新的绑定关系
         if (userIds != null && !userIds.isEmpty()) {
+            // 约束：一个用户只能绑定到一个班组，先清除这些用户在所有其他班组的绑定
+            for (String userId : userIds) {
+                QueryWrapper<WorkTeamUser> userWrapper = new QueryWrapper<>();
+                userWrapper.eq("user_id", userId);
+                baseMapper.delete(userWrapper);
+            }
+
             List<WorkTeamUser> list = new ArrayList<>();
             for (String userId : userIds) {
                 WorkTeamUser tu = new WorkTeamUser();

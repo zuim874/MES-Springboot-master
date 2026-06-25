@@ -28,6 +28,13 @@ public class EquipmentGroupItemServiceImpl extends ServiceImpl<EquipmentGroupIte
         baseMapper.delete(wrapper);
 
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            // 约束：一台设备只能绑定到一个编组，先清除这些设备在所有其他编组的绑定
+            for (String equipmentId : equipmentIds) {
+                QueryWrapper<EquipmentGroupItem> eqWrapper = new QueryWrapper<>();
+                eqWrapper.eq("equipment_id", equipmentId);
+                baseMapper.delete(eqWrapper);
+            }
+
             List<EquipmentGroupItem> list = new ArrayList<>();
             for (String equipmentId : equipmentIds) {
                 EquipmentGroupItem item = new EquipmentGroupItem();

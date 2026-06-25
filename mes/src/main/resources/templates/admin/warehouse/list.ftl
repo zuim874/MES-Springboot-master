@@ -430,9 +430,12 @@
                     layer.confirm('确定删除选中的库房吗？删除库房将同步删除其所有库位。', function (index) {
                         var successCount = 0;
                         var failCount = 0;
+                        var doneCount = 0;
+                        var total = ids.length;
                         for (var j = 0; j < ids.length; j++) {
                             spUtil.ajax({
                                 url: '${request.contextPath}/admin/warehouse/delete',
+                                type: 'POST',
                                 data: {id: ids[j]},
                                 async: false,
                                 success: function (res) {
@@ -468,6 +471,7 @@
                     layer.confirm('确定删除该库房吗？删除库房将同步删除其所有库位。', function (index) {
                         spUtil.ajax({
                             url: '${request.contextPath}/admin/warehouse/delete',
+                            type: 'POST',
                             data: {id: data.id},
                             success: function (res) {
                                 if (res.code === 0) {
