@@ -107,7 +107,6 @@
 
             <div class="layui-form-item layui-hide">
                 <div class="layui-input-block">
-                    <input id="js-id" name="id" value="${(result.id)!}"/>
                     <button id="js-submit" class="layui-btn" lay-submit lay-filter="js-submit-filter">确定</button>
                 </div>
             </div>

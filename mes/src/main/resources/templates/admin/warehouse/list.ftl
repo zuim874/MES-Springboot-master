@@ -411,9 +411,10 @@
                     spLayer.open({
                         title: '新增库房',
                         area: ['700px', '500px'],
-                        content: '${request.contextPath}/admin/warehouse/add-or-update-ui'
-                    }, function () {
-                        warehouseTableIns.reload();
+                        content: '${request.contextPath}/admin/warehouse/add-or-update-ui',
+                        end: function () {
+                            warehouseTableIns.reload();
+                        }
                     });
                     break;
                 case 'deleteBatch':
@@ -456,19 +457,28 @@
                     spLayer.open({
                         title: '编辑库房',
                         area: ['700px', '500px'],
-                        content: '${request.contextPath}/admin/warehouse/add-or-update-ui?id=' + data.id
-                    }, function () {
-                        warehouseTableIns.reload();
+                        content: '${request.contextPath}/admin/warehouse/add-or-update-ui',
+                        spWhere: {id: data.id},
+                        end: function () {
+                            warehouseTableIns.reload();
+                        }
                     });
                     break;
                 case 'delete':
                     layer.confirm('确定删除该库房吗？删除库房将同步删除其所有库位。', function (index) {
-                        spUtil.deleteForm({
-                            url: '${request.contextPath}/admin/warehouse/delete?id=' + data.id
-                        }, function () {
-                            warehouseTableIns.reload();
-                            layer.close(index);
+                        spUtil.ajax({
+                            url: '${request.contextPath}/admin/warehouse/delete',
+                            data: {id: data.id},
+                            success: function (res) {
+                                if (res.code === 0) {
+                                    layer.msg('删除成功', {icon: 1});
+                                    warehouseTableIns.reload();
+                                } else {
+                                    layer.msg(res.msg, {icon: 2});
+                                }
+                            }
                         });
+                        layer.close(index);
                     });
                     break;
             }
