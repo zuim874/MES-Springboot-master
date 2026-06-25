@@ -44,10 +44,10 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
                 String mid = item.getMaterielId().trim();
                 Integer qty = item.getQuantity() != null ? item.getQuantity() : 1;
 
-                // 数量小于等于0，删除该绑定关系（支持部分删除后清空库存）
+                // 数量小于等于0，物理删除该绑定关系（避免唯一索引冲突）
                 if (qty <= 0) {
                     if (existingMap.containsKey(mid)) {
-                        baseMapper.deleteById(existingMap.get(mid).getId());
+                        baseMapper.physicalDeleteById(existingMap.get(mid).getId());
                     }
                     continue;
                 }
@@ -60,7 +60,9 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
                     existing.setQuantity(qty);
                     baseMapper.updateById(existing);
                 } else {
-                    // 不存在，插入新记录
+                    // 不存在，先尝试物理删除可能存在的逻辑删除记录（避免唯一索引冲突）
+                    baseMapper.physicalDeleteByLocationIdAndMaterielId(locationId, mid);
+                    // 插入新记录
                     item.setId(UUID.randomUUID().toString().replace("-", ""));
                     item.setLocationId(locationId);
                     item.setQuantity(qty);
@@ -69,10 +71,10 @@ public class WarehouseLocationMaterielServiceImpl extends ServiceImpl<WarehouseL
             }
         }
 
-        // 逻辑删除旧列表中有但新列表中没有的
+        // 物理删除旧列表中有但新列表中没有的（避免唯一索引冲突）
         for (WarehouseLocationMateriel existing : existingList) {
             if (!newMaterielIds.contains(existing.getMaterielId())) {
-                baseMapper.deleteById(existing.getId());
+                baseMapper.physicalDeleteById(existing.getId());
             }
         }
 

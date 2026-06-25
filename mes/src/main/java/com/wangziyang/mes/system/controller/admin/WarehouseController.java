@@ -10,6 +10,7 @@ import com.wangziyang.mes.system.entity.Warehouse;
 import com.wangziyang.mes.system.entity.WarehouseLocation;
 import com.wangziyang.mes.system.entity.WarehouseLocationMateriel;
 import com.wangziyang.mes.system.mapper.WarehouseLocationMapper;
+import com.wangziyang.mes.system.mapper.WarehouseLocationMaterielMapper;
 import com.wangziyang.mes.system.request.WarehousePageReq;
 import com.wangziyang.mes.system.service.IWarehouseLocationMaterielService;
 import com.wangziyang.mes.system.service.IWarehouseLocationService;
@@ -52,6 +53,9 @@ public class WarehouseController extends BaseController {
 
     @Autowired
     private IWarehouseLocationMaterielService locationMaterielService;
+
+    @Autowired
+    private WarehouseLocationMaterielMapper locationMaterielMapper;
 
     @ApiOperation("库房库位定义列表UI")
     @GetMapping("/list-ui")
@@ -555,8 +559,12 @@ public class WarehouseController extends BaseController {
             if (materiel != null) {
                 Integer materielStock = materiel.getStock() != null ? materiel.getStock() : 0;
                 if (materielStock < bind.getQuantity()) {
-                    bind.setQuantity(materielStock);
-                    locationMaterielService.updateById(bind);
+                    if (materielStock <= 0) {
+                        locationMaterielMapper.physicalDeleteById(bind.getId());
+                    } else {
+                        bind.setQuantity(materielStock);
+                        locationMaterielService.updateById(bind);
+                    }
                 }
             }
         }

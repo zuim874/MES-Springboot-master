@@ -748,13 +748,10 @@
                             for (var i = 0; i < materiels.length; i++) {
                                 renderBindMaterielRow(materiels[i].materielId, materiels[i].quantity);
                             }
-                        } else {
-                            // 兼容旧数据：如果只有单个materielId
-                            if (currentMaterielId) {
-                                renderBindMaterielRow(currentMaterielId, 1);
-                            }
                         }
+                        // 空库位不显示任何物料行，用户点击"添加物料"按钮手动添加
                     }
+                    form.render();
                 }
             });
 
@@ -776,15 +773,23 @@
             var width = parseInt($('#bind-location-width').val()) || 50;
             var height = parseInt($('#bind-location-height').val()) || 50;
 
-            // 收集物料列表
-            var materiels = [];
+            // 收集物料列表（合并相同物料，跳过未选择的）
+            var materielMap = {};
             $('#bind-materiel-tbody tr').each(function() {
                 var materielId = $(this).find('.bind-materiel-select').val();
                 var quantity = parseInt($(this).find('.bind-materiel-quantity').val()) || 1;
-                if (materielId) {
-                    materiels.push({materielId: materielId, quantity: quantity});
+                if (materielId && quantity > 0) {
+                    if (materielMap[materielId]) {
+                        materielMap[materielId] += quantity;
+                    } else {
+                        materielMap[materielId] = quantity;
+                    }
                 }
             });
+            var materiels = [];
+            for (var mid in materielMap) {
+                materiels.push({materielId: mid, quantity: materielMap[mid]});
+            }
 
             spUtil.ajax({
                 url: '${request.contextPath}/admin/warehouse/location-update',

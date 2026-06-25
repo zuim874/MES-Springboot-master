@@ -6,7 +6,6 @@ import com.wangziyang.mes.basedata.mapper.SpMaterileMapper;
 import com.wangziyang.mes.basedata.service.ISpMaterileService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wangziyang.mes.system.entity.WarehouseLocation;
-import com.wangziyang.mes.system.entity.WarehouseLocationMateriel;
 import com.wangziyang.mes.system.mapper.WarehouseLocationMapper;
 import com.wangziyang.mes.system.mapper.WarehouseLocationMaterielMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +39,8 @@ public class SpMaterileServiceImpl extends ServiceImpl<SpMaterileMapper, SpMater
         locationWrapper.eq("materiel_id", id).set("materiel_id", null);
         warehouseLocationMapper.update(null, locationWrapper);
 
-        // 2. 逻辑删除库位物料关联记录
-        WarehouseLocationMateriel materielUpdate = new WarehouseLocationMateriel();
-        materielUpdate.setIsDeleted("1");
-        UpdateWrapper<WarehouseLocationMateriel> materielWrapper = new UpdateWrapper<>();
-        materielWrapper.eq("materiel_id", id);
-        warehouseLocationMaterielMapper.update(materielUpdate, materielWrapper);
+        // 2. 物理删除库位物料关联记录（避免唯一索引冲突，确保后续可重新添加）
+        warehouseLocationMaterielMapper.physicalDeleteByMaterielId(id.toString());
 
         // 3. 逻辑删除物料
         return super.removeById(id);
